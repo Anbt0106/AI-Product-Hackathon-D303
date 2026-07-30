@@ -21,6 +21,11 @@
 
 * { box-sizing: border-box; }
 
+/* Thuộc tính hidden phải luôn thắng: các luật display:flex bên dưới (.drawer,
+ * .suggested) sẽ đè lên display:none mặc định của [hidden] nếu không có dòng
+ * này — hậu quả là nút "Đóng" của ngăn Trace không đóng được. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   font: 15px/1.55 -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
