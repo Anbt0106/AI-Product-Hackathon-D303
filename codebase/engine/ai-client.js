@@ -162,11 +162,53 @@ window.AiClient = (function () {
     });
   }
 
+  function askTutor(args) {
+    // args = { context, question, baseline }
+    // baseline = { text, citations, docCode } lấy từ page.tutorAnswer (catalog) — dùng làm fallback.
+    if (state.mode !== 'live') {
+      return Promise.resolve(Object.assign({}, args.baseline, { mode: 'mock' }));
+    }
+
+    return post('api/ask', {
+      context: slim(args.context),
+      student_question: args.question,
+      // system_prompt được xử lý ở server (server.mjs), KHÔNG gửi từ client
+      // để tránh lộ prompt/khoá và để đổi giọng văn tập trung một chỗ.
+      allowed_citations: args.context.sourceCodes // Tutor chỉ được trích trong phạm vi nguồn đã chọn
+    })
+      .then(function (j) {
+        var out = {
+          text: j.answer,
+          citations: j.citations || [],
+          docCode: args.context.docCode,
+          mode: 'live',
+          model: j.model || state.model
+        };
+        if (window.Trace) {
+          window.Trace.add('tutor_answer_live', {
+            mode: 'live',
+            model: out.model,
+            latency_ms: j.latency_ms || null,
+            context: { doc_code: args.context.docCode, selected_page: args.context.selectedPage, source_codes: args.context.sourceCodes },
+            input: { student_question: args.question },
+            output: { citations: out.citations, has_answer: !!out.text }
+          });
+        }
+        return out;
+      })
+      .catch(function (e) {
+        logFallback('tutor_answer', e);
+        return Object.assign({}, args.baseline, { mode: 'mock' });
+      });
+  }
+
   return {
     probe: probe,
     getMode: getMode,
     onModeChange: onModeChange,
     generateQuestion: generateQuestion,
-    classify: classify
+    classify: classify,
+    askTutor: askTutor
   };
+
 })();

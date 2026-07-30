@@ -109,14 +109,16 @@
       });
     });
 
-    el.pageTabs.addEventListener('click', function (e) {
-      var b = e.target.closest('[data-page]');
-      if (!b) return;
-      S.page = parseInt(b.getAttribute('data-page'), 10);
-      resetRound();
-      selectDefaultContext();
-      renderAll();
-    });
+    if (el.pageTabs) {
+      el.pageTabs.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-page]');
+        if (!b) return;
+        S.page = parseInt(b.getAttribute('data-page'), 10);
+        resetRound();
+        selectDefaultContext();
+        renderAll();
+      });
+    }
 
     el.slideBody.addEventListener('click', function (e) {
       var p = e.target.closest('[data-passage]');
@@ -171,7 +173,6 @@
     el.askInput.value = '';
     S.thread.push({ type: 'student', text: text });
 
-    // Lớp chỗ khó ③: ngoài phạm vi / injection — chặn trước khi trả lời.
     var guard = window.ScopeGuard.check(text);
     if (guard) {
       S.thread.push({ type: 'guard', kind: guard.kind, title: guard.title, message: guard.message });
@@ -183,10 +184,10 @@
     var ctx = currentContext();
     var page = window.SlideContext.getPage(S.docCode, S.page);
 
-    // Câu trả lời Tutor là MOCK ở cả CP2/CP3; AI thật chỉ phân loại teach-back.
-    var ans = null;
+    // baseline: văn bản mock có sẵn trong catalog, dùng khi mock hoặc khi live bị lỗi
+    var baseline = null;
     if (page && page.tutorAnswer) {
-      ans = {
+      baseline = {
         text: page.tutorAnswer.text,
         citations: S.forceCrossPage
           ? shiftCitations(page.tutorAnswer.citations, S.docCode)
@@ -194,126 +195,168 @@
         docCode: S.docCode
       };
     }
-    S.answer = ans;
 
-    if (ans) {
-      S.thread.push({ type: 'tutor', text: ans.text, citations: ans.citations });
-    } else {
-      S.thread.push({
-        type: 'tutor',
-        text: 'Mình không lấy được nội dung của trang này nên không giải thích được.',
-        citations: []
-      });
-    }
-
-    window.Trace.add('tutor_answer', {
-      mode: 'mock',
-      context: { doc_code: S.docCode, selected_page: S.page, source_codes: ctx.sourceCodes },
-      input: { student_question: text },
-      output: { citations: ans ? ans.citations : [], has_answer: !!ans }
-    });
-
-    // Grounding Gate
-    var gate = window.GroundingGate.check({
-      docCode: S.docCode,
-      selectedPage: S.page,
-      passages: ctx.passages,
-      selectedPassageIds: S.selectedPassageIds,
-      answer: ans
-    });
-    S.gate = gate;
-    S.thread.push({ type: 'gate', gate: gate });
-
-    if (gate.status === 'pass') {
-      S.phase = 'offered';
-      S.thread.push({ type: 'offer' });
-    } else if (gate.status === 'review') {
-      S.phase = 'review';
-      S.thread.push({ type: 'review-choice', cited: gate.cited });
-    } else {
-      S.phase = 'blocked';
-    }
-    renderTutor();
-  }
-
-  /* --- Bước 2: sinh câu Micro-Check ----------------------------------- */
-
-  function startMicroCheck() {
-    var ctx = currentContext();
-    S.phase = 'loading-question';
+    // hiện trạng thái "đang trả lời" trong lúc chờ AI thật
+    S.phase = 'loading-answer';
+    S.thread.push({ type: 'note', text: 'Tutor đang soạn câu trả lời…', temp: true });
     renderTutor();
 
-    window.AiClient.generateQuestion(ctx, S.gate).then(function (q) {
-      if (!q) {
+    window.AiClient.askTutor({ context: ctx, question: text, baseline: baseline })
+      .then(function (ans) {
+        // gỡ note tạm "đang soạn câu trả lời"
+        S.thread = S.thread.filter(function (b) { return !b.temp; });
+
+        S.answer = ans;
+
+        if (ans && ans.text) {
+          S.thread.push({ type: 'tutor', text: ans.text, citations: ans.citations });
+        } else {
+          S.thread.push({
+            type: 'tutor',
+            text: 'Mình không lấy được nội dung của trang này nên không giải thích được.',
+            citations: []
+          });
+        }
+
+        window.Trace.add('tutor_answer', {
+          mode: ans && ans.mode || 'mock',
+          context: { doc_code: S.docCode, selected_page: S.page, source_codes: ctx.sourceCodes },
+          input: { student_question: text },
+          output: { citations: ans ? ans.citations : [], has_answer: !!(ans && ans.text) }
+        });
+
+        var gate = window.GroundingGate.check({
+          docCode: S.docCode,
+          selectedPage: S.page,
+          passages: ctx.passages,
+          selectedPassageIds: S.selectedPassageIds,
+          answer: ans
+        });
+        S.gate = gate;
+        S.thread.push({ type: 'gate', gate: gate });
+
+        if (gate.status === 'pass') {
+          S.phase = 'offered';
+          S.thread.push({ type: 'offer' });
+        } else if (gate.status === 'review') {
+          S.phase = 'review';
+          S.thread.push({ type: 'review-choice', cited: gate.cited });
+        } else {
+          S.phase = 'blocked';
+        }
+        renderTutor();
+      })
+      .catch(function (err) {
+        // Không được để note tạm treo vĩnh viễn: gỡ nó và báo lỗi rõ ràng.
+        S.thread = S.thread.filter(function (b) { return !b.temp; });
         S.thread.push({
           type: 'note',
-          text: 'Trang này chưa có câu Micro-Check trong bank. Chọn trang khác nhé.'
+          text: 'Có lỗi khi lấy câu trả lời (' + (err && err.message || 'không rõ nguyên nhân') +
+                '). Bạn thử hỏi lại nhé.'
         });
-        S.phase = 'blocked';
+        window.Trace.add('tutor_answer_error', {
+          mode: 'error',
+          input: { student_question: text },
+          output: { error: String(err && err.message || err) }
+        });
+        S.phase = S.selectedPassageIds.length ? 'selected' : 'idle';
         renderTutor();
-        return;
-      }
-      S.question = q;
-      S.phase = 'question';
-      S.composerMode = 'teachback';
-      S.thread.push({ type: 'question', question: q });
-      startCountdown();
-      renderTutor();
-      el.askInput.focus();
-    });
+      });
   }
 
-  /* --- Bước 3: học viên teach-back → quyết định AI trung tâm ---------- */
+  /* --- Bước 2: sinh câu hỏi Micro-Check -------------------------------- */
+
+  function startMicroCheck() {
+    if (!S.gate || S.gate.status !== 'pass') return;
+
+    var ctx = currentContext();
+    S.phase = 'loading-question';
+    S.thread.push({ type: 'note', text: 'Đang chuẩn bị câu hỏi…', temp: true });
+    renderTutor();
+
+    window.AiClient.generateQuestion(ctx, S.gate)
+      .then(function (q) {
+        S.thread = S.thread.filter(function (b) { return !b.temp; });
+
+        if (!q) {
+          S.thread.push({ type: 'note', text: 'Trang này chưa có Micro-Check để kiểm tra.' });
+          S.phase = 'offered';
+          renderTutor();
+          return;
+        }
+
+        S.question = q;
+        S.thread.push({ type: 'question', question: q });
+        S.phase = 'question';
+        S.composerMode = 'teachback';
+        renderTutor();
+        startCountdown();
+        el.askInput.focus();
+      })
+      .catch(function (err) {
+        S.thread = S.thread.filter(function (b) { return !b.temp; });
+        S.thread.push({
+          type: 'note',
+          text: 'Không sinh được câu hỏi (' + (err && err.message || 'không rõ nguyên nhân') + ').'
+        });
+        S.phase = 'offered';
+        renderTutor();
+      });
+  }
+
+  /* --- Bước 3: học viên trả lời teach-back ----------------------------- */
 
   function submitTeachBack(text) {
+    if (!S.question) return;
+
     el.askInput.value = '';
     stopCountdown();
     S.lastStudentAnswer = text;
     S.thread.push({ type: 'student', text: text, teachback: true });
+
+    var ctx = currentContext();
     S.phase = 'loading-verdict';
-    S.composerMode = 'ask';
+    S.thread.push({ type: 'note', text: 'Đang xem lại câu trả lời của bạn…', temp: true });
     renderTutor();
 
-    window.AiClient.classify({
-      answer: text,
-      question: S.question,
-      context: currentContext(),
-      gate: S.gate
-    }).then(function (verdict) {
-      if (S.correctionRound > 0) verdict.is_correction = true;
-      S.verdict = verdict;
-      S.feedback = window.FeedbackComposer.compose(verdict, S.question);
-      S.phase = 'result';
-      S.thread.push({ type: 'result', verdict: verdict, feedback: S.feedback });
-      renderTutor();
-    });
+    window.AiClient.classify({ context: ctx, question: S.question, answer: text, gate: S.gate })
+      .then(function (verdict) {
+        S.thread = S.thread.filter(function (b) { return !b.temp; });
+
+        if (S.correctionRound > 0) verdict.is_correction = true;
+        S.verdict = verdict;
+
+        var feedback = window.FeedbackComposer.compose(verdict, S.question);
+        S.feedback = feedback;
+        S.thread.push({ type: 'result', verdict: verdict, feedback: feedback });
+        S.phase = 'result';
+        renderTutor();
+      })
+      .catch(function (err) {
+        S.thread = S.thread.filter(function (b) { return !b.temp; });
+        S.thread.push({
+          type: 'note',
+          text: 'Không đánh giá được câu trả lời (' + (err && err.message || 'không rõ nguyên nhân') +
+                '). Bạn thử gửi lại.'
+        });
+        S.phase = 'question';
+        S.composerMode = 'teachback';
+        renderTutor();
+      });
   }
 
-  /* --- Đường lui: correction path ------------------------------------- */
+  /* --- "Tôi không đồng ý" → cho trả lời lại và đánh giá lại ------------ */
 
   function startCorrection() {
     S.correctionRound += 1;
-    S.showBasis = false;
-    // Bỏ hẳn block kết quả cũ khỏi luồng: đã nói "không giữ kết quả cũ" thì
-    // không được để nó còn nằm trên màn hình.
-    S.thread = S.thread.filter(function (b) { return b.type !== 'result'; });
     S.thread.push({
       type: 'note',
-      text: 'Bạn không đồng ý với đánh giá. Mình hiển thị lại toàn bộ căn cứ đã dùng và đánh giá lại từ câu trả lời mới — kết quả cũ đã được bỏ.'
+      text: 'Được, bạn thử giải thích lại theo cách hiểu của bạn — mình sẽ xem lại.'
     });
-    S.thread.push({ type: 'basis' });
-    S.verdict = null;
-    S.feedback = null;
     S.phase = 'question';
     S.composerMode = 'teachback';
-    el.askInput.value = S.lastStudentAnswer;
-
-    window.Trace.add('correction_requested', {
-      mode: 'ui',
-      input: { previous_answer: S.lastStudentAnswer },
-      output: { correction_round: S.correctionRound, previous_verdict_discarded: true }
-    });
     renderTutor();
+    startCountdown();
     el.askInput.focus();
   }
 
@@ -421,6 +464,7 @@
       S.phase = 'question';
       S.composerMode = 'teachback';
       renderTutor();
+      startCountdown();
       el.askInput.focus();
       return;
     }
@@ -458,6 +502,7 @@
   }
 
   function renderPageTabs() {
+    if (!el.pageTabs) return;
     var pages = window.SlideContext.pages(S.docCode);
     el.pageTabs.innerHTML = pages.map(function (p) {
       return '<button type="button" class="tab' + (p === S.page ? ' tab-on' : '') +

@@ -10,18 +10,21 @@
   <header class="topbar">
     <div class="topbar-left">
       <button class="icon-btn" type="button" aria-label="Quay lại">←</button>
-      <div class="brand-mark" aria-hidden="true">V</div>
-      <div>
-        <div class="brand-line"><strong>VLearn</strong><span>Reader</span></div>
-        <div class="document-line">
-          <strong id="doc-title">day01_302.pdf</strong>
-          <span>COMP2010 · Lecture material</span>
-        </div>
+      <div class="brand-mark" aria-hidden="true">
+        <img src="/DAY05/AI-Product-Hackathon-D303/codebase/vinuni.png" alt="" width="22" height="22">
+      </div>
+      <span class="brand-line"><strong>VLearn</strong></span>
+      <span class="topbar-divider" aria-hidden="true"></span>
+      <span class="doc-icon" aria-hidden="true">📖</span>
+      <div class="document-line">
+        <strong id="doc-title">d1-slide-hackathon.pdf</strong>
+        <span>DAY05 · AI-Product-Hackathon-D303</span>
       </div>
     </div>
     <div class="topbar-right">
-      <span id="mode-badge" class="badge badge-mock">Đang kiểm tra chế độ…</span>
-      <button id="btn-trace" class="btn btn-ghost" type="button">Trace (0)</button>
+      <span id="mode-badge" class="badge badge-mock sr-only">Đang kiểm tra chế độ…</span>
+      <button id="btn-trace" class="btn btn-ghost sr-only" type="button">Trace (0)</button>
+      <button class="icon-btn lang-btn" type="button" aria-label="Ngôn ngữ">VI</button>
       <button class="icon-btn" type="button" aria-label="Đổi giao diện">☾</button>
     </div>
   </header>
@@ -29,9 +32,11 @@
   <main class="reader-layout">
     <nav class="materials-panel" aria-label="Học liệu môn học">
       <div class="panel-title">
-        <span class="eyebrow">COMP2010</span>
-        <h1>Học liệu môn học</h1>
-        <p>AI Product Development</p>
+        <span class="panel-icon" aria-hidden="true">📖</span>
+        <div>
+          <h1>Học liệu môn học</h1>
+          <p>Chương, slide và tài liệu đã upload</p>
+        </div>
       </div>
 
       <label class="field sr-only">
@@ -39,31 +44,51 @@
         <select id="doc-select" class="input"></select>
       </label>
 
-      <div class="day-card day-active" data-day-card="Lecture_material_ms2039d0_hnxpxy">
-        <div class="day-heading"><span>Day01</span><span class="status-dot">Đang học</span></div>
-        <button class="material-card material-active" type="button"
-          data-doc="Lecture_material_ms2039d0_hnxpxy">
-          <span class="file-icon">PDF</span>
-          <div><strong>AI & LLM Foundation</strong><small>29 trang · bản hackathon</small></div>
+      <div class="day-group day-open" data-day-card="Day01">
+        <button class="day-row day-row-active" type="button" data-day-toggle="Day01">
+          <span class="play-dot" aria-hidden="true">▶</span>
+          <span class="day-row-text">
+            <strong>Day01</strong>
+            <small>1 TÀI LIỆU · PUBLISHED</small>
+          </span>
+          <span class="status-pill">STUDYING</span>
+          <span class="chev chev-open">⌃</span>
         </button>
+
+        <div class="doc-list">
+          <button class="doc-item doc-item-active" type="button"
+            data-doc="d1-slide-hackathon"
+            data-src="data/vlearn-pack/slides/d1-slide-hackathon.pdf">
+            <span class="doc-check" aria-hidden="true">✓</span>
+            <span class="doc-text">
+              <strong>d1-slide-hackathon.pdf</strong>
+              <small>Slide bài giảng</small>
+            </span>
+          </button>
+        </div>
       </div>
 
-      <div class="day-card" data-day-card="Lecture_material_day02_hackathon">
-        <div class="day-heading"><span>Day02</span><span>⌄</span></div>
-        <button class="material-card" type="button"
-          data-doc="Lecture_material_day02_hackathon">
-          <span class="file-icon">PDF</span>
-          <div><strong>Xác định bài toán AI</strong><small>29 trang · bản hackathon</small></div>
+      <div class="day-group" data-day-card="Day02">
+        <button class="day-row" type="button" data-day-toggle="Day02">
+          <span class="play-dot" aria-hidden="true">▶</span>
+          <span class="day-row-text">
+            <strong>Day02</strong>
+            <small>1 TÀI LIỆU · PUBLISHED</small>
+          </span>
+          <span class="chev">⌄</span>
         </button>
-      </div>
 
-      <div class="day-list" aria-label="Các ngày khác">
-        <span>Day03</span><span>Day04</span><span>Day05</span><span>Day06</span>
-      </div>
-
-      <div class="feature-callout">
-        <span class="spark">✦</span>
-        <div><strong>Hiểu Đúng, Hiểu Thật</strong><p>AI không chỉ trả lời — AI kiểm tra xem bạn có thực sự hiểu.</p></div>
+        <div class="doc-list" hidden>
+          <button class="doc-item" type="button"
+            data-doc="d2-slide-hackathon"
+            data-src="data/vlearn-pack/slides/d2-slide-hackathon.pdf">
+            <span class="doc-radio" aria-hidden="true"></span>
+            <span class="doc-text">
+              <strong>d2-slide-hackathon.pdf</strong>
+              <small>Slide bài giảng</small>
+            </span>
+          </button>
+        </div>
       </div>
     </nav>
 
@@ -73,24 +98,38 @@
           <button class="tool active" type="button">▣ Đọc</button>
           <button class="tool" type="button">✎ Bút</button>
           <button class="tool" type="button">▰ Highlight</button>
+          <button class="tool tool-icon" type="button" aria-label="Thêm">…</button>
         </div>
-        <div id="slide-meta" class="slide-meta"></div>
+        <div id="slide-meta" class="slide-meta">Trang 1 · 1 note</div>
         <div class="tool-group">
-          <button class="tool" type="button" aria-label="Thu nhỏ">−</button>
+          <button class="tool tool-icon" type="button" aria-label="Thu nhỏ">−</button>
           <span class="zoom">100%</span>
-          <button class="tool" type="button" aria-label="Phóng to">＋</button>
-          <a id="pdf-download" class="tool" href="#" download aria-label="Tải PDF">⇩</a>
+          <button class="tool tool-icon" type="button" aria-label="Phóng to">＋</button>
+          <span class="tool-divider" aria-hidden="true"></span>
+          <button class="tool tool-icon" type="button" aria-label="Thêm trang">＋</button>
+          <a id="pdf-download" class="tool tool-icon" href="data/vlearn-pack/slides/d1-slide-hackathon.pdf" download aria-label="Tải PDF">⇩</a>
+          <button class="tool tool-icon" type="button" aria-label="In">⎙</button>
+          <button class="tool tool-icon" type="button" aria-label="Hoàn tác">↺</button>
+          <button class="tool tool-icon" type="button" aria-label="Xoá">🗑</button>
         </div>
       </div>
 
       <div class="pdf-stage">
-        <iframe id="pdf-frame" class="pdf-frame" title="Slide bài giảng"></iframe>
-        <div id="slide-body" class="context-drawer" aria-label="Ngữ cảnh transcript"></div>
+        <div class="pdf-page">
+          <div class="pdf-page-head">
+            <span id="page-head-num">Trang 1</span>
+            <span id="page-head-name">d1-slide-hackathon.pdf</span>
+          </div>
+          <iframe id="pdf-frame" class="pdf-frame" title="Slide bài giảng"
+            src="data/vlearn-pack/slides/d1-slide-hackathon.pdf"></iframe>
+        </div>
+        <div id="slide-body" class="context-drawer" aria-label="Ngữ cảnh transcript" hidden></div>
       </div>
 
       <div class="page-dock">
-        <span>Ngữ cảnh đã kiểm chứng</span>
-        <div id="page-tabs" class="page-tabs" role="tablist" aria-label="Trang có transcript"></div>
+        <button class="page-nav" type="button" aria-label="Trang trước">‹</button>
+        <span class="page-current" id="page-current">d1-slide-hackathon.pdf</span>
+        <button class="page-nav" type="button" aria-label="Trang sau">›</button>
       </div>
     </section>
 
@@ -150,5 +189,81 @@
   <script src="engine/feedback.js"></script>
   <script src="engine/ai-client.js"></script>
   <script src="app.js"></script>
+  <script>
+    // Điều hướng nhẹ giữa các slide đã có thật (Day01/Day02).
+    // Khi có thêm ngày mới, chỉ cần thêm .day-group + .doc-item với data-src tương ứng.
+    (function () {
+      var frame = document.getElementById('pdf-frame');
+      var download = document.getElementById('pdf-download');
+      var docTitle = document.getElementById('doc-title');
+      var pageHeadName = document.getElementById('page-head-name');
+      var pageCurrent = document.getElementById('page-current');
+
+      function selectDoc(btn) {
+        var src = btn.getAttribute('data-src');
+        if (!src) return;
+        var name = btn.querySelector('.doc-text strong').textContent.trim();
+
+        frame.src = src;
+        download.href = src;
+        if (docTitle) docTitle.textContent = name;
+        if (pageHeadName) pageHeadName.textContent = name;
+        if (pageCurrent) pageCurrent.textContent = name;
+
+        document.querySelectorAll('.doc-item').forEach(function (el) {
+          el.classList.remove('doc-item-active');
+          var mark = el.querySelector('.doc-check, .doc-radio');
+          if (mark) { mark.className = 'doc-radio'; mark.textContent = ''; }
+        });
+        btn.classList.add('doc-item-active');
+        var activeMark = btn.querySelector('.doc-radio, .doc-check');
+        if (activeMark) { activeMark.className = 'doc-check'; activeMark.textContent = '✓'; }
+
+        document.querySelectorAll('.day-row').forEach(function (row) {
+          row.classList.remove('day-row-active');
+          var pill = row.querySelector('.status-pill');
+          if (pill) pill.remove();
+        });
+        document.querySelectorAll('.day-group').forEach(function (g) { g.classList.remove('day-open'); });
+
+        var group = btn.closest('.day-group');
+        var row = group.querySelector('.day-row');
+        var list = group.querySelector('.doc-list');
+        group.classList.add('day-open');
+        row.classList.add('day-row-active');
+        list.hidden = false;
+        var chev = row.querySelector('.chev');
+        if (chev) { chev.classList.add('chev-open'); chev.textContent = '⌃'; }
+        if (!row.querySelector('.status-pill')) {
+          var pillEl = document.createElement('span');
+          pillEl.className = 'status-pill';
+          pillEl.textContent = 'STUDYING';
+          row.insertBefore(pillEl, chev);
+        }
+      }
+
+      document.querySelectorAll('.doc-item').forEach(function (btn) {
+        btn.addEventListener('click', function () { selectDoc(btn); });
+      });
+
+      document.querySelectorAll('[data-day-toggle]').forEach(function (row) {
+        row.addEventListener('click', function () {
+          var group = row.closest('.day-group');
+          var list = group.querySelector('.doc-list');
+          var open = !list.hidden;
+          document.querySelectorAll('.doc-list').forEach(function (l) { l.hidden = true; });
+          document.querySelectorAll('.day-row .chev').forEach(function (c) {
+            c.classList.remove('chev-open'); c.textContent = '⌄';
+          });
+          if (!open) {
+            list.hidden = false;
+            var chev = row.querySelector('.chev');
+            chev.classList.add('chev-open');
+            chev.textContent = '⌃';
+          }
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
