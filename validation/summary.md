@@ -8,7 +8,7 @@
 - Tự hoàn thành task không cần trợ giúp: **0/5**
 - Tin kết quả sau khi xem căn cứ: **0/5**
 - Nói sẽ dùng thật: **0/5**
-- Willing users đã xác nhận: **0/2 tối thiểu**
+- Willing users đã xác nhận: **0/3 tối thiểu**
 
 ## Chủ đề lặp nhiều nhất
 

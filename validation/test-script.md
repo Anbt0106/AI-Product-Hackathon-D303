@@ -3,7 +3,7 @@
 ## Chuẩn bị
 
 - Mở ứng dụng ở `http://localhost:5173`.
-- Badge phải ghi AI thật ở Mastery; nếu đang mock, ghi rõ vào log và không dùng buổi đó để đánh giá độ tin cậy của AI.
+- Trước lượt classify, badge phải ghi `AI đã cấu hình — chưa xác minh kết nối`; sau một classify live thành công, badge phải chuyển thành `AI thật đã xác minh (<model>)`. Nếu đang mock hoặc có fallback, ghi rõ vào log và không dùng lượt đó để đánh giá độ tin cậy của AI.
 - Không hướng dẫn vị trí nút trong lúc người dùng làm task.
 
 ## Task đọc nguyên văn cho người thử

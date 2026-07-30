@@ -45,7 +45,7 @@ Nhóm cũng bổ sung các lớp bảo vệ xung quanh AI:
 - Mọi verdict đều được gắn lại với đúng trang nguồn từ context.
 - Nếu API lỗi, hệ thống fallback về baseline luật và phải ghi rõ vào trace, không im lặng giả vờ là AI thật.
 
-Badge trên giao diện cũng được đổi để nói chính xác phần nào đang chạy thật. Khi cấu hình đúng, badge hiển thị `CP3 · AI thật ở Mastery (gemini-3.5-flash-lite)`. Các phần Tutor, tài liệu và câu hỏi vẫn được khai là mock trong `spec.md` §4.
+Badge trên giao diện cũng được đổi để nói chính xác phần nào đang chạy thật. Khi cấu hình đúng nhưng chưa gọi provider thành công, badge hiển thị `CP3 · AI đã cấu hình — chưa xác minh kết nối`; sau một classify live thành công mới hiển thị `CP3 · AI thật đã xác minh (gemini-3.5-flash-lite)`. Các phần Tutor, tài liệu và câu hỏi vẫn được khai là mock trong `spec.md` §4.
 
 ## Golden set và cách đo
 

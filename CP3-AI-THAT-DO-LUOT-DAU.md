@@ -24,6 +24,6 @@ Không xoá các artifact lượt lỗi/thấp: rubric yêu cầu ghi nhận đ�
 
 1. Điền key trong `codebase/.env` (file đã bị Git bỏ qua).
 2. Chạy `codebase/start.ps1` trên máy có Avast Web Shield, hoặc `node server.mjs` nếu Node đã tin CA mạng.
-3. Badge ghi `CP3 · AI thật ở Mastery (gemini-3.5-flash-lite)`.
+3. Badge ban đầu ghi `CP3 · AI đã cấu hình — chưa xác minh kết nối`; sau một classify live thành công mới ghi `CP3 · AI thật đã xác minh (gemini-3.5-flash-lite)`.
 4. Scenario “Đang nhầm” phải tạo trace `mastery_classify`, `mode: live`.
 5. Không commit `.env` và không dùng `git add -f`.

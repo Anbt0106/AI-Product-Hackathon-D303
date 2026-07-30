@@ -11,7 +11,7 @@ Hướng: [x] A — VLearn · Loại: [x] Tính năng mới
 - **Phương pháp đếm:** ghép message Student–Tutor bằng `turn_id`; nhận diện selected page từ tiền tố `(Trang N, đoạn được chọn: ...)`; chia citation thành `[]`, chứa đúng `N`, hoặc chỉ chứa trang khác. Chỉ đếm `asked_check_question`, `misconceptions`, `follow_ups` trên dòng Tutor để không nhân đôi. Script tái lập: `evidence/mining-selected-page.ps1`; báo cáo: `evidence/mining-report.md`.
 - **≥5 ví dụ nguyên văn có thể kiểm lại:** `C0007/T0020` “Giải thích đoạn bôi đen ở Trang 15.”; `C0015/T0811` “Designt Pattern ReAct là gì có lưu ý gì về nó?”; `C0021/T0769` “giải thích nghĩa chi tiết của trang 4”; `C0029/T0524` “bạn đọc được nội dung slide ko, giải thích cho mình slide 44”; `C0030/T1261` “giải thích kỹ cơ chế transformer”. Cả năm lượt đều có selected page nhưng `citations=[]`.
 - **Ví dụ nối trực tiếp với pain “chưa hiểu”:** `C0456/T1220` “không hiểu gì”; `C0389/T0902` “sự khác nhau giữa ML và DL chưa rõ lắm”; `C0472/T0500` “Tôi chưa hiểu tại sao, giải thích kỹ hơn”. Cả ba lượt đều có `asked_check_question=false`: Tutor trả lời nhưng không đóng vòng bằng một bước kiểm tra hiểu.
-- **Nguồn:** `data/vlearn-pack/chatlog/chat_history_anonymized_for_hackathon.csv` và `DATA_DICTIONARY.md`. Quote chỉ giữ đoạn ngắn và mã ẩn danh, không suy ngược người dùng.
+- **Nguồn:** `data/vlearn-pack/chatlog/chat_history_anonymized_for_hackathon.csv` và `data/vlearn-pack/chatlog/DATA_DICTIONARY.md`. Quote chỉ giữ đoạn ngắn và mã ẩn danh, không suy ngược người dùng.
 
 ## §2. Impact & quyết định chọn
 
@@ -46,7 +46,7 @@ Chọn **Grounding Gate + teach-back** vì đây là ứng viên duy nhất khé
 | Tài liệu, danh sách khoá | Data catalog từ PDF thật | `codebase/data/material-catalog.js` |
 | Trace và eval | Thật | `codebase/engine/trace.js`, `eval/` |
 
-- **Đường gọi live duy nhất trong demo:** `Gửi câu trả lời` → `AiClient.classify()` → `POST /api/classify` → Gemini `gemini-3.5-flash-lite` structured output → server kiểm schema + bất biến → UI hiển thị state. Badge phải ghi `CP3 · AI thật ở Mastery (<model>)`; nếu lỗi, badge/trace ghi fallback, không giả vờ live.
+- **Đường gọi live duy nhất trong demo:** `Gửi câu trả lời` → `AiClient.classify()` → `POST /api/classify` → Gemini `gemini-3.5-flash-lite` structured output → server kiểm schema + bất biến → UI hiển thị state. Badge có ba trạng thái theo bằng chứng: `CP2 · Mock — chưa gọi AI`; `CP3 · AI đã cấu hình — chưa xác minh kết nối`; và chỉ sau một classify live thành công mới là `CP3 · AI thật đã xác minh (<model>)`. Nếu lỗi, hệ thống fallback mock, đưa badge về trạng thái chưa xác minh và giữ lỗi trong trace.
 - **Automation:** **Augment**. AI đề xuất state và bước củng cố, nhưng học viên được bỏ qua, trả lời lại hoặc “Tôi không đồng ý”. Cost-of-error của một `understood` sai là học viên tiếp tục với kiến thức sai; vì vậy prototype không tự động chấm điểm, khóa tiến độ hay ghi mastery chính thức.
 
 ### §4b. Nguyên tắc đã áp dụng
@@ -54,7 +54,7 @@ Chọn **Grounding Gate + teach-back** vì đây là ứng viên duy nhất khé
 | Nguyên tắc | Áp cụ thể vào đâu trong prototype |
 |---|---|
 | G1 — nói rõ khả năng | Panel Tutor nói chỉ dựa trên đoạn đang chọn |
-| G2 — nói rõ trạng thái và giới hạn | Badge mock/live cho biết có gọi model hay không; Gate pass/review/block cho biết mức căn cứ. Đây không phải xác suất đúng đã calibration. |
+| G2 — nói rõ trạng thái và giới hạn | Badge phân biệt ba trạng thái `mock`, `đã cấu hình nhưng chưa xác minh`, và `AI thật đã xác minh`; Gate pass/review/block cho biết mức căn cứ. Badge không phải xác suất đúng đã calibration. |
 | G8 — gạt bỏ dễ | Nút “Bỏ qua”; hết 30 giây vẫn trả lời được |
 | G9 — sửa dễ | “Trả lời lại” và “Tôi không đồng ý” bỏ verdict cũ |
 | G10 — thu hẹp khi nghi ngờ | `insufficient` khi mơ hồ/không khớp, không đoán |
@@ -96,7 +96,7 @@ Chọn **Grounding Gate + teach-back** vì đây là ứng viên duy nhất khé
 | Căn cứ | Mọi verdict mastery có `source_page` thuộc context của case; thiếu hoặc sai trang là fail. |
 | Bất biến cứng | Không case domain-misconception nào thành `understood`; `insufficient` không được `continue`; verdict luôn có source page đúng context. Chỉ một vi phạm cũng làm cả lượt không đạt quality bar. |
 
-Runner `eval/run-eval.mjs` chấm các điều kiện này tự động từ expected cố định trong `eval/golden-set.json`, nên hai người chạy cùng artifact sẽ cho cùng kết quả.
+Runner `eval/run-eval.mjs` chấm các điều kiện này tự động từ expected cố định trong `eval/golden-set.json`; cùng một output artifact sẽ cho cùng kết quả chấm. Hai lần gọi model live vẫn có thể sinh output khác nhau, nên mỗi lượt đều phải lưu result và trace riêng.
 - **Quality bar chốt:** **đạt khi ≥85% toàn bộ 24 case, và 100% ba bất biến cứng**.
 
 | Lượt | Model | Kết quả | Mastery attempts / output live hợp lệ | Trạng thái |
@@ -115,8 +115,8 @@ Kết quả đầy đủ: `eval/results/`; trace: `eval/traces/`. Lượt dướ
 - **Phạm Nguyễn Hùng Nguyên — prompt, AI & eval:** chịu trách nhiệm context, classifier, golden set, runner và phân tích failure.
 - **Lê Tuấn Cảnh — code & prototype/UI:** chịu trách nhiệm flow end-to-end, Gate/Scope, correction và trace UI.
 - **Nguyễn Văn Tuấn Anh — validation & demo:** mời người thử, điều phối task, ghi log nguyên văn, tổng hợp feedback và bấm giờ dry run.
-- **Willing users — BLOCKER trước 23:59:** chưa có tên xác nhận; cần điền **≥3 người ngoài nhóm**: `[Tên 1 — vai]`, `[Tên 2 — vai]`, `[Tên 3 — vai]`. Không dùng tên giả.
-- **Kế hoạch validation CP5:** ≥5 người ngoài nhóm, 10 phút/người; giao task rồi im lặng quan sát. Nguyễn Văn Tuấn Anh ghi vào `validation/feedback-log.md` và hỏi đúng ba câu: “Điều gì khó hiểu hoặc khó chịu nhất?”; “Kết quả này bạn có tin không — vì sao?”; “Bạn có dùng thật không — vì sao / vì sao chưa?”.
+- **Willing users — trạng thái hiện tại:** **0/3 người ngoài nhóm được xác nhận**; không dùng tên hoặc persona mô phỏng để thay dữ liệu thật.
+- **Validation CP5 — trạng thái hiện tại:** human validation **0/5**. Nhóm đã có simulated technical pilot và output Gemini thật, nhưng các artifact này không được tính là người thử thật. Khi tổ chức test, mỗi người làm task 10 phút; Nguyễn Văn Tuấn Anh ghi vào `validation/feedback-log.md` và hỏi đúng ba câu: “Điều gì khó hiểu hoặc khó chịu nhất?”; “Kết quả này bạn có tin không — vì sao?”; “Bạn có dùng thật không — vì sao / vì sao chưa?”.
 - **Multi-prototype:** trục khác biệt là **chủ động tự bật** so với **do người dùng bấm**. Nhóm chọn “Micro-Check do người dùng bấm” vì giữ quyền kiểm soát và tránh làm gián đoạn học; phương án tự bật bị loại. Bằng chứng hai phương án và quyết định: `CP2-PROTOTYPE-BAM-DUOC.md`.
 
 ## §9. Changelog
@@ -132,3 +132,9 @@ Kết quả đầy đủ: `eval/results/`; trace: `eval/traces/`. Lượt dướ
 | CP3 | Cấp rubric ý đúng/quan hệ sai cho classifier | Lượt live 70,8% cho thấy model tự suy diễn thiếu ý thành misconception và không bám nhãn đo |
 | CP3 | Giữ toàn bộ lượt lỗi và lượt dưới bar | Kết quả đo phải trung thực, phúc khảo được |
 | 2026-07-30 | Nâng cấp Live Student Demo: 3 bước Gemini multimodal live (Tutor, Micro-Check, Classify) | Trải nghiệm sinh viên tự do, đọc cả chữ và ảnh đúng trang, loại bỏ mock fallback |
+| CP4 | Bổ sung script mining, phương pháp đếm và 5 ví dụ có mã lượt | Evidence B phải tái lập được, không chỉ nêu nhận xét |
+| CP4 | Viết pass/fail kiểm chứng được cho từng chiều eval | Người khác chạy/chấm cùng artifact phải ra cùng kết quả |
+| CP4 | Ghi rõ model, owner validation và đúng ba câu hỏi user test | Khớp template và checklist trước khi khóa spec |
+| CP4 | Nối evidence với ba lượt “chưa hiểu”, làm rõ exposure và attempts/output live | Tránh suy rộng 1.252 lượt thành nhu cầu teach-back và tránh nhập nhằng số AI call |
+| CP5 mô phỏng | Badge tách “đã cấu hình” khỏi “AI thật đã xác minh” | Hai pilot HTTP 0/5 cho thấy có key chưa chứng minh kết nối provider; pilot direct-live sau đó đạt 5/5 |
+| CP5 rà soát | Ghi rõ human validation 0/5 và willing users 0/3 | Không biến persona mô phỏng hoặc output AI thành bằng chứng người dùng thật |

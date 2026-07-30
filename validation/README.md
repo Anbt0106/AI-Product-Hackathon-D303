@@ -3,7 +3,7 @@
 ## Trạng thái
 
 - Người đã thử: **0/5**
-- Người ngoài nhóm xác nhận sẵn sàng dùng thử: **0/2 tối thiểu**
+- Người ngoài nhóm xác nhận sẵn sàng dùng thử: **0/3 tối thiểu**
 - Quote nguyên văn có tên/vai: **0/2 tối thiểu cho slide 5**
 - Thay đổi từ feedback: **chưa chốt**
 
@@ -19,7 +19,7 @@ Các artifact này chứng minh prototype và AI live, nhưng **không được 
 
 ## Cách hoàn thành trong khoảng 60 phút
 
-1. Mời ít nhất 5 người ngoài nhóm; ưu tiên ít nhất 2 người đã nói sẵn sàng dùng thử.
+1. Mời ít nhất 5 người ngoài nhóm; cần ít nhất 3 người xác nhận sẵn sàng dùng thử.
 2. Với từng người, chạy đúng kịch bản 10 phút trong `test-script.md`.
 3. Ghi ngay một dòng vào `feedback-log.md`: tên/vai, willing user, task, quan sát, quote nguyên văn, mức nghiêm trọng.
 4. Sau người thứ 5, điền `summary.md`; chọn 1–2 thay đổi làm trước demo.

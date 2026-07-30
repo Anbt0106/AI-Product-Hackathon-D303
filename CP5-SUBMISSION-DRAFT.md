@@ -43,7 +43,7 @@ Những trường sau không thể được thay bằng persona mô phỏng ho�
 1. **Bao nhiêu người ngoài nhóm đã thử prototype?** Hiện repo ghi **0/5**.
 2. **Họ nói gì?** Cần tên/vai và ít nhất hai câu nói nguyên văn, tổng tối thiểu 100 ký tự.
 3. **Nhóm sửa gì từ phản hồi người thật?** Cần liên kết tới dòng tương ứng trong `validation/feedback-log.md`; thay đổi badge hiện tại đến từ pilot kỹ thuật, không phải human feedback.
-4. **Willing users:** cần ít nhất hai người xác nhận nếu rubric yêu cầu.
+4. **Willing users:** hiện **0/3**; cần ít nhất ba người ngoài nhóm xác nhận, không dùng persona mô phỏng.
 5. **Dry run thật:** cần ngày giờ, người bấm giờ, tổng thời lượng và lỗi gặp phải.
 
 ## 4. Checklist trước lần push/nộp cuối
