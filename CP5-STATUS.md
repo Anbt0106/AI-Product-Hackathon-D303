@@ -1,5 +1,7 @@
 # CP5 — Trạng thái nghiệm thu
 
+> Bản nội dung nộp form và checklist bàn giao thống nhất: CP5-SUBMISSION-DRAFT.md.
+
 ## Đã có
 
 - Flow bấm được và AI thật ở quyết định Mastery.
