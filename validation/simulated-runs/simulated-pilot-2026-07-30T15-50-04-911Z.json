@@ -1,0 +1,213 @@
+{
+  "artifact": "CP5 simulated technical pilot — NOT human validation",
+  "disclaimer": "Năm scenario/persona là mô phỏng có chủ đích. Không có tên người thật, quan sát hành vi hay quote người dùng; không được dùng để thay yêu cầu ≥5 người ngoài nhóm.",
+  "run_at": "2026-07-30T15:50:04.911Z",
+  "prototype_url": "http://localhost:5173",
+  "provider_state": {
+    "mode": "live",
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "live_steps": [
+      "mastery_classify"
+    ],
+    "reason": "đã cấu hình GEMINI_API_KEY"
+  },
+  "summary": {
+    "total": 5,
+    "passed": 0,
+    "failed": 5,
+    "live_calls": 0
+  },
+  "results": [
+    {
+      "id": "SIM01",
+      "persona": "Người học trả lời đủ ý",
+      "task": "Giải thích vì sao self-attention không quên đoạn đầu.",
+      "question": "Trong một câu, hãy giải thích vì sao self-attention giúp mô hình không quên đoạn đầu của một văn bản dài.",
+      "context": {
+        "doc_code": "Lecture_material_ms2044ey_k6uor3",
+        "doc_title": "Foundation · Transformer & attention",
+        "page": 15,
+        "heading": "Self-attention và công thức Q–K–V",
+        "selected_text": "Mỗi từ (token) được biểu diễn trong không gian toán học để tự nó nhìn được những từ khác, tự đánh giá similarity score. Công thức Q, K, V với hàm softmax: Q là query, K là key, V là value.",
+        "source_codes": [
+          "T06-130"
+        ]
+      },
+      "rubric": {
+        "key_points": [
+          "mỗi token nhìn tất cả token khác",
+          "song song / cùng lúc",
+          "similarity score hoặc Q–K–V"
+        ],
+        "misconceptions": [
+          "attention xử lý tuần tự",
+          "attention chỉ nhìn token gần",
+          "attention là bộ nhớ"
+        ]
+      },
+      "student_answer": "Mỗi token nhìn tất cả token khác cùng lúc và dùng similarity score Q K V để xác định quan hệ.",
+      "expected_state": "understood",
+      "http_status": 502,
+      "model": "gemini-3.5-flash-lite",
+      "latency_ms": 57,
+      "actual_state": null,
+      "pass": false,
+      "output": {
+        "error": "fetch failed"
+      }
+    },
+    {
+      "id": "SIM02",
+      "persona": "Người học mới nắm một phần",
+      "task": "Trả lời đúng nhưng thiếu cơ chế quan hệ token.",
+      "question": "Trong một câu, hãy giải thích vì sao self-attention giúp mô hình không quên đoạn đầu của một văn bản dài.",
+      "context": {
+        "doc_code": "Lecture_material_ms2044ey_k6uor3",
+        "doc_title": "Foundation · Transformer & attention",
+        "page": 15,
+        "heading": "Self-attention và công thức Q–K–V",
+        "selected_text": "Mỗi từ (token) được biểu diễn trong không gian toán học để tự nó nhìn được những từ khác, tự đánh giá similarity score. Công thức Q, K, V với hàm softmax: Q là query, K là key, V là value.",
+        "source_codes": [
+          "T06-130"
+        ]
+      },
+      "rubric": {
+        "key_points": [
+          "mỗi token nhìn tất cả token khác",
+          "song song / cùng lúc",
+          "similarity score hoặc Q–K–V"
+        ],
+        "misconceptions": [
+          "attention xử lý tuần tự",
+          "attention chỉ nhìn token gần",
+          "attention là bộ nhớ"
+        ]
+      },
+      "student_answer": "Vì self-attention xử lý các token song song nên mô hình đọc nhanh hơn.",
+      "expected_state": "partial",
+      "http_status": 502,
+      "model": "gemini-3.5-flash-lite",
+      "latency_ms": 10,
+      "actual_state": null,
+      "pass": false,
+      "output": {
+        "error": "fetch failed"
+      }
+    },
+    {
+      "id": "SIM03",
+      "persona": "Người học dùng đúng thuật ngữ nhưng sai quan hệ",
+      "task": "Kiểm tra hệ thống có bị từ khóa self-attention đánh lừa không.",
+      "question": "Trong một câu, hãy giải thích vì sao self-attention giúp mô hình không quên đoạn đầu của một văn bản dài.",
+      "context": {
+        "doc_code": "Lecture_material_ms2044ey_k6uor3",
+        "doc_title": "Foundation · Transformer & attention",
+        "page": 15,
+        "heading": "Self-attention và công thức Q–K–V",
+        "selected_text": "Mỗi từ (token) được biểu diễn trong không gian toán học để tự nó nhìn được những từ khác, tự đánh giá similarity score. Công thức Q, K, V với hàm softmax: Q là query, K là key, V là value.",
+        "source_codes": [
+          "T06-130"
+        ]
+      },
+      "rubric": {
+        "key_points": [
+          "mỗi token nhìn tất cả token khác",
+          "song song / cùng lúc",
+          "similarity score hoặc Q–K–V"
+        ],
+        "misconceptions": [
+          "attention xử lý tuần tự",
+          "attention chỉ nhìn token gần",
+          "attention là bộ nhớ"
+        ]
+      },
+      "student_answer": "Self-attention đọc tuần tự từ trái sang phải rồi lưu các token đã đọc trong bộ nhớ.",
+      "expected_state": "misconception",
+      "http_status": 502,
+      "model": "gemini-3.5-flash-lite",
+      "latency_ms": 11,
+      "actual_state": null,
+      "pass": false,
+      "output": {
+        "error": "fetch failed"
+      }
+    },
+    {
+      "id": "SIM04",
+      "persona": "Người học trả lời mơ hồ",
+      "task": "Kiểm tra hệ thống hỏi lại thay vì đoán mức hiểu.",
+      "question": "Trong một câu, hãy giải thích vì sao self-attention giúp mô hình không quên đoạn đầu của một văn bản dài.",
+      "context": {
+        "doc_code": "Lecture_material_ms2044ey_k6uor3",
+        "doc_title": "Foundation · Transformer & attention",
+        "page": 15,
+        "heading": "Self-attention và công thức Q–K–V",
+        "selected_text": "Mỗi từ (token) được biểu diễn trong không gian toán học để tự nó nhìn được những từ khác, tự đánh giá similarity score. Công thức Q, K, V với hàm softmax: Q là query, K là key, V là value.",
+        "source_codes": [
+          "T06-130"
+        ]
+      },
+      "rubric": {
+        "key_points": [
+          "mỗi token nhìn tất cả token khác",
+          "song song / cùng lúc",
+          "similarity score hoặc Q–K–V"
+        ],
+        "misconceptions": [
+          "attention xử lý tuần tự",
+          "attention chỉ nhìn token gần",
+          "attention là bộ nhớ"
+        ]
+      },
+      "student_answer": "Em hiểu rồi ạ.",
+      "expected_state": "insufficient",
+      "http_status": 502,
+      "model": "gemini-3.5-flash-lite",
+      "latency_ms": 11,
+      "actual_state": null,
+      "pass": false,
+      "output": {
+        "error": "fetch failed"
+      }
+    },
+    {
+      "id": "SIM05",
+      "persona": "Người học hiểu sai về token",
+      "task": "Kiểm tra một misconception ở domain khác trang 18.",
+      "question": "Phát biểu một từ tương ứng một token đúng hay sai, và vì sao?",
+      "context": {
+        "doc_code": "Lecture_material_ms2044ey_k6uor3",
+        "doc_title": "Foundation · Transformer & attention",
+        "page": 18,
+        "heading": "Token và cơ chế dự đoán next token",
+        "selected_text": "LLM không đọc ký tự, cũng không đọc word by word — nó đọc token. Một từ có thể tách thành nhiều token.",
+        "source_codes": [
+          "T06-134",
+          "T06-135"
+        ]
+      },
+      "rubric": {
+        "key_points": [
+          "kết luận sai",
+          "một từ có thể thành nhiều token",
+          "ví dụ tiếng Việt hoặc Hello World"
+        ],
+        "misconceptions": [
+          "một từ luôn bằng một token",
+          "LLM đọc từng ký tự"
+        ]
+      },
+      "student_answer": "Đúng, mỗi từ luôn tương ứng chính xác một token nên mô hình đọc word by word.",
+      "expected_state": "misconception",
+      "http_status": 502,
+      "model": "gemini-3.5-flash-lite",
+      "latency_ms": 10,
+      "actual_state": null,
+      "pass": false,
+      "output": {
+        "error": "fetch failed"
+      }
+    }
+  ]
+}

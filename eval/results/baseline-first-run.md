@@ -1,4 +1,4 @@
-# Kết quả baseline — 2026-07-30T07:30:33.807Z
+# Kết quả baseline — 2026-07-30T16:10:10.616Z
 
 - Model: rule-based-baseline-v1
 - Tổng: **24/24 (100%)**

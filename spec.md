@@ -1,35 +1,40 @@
 # AI SPEC — VLearn Hiểu Đúng, Hiểu Thật · Nhóm D303
 
-Hướng: A — Tính năng AI mới trên VLearn, có lớp khắc phục lỗi ngữ cảnh của Tutor
+Hướng: [x] A — VLearn · Loại: [x] Tính năng mới
 
 ## §1. User & Job
 
 - **Job executor + workflow:** học viên đang trong buổi học → chọn đoạn slide khó → hỏi Tutor → đọc giải thích → cần biết nguồn có đúng và mình có thật sự hiểu trước khi học tiếp.
 - **Core JTBD:** Khi vừa được giải thích một khái niệm khó, tôi muốn kiểm tra nhanh mình có hiểu đúng hay không để sửa đúng lỗ hổng trước khi học tiếp.
 - **Problem statement:** Học viên có thể nhận giải thích mất/lấy sai ngữ cảnh hoặc trích dẫn lệch, rồi không có bước kiểm tra mức hiểu nên có thể tiếp tục học với misconception.
-- **Evidence từ mining chatlog:** 1.261 lượt hỏi–đáp; 1.252 lượt có selected page nhưng 573 lượt không có citation; 440/1.252 cite đúng trang, 239 lượt chỉ cite trang khác cần audit. Có 27 lượt từ 26 học viên mang tín hiệu chưa hiểu/cần giải thích lại nhưng chỉ 1/27 dẫn tới câu hỏi kiểm tra; toàn bộ data chỉ có 3/1.261 lượt `asked_check_question=true`; `misconceptions` và `follow_ups` không được dùng.
-- **Nguồn:** `data/vlearn-pack/chatlog/DATA_DICTIONARY.md`; các ví dụ ngắn trong golden set chỉ giữ mã `Cxxxx/Txxxx`, không sao chép data pack dài.
+- **Evidence B — con số mạnh nhất:** trong 1.252 lượt có selected page, **573 lượt (45,8%)** không có citation; **440/1.252 (35,1%)** cite đúng trang và **239/1.252 (19,1%)** chỉ cite trang khác cần review. Trên toàn bộ 1.261 lượt, Tutor chỉ hỏi kiểm tra hiểu **3 lần (0,24%)**; `misconceptions` và `follow_ups` được dùng **0 lần**.
+- **Phương pháp đếm:** ghép message Student–Tutor bằng `turn_id`; nhận diện selected page từ tiền tố `(Trang N, đoạn được chọn: ...)`; chia citation thành `[]`, chứa đúng `N`, hoặc chỉ chứa trang khác. Chỉ đếm `asked_check_question`, `misconceptions`, `follow_ups` trên dòng Tutor để không nhân đôi. Script tái lập: `evidence/mining-selected-page.ps1`; báo cáo: `evidence/mining-report.md`.
+- **≥5 ví dụ nguyên văn có thể kiểm lại:** `C0007/T0020` “Giải thích đoạn bôi đen ở Trang 15.”; `C0015/T0811` “Designt Pattern ReAct là gì có lưu ý gì về nó?”; `C0021/T0769` “giải thích nghĩa chi tiết của trang 4”; `C0029/T0524` “bạn đọc được nội dung slide ko, giải thích cho mình slide 44”; `C0030/T1261` “giải thích kỹ cơ chế transformer”. Cả năm lượt đều có selected page nhưng `citations=[]`.
+- **Ví dụ nối trực tiếp với pain “chưa hiểu”:** `C0456/T1220` “không hiểu gì”; `C0389/T0902` “sự khác nhau giữa ML và DL chưa rõ lắm”; `C0472/T0500` “Tôi chưa hiểu tại sao, giải thích kỹ hơn”. Cả ba lượt đều có `asked_check_question=false`: Tutor trả lời nhưng không đóng vòng bằng một bước kiểm tra hiểu.
+- **Nguồn:** `data/vlearn-pack/chatlog/chat_history_anonymized_for_hackathon.csv` và `DATA_DICTIONARY.md`. Quote chỉ giữ đoạn ngắn và mã ẩn danh, không suy ngược người dùng.
 
 ## §2. Impact & quyết định chọn
 
-| Ứng viên | Bao nhiêu người/lượt | Tần suất/tổn thất | Khả thi trong 1,5 ngày | Quyết định |
-|---|---:|---|---|---|
-| Grounding Gate + teach-back 60 giây | 1.252 lượt có selected page; 27 lượt có tín hiệu chưa hiểu | Sai nguồn hoặc tưởng đã hiểu có thể làm học sai | Cao: 1 context, 1 classifier, 4 state | **Chọn** |
-| Chỉ sửa citation của Tutor | 573 lượt thiếu citation; 239 lượt cite trang khác | Tăng khả năng kiểm nguồn nhưng chưa biết học viên hiểu chưa | Cao | Loại: giải nửa pain |
-| Sinh quiz tự động cho mọi trang | mọi lượt học | Phủ rộng nhưng lỗi câu hỏi/căn cứ khó kiểm trong thời gian ngắn | Trung bình | Loại: scope rộng, cost-of-error cao |
+| Ứng viên | Quy mô từ evidence | Tần suất | Tốn gì mỗi lần / hậu quả | Khả thi trong 1,5 ngày | Quyết định |
+|---|---:|---|---|---|---|
+| Grounding Gate + teach-back 60 giây | 1.252 lượt đủ điều kiện có selected page | 1.252/1.261 lượt là exposure tiềm năng; không suy diễn rằng cả 1.252 lượt đều cần teach-back | Nếu nguồn lệch hoặc hiểu sai mà vẫn học tiếp: học sai kiến thức và phải quay lại kiểm | Cao: 1 context, 1 classifier, 4 state | **Chọn** |
+| Chỉ sửa citation của Tutor | 573 lượt thiếu citation; 239 lượt chỉ cite trang khác | 45,8% lượt selected-page thiếu citation | Học viên tự kiểm nguồn dễ hơn nhưng vẫn không biết mình hiểu đúng chưa | Cao | Loại: chỉ giải nửa pain |
+| Sinh quiz tự động cho mọi trang | Có thể chạm mọi lượt học nhưng chưa có evidence nhu cầu riêng | Mỗi trang/mỗi lượt | Câu hỏi sai hoặc không grounded làm học viên học lệch; chi phí kiểm duyệt lớn | Trung bình | Loại: scope rộng, cost-of-error cao |
 
-Chọn lát cắt đầu vì nó nối hai bằng chứng thành một vòng khép kín: chỉ kiểm tra hiểu sau khi nguồn đã qua Gate.
+Chọn **Grounding Gate + teach-back** vì đây là ứng viên duy nhất khép kín hai rủi ro đã đo: kiểm nguồn trước, rồi mới dùng AI kiểm tra mức hiểu. Hai phương án bị loại hoặc chỉ giải nửa pain, hoặc chưa có evidence đủ mạnh cho phạm vi rộng.
 
 ## §3. Giải pháp tương tự đã nghiên cứu
 
-- **Khanmigo:** đáng học ở cách hỏi gợi mở; đáng né việc kéo hội thoại dài khi user chỉ cần xác nhận nhanh. Lát cắt này giới hạn một câu teach-back và một bước củng cố.
-- **Quiz/flashcard generator phổ biến:** đáng học ở thao tác nhanh; đáng né sinh hàng loạt trước khi kiểm nguồn. Lát cắt này đặt Grounding Gate trước Micro-Check.
+Đây là desk research để học pattern, không được tính là validation với user.
+
+- **Khanmigo:** flow ưu tiên câu hỏi gợi mở để học viên tự suy luận. Đáng học: không đưa kết luận ngay. Đáng né: hội thoại có thể dài khi người học chỉ cần xác nhận nhanh. Nhóm khác ở việc giới hạn đúng một câu teach-back và một bước củng cố trong 60 giây.
+- **NotebookLM:** flow trả lời dựa trên nguồn và đặt citation cạnh nội dung. Đáng học: cho người dùng tự kiểm căn cứ. Đáng né: citation đúng chưa chứng minh người đọc đã hiểu đúng. Nhóm thêm Grounding Gate trước Micro-Check và một quyết định mastery sau teach-back.
 
 ## §4. Thiết kế
 
-- **Lát cắt một câu:** Với học viên vừa được giải thích một khái niệm từ đoạn slide đã qua Grounding Gate, AI đánh giá câu teach-back để quyết định `understood`, `partial`, `misconception` hay `insufficient`, rồi đưa đúng một bước củng cố có nguồn trong tối đa 60 giây.
+- **Lát cắt một câu:** Với học viên vừa được giải thích một khái niệm từ đoạn slide đã qua Grounding Gate, **`gemini-3.5-flash-lite`** đánh giá câu teach-back để quyết định `understood`, `partial`, `misconception` hay `insufficient`, rồi hệ thống đưa đúng một bước củng cố có nguồn trong tối đa 60 giây.
 - **Non-goals:** không thay LMS/VLearn production; không chấm điểm chính thức; không đồng bộ tiến độ dài hạn; không sinh cả bộ quiz; không trả lời logistics; không giữ bộ nhớ sau reload.
-- **Mức prototype:** **Web demo dùng AI thật 100% cho 3 bước trung tâm**.
+- **Mức prototype:** **Mock có AI thật ở lõi**.
 
 | Thành phần | Thật hay mock | Bằng chứng/file |
 |---|---|---|
@@ -41,15 +46,15 @@ Chọn lát cắt đầu vì nó nối hai bằng chứng thành một vòng kh�
 | Tài liệu, danh sách khoá | Data catalog từ PDF thật | `codebase/data/material-catalog.js` |
 | Trace và eval | Thật | `codebase/engine/trace.js`, `eval/` |
 
-- **Đường gọi live trong demo:** Học viên chọn ngữ cảnh → `POST /api/tutor` (Tutor live) → Grounding Gate kiểm tra citation → `POST /api/question` (Micro-Check live) → Học viên nhập teach-back → `POST /api/classify` (Classifier live) → UI hiển thị kết quả. Badge ghi `AI thật · <model>`; nếu lỗi, hiển thị thông báo an toàn và nút Thử lại, không tự động fallback sang mock.
-- **Automation:** **Augment**. AI đề xuất state và bước củng cố; học viên được bỏ qua, trả lời lại hoặc “Tôi không đồng ý”. Sai `understood` có thể khiến học viên tiếp tục với kiến thức sai, nên không tự động chấm điểm/khóa tiến độ.
+- **Đường gọi live duy nhất trong demo:** `Gửi câu trả lời` → `AiClient.classify()` → `POST /api/classify` → Gemini `gemini-3.5-flash-lite` structured output → server kiểm schema + bất biến → UI hiển thị state. Badge phải ghi `CP3 · AI thật ở Mastery (<model>)`; nếu lỗi, badge/trace ghi fallback, không giả vờ live.
+- **Automation:** **Augment**. AI đề xuất state và bước củng cố, nhưng học viên được bỏ qua, trả lời lại hoặc “Tôi không đồng ý”. Cost-of-error của một `understood` sai là học viên tiếp tục với kiến thức sai; vì vậy prototype không tự động chấm điểm, khóa tiến độ hay ghi mastery chính thức.
 
 ### §4b. Nguyên tắc đã áp dụng
 
 | Nguyên tắc | Áp cụ thể vào đâu trong prototype |
 |---|---|
 | G1 — nói rõ khả năng | Panel Tutor nói chỉ dựa trên đoạn đang chọn |
-| G2 — nói rõ độ tin cậy | Badge mock/live và trạng thái Gate pass/review/block |
+| G2 — nói rõ trạng thái và giới hạn | Badge mock/live cho biết có gọi model hay không; Gate pass/review/block cho biết mức căn cứ. Đây không phải xác suất đúng đã calibration. |
 | G8 — gạt bỏ dễ | Nút “Bỏ qua”; hết 30 giây vẫn trả lời được |
 | G9 — sửa dễ | “Trả lời lại” và “Tôi không đồng ý” bỏ verdict cũ |
 | G10 — thu hẹp khi nghi ngờ | `insufficient` khi mơ hồ/không khớp, không đoán |
@@ -80,27 +85,39 @@ Chọn lát cắt đầu vì nó nối hai bằng chứng thành một vòng kh�
 ## §7. Kiểm thử
 
 - **Golden set:** `eval/golden-set.json`, 24 case: 8 normal, 12 hard, 4 rare; mỗi lớp khó ≥2; 12 case phát triển từ chatlog thật bằng mã hội thoại/lượt.
-- **Chiều đo:** đúng state/reason; đúng Gate/Scope; đủ schema; state–action hợp lệ; verdict có source page; không vi phạm ba bất biến cứng.
+- **Chiều chất lượng và định nghĩa pass/fail:**
+
+| Chiều | Một case được tính đạt khi |
+|---|---|
+| Mastery state | `actual.mastery_state` bằng đúng `expected.mastery_state` trong golden set. |
+| Grounding/Scope | `gate_status + reason` hoặc `scope_kind` bằng đúng expected. |
+| Schema | Có đủ field bắt buộc, đúng enum/type; JSON lỗi hoặc thiếu field là fail. |
+| State → action | `understood→continue`, `partial/misconception→reinforce`, `insufficient→clarify`; lệch là fail. |
+| Căn cứ | Mọi verdict mastery có `source_page` thuộc context của case; thiếu hoặc sai trang là fail. |
+| Bất biến cứng | Không case domain-misconception nào thành `understood`; `insufficient` không được `continue`; verdict luôn có source page đúng context. Chỉ một vi phạm cũng làm cả lượt không đạt quality bar. |
+
+Runner `eval/run-eval.mjs` chấm các điều kiện này tự động từ expected cố định trong `eval/golden-set.json`, nên hai người chạy cùng artifact sẽ cho cùng kết quả.
 - **Quality bar chốt:** **đạt khi ≥85% toàn bộ 24 case, và 100% ba bất biến cứng**.
 
-| Lượt | Model | Kết quả | AI call thật | Trạng thái |
+| Lượt | Model | Kết quả | Mastery attempts / output live hợp lệ | Trạng thái |
 |---|---|---:|---:|---|
-| Baseline lượt 1 | `rule-based-baseline-v1` | 24/24 = 100% | 0 | Baseline, không phải CP3 live |
-| Live thử 1–2 | Gemini | 8/24 = 33,3% | 0 | TLS của Node chưa tin CA mạng; giữ artifact lỗi |
-| Live thử 3 | Gemini | 8/24 = 33,3% | 0 | Payload `responseFormat` không tương thích endpoint; giữ artifact lỗi |
-| Live lượt 4 | Gemini | 17/24 = 70,8% | 16 gọi / 13 response hợp lệ | Prompt thiếu rubric và state→action; chưa đạt bar |
-| **Live chính thức** | `gemini-3.5-flash-lite` | **24/24 = 100%** | **16** | **Đạt quality bar 85%** |
+| Baseline lượt 1 | `rule-based-baseline-v1` | 24/24 = 100% | 0 / 0 | Baseline, không phải CP3 live |
+| Live thử 1–2 | `gemini-3.5-flash-lite` | 8/24 = 33,3% | 16 / 0 | TLS của Node chưa tin CA mạng; chỉ 8 case Gate/Scope xác định đạt |
+| Live thử 3 | `gemini-3.5-flash-lite` | 8/24 = 33,3% | 16 / 0 | Payload `responseFormat` không tương thích endpoint; chỉ 8 case Gate/Scope xác định đạt |
+| Live lượt 4 | `gemini-3.5-flash-lite` | 17/24 = 70,8% | 16 / 13 | Ba output `insufficient` bị server từ chối vì vi phạm state→action; giữ artifact lỗi |
+| **Live chính thức** | `gemini-3.5-flash-lite` | **24/24 = 100%** | **16 / 16** | **Đạt quality bar 85%** |
 
-Kết quả đầy đủ: `eval/results/`; trace: `eval/traces/`.
+Kết quả đầy đủ: `eval/results/`; trace: `eval/traces/`. Lượt dưới bar: `eval/results/live-gemini-2026-07-30T07-37-10-238Z.md`; lượt chính thức: `eval/results/live-gemini-2026-07-30T07-38-48-056Z.md`; trace chính thức: `eval/traces/live-gemini-2026-07-30T07-38-48-056Z.json`.
 
 ## §8. Phân công & kế hoạch
 
-- Bùi Thọ An — Evidence & Product.
-- Phạm Nguyễn Hùng Nguyên — Context, AI & Eval.
-- Lê Tuấn Cảnh — Prototype/UI.
-- Nguyễn Văn Tuấn Anh — Validation & Demo.
-- Willing users: **chưa có tên; phải bổ sung ≥3 trước CP5**.
-- Multi-prototype: chọn phương án “Micro-Check do người dùng bấm” thay vì tự bật sau mọi câu trả lời; giữ quyền kiểm soát và tránh làm gián đoạn học.
+- **Bùi Thọ An — spec, evidence & product:** chịu trách nhiệm phương pháp mining, impact và bảo vệ quyết định lát cắt.
+- **Phạm Nguyễn Hùng Nguyên — prompt, AI & eval:** chịu trách nhiệm context, classifier, golden set, runner và phân tích failure.
+- **Lê Tuấn Cảnh — code & prototype/UI:** chịu trách nhiệm flow end-to-end, Gate/Scope, correction và trace UI.
+- **Nguyễn Văn Tuấn Anh — validation & demo:** mời người thử, điều phối task, ghi log nguyên văn, tổng hợp feedback và bấm giờ dry run.
+- **Willing users — BLOCKER trước 23:59:** chưa có tên xác nhận; cần điền **≥3 người ngoài nhóm**: `[Tên 1 — vai]`, `[Tên 2 — vai]`, `[Tên 3 — vai]`. Không dùng tên giả.
+- **Kế hoạch validation CP5:** ≥5 người ngoài nhóm, 10 phút/người; giao task rồi im lặng quan sát. Nguyễn Văn Tuấn Anh ghi vào `validation/feedback-log.md` và hỏi đúng ba câu: “Điều gì khó hiểu hoặc khó chịu nhất?”; “Kết quả này bạn có tin không — vì sao?”; “Bạn có dùng thật không — vì sao / vì sao chưa?”.
+- **Multi-prototype:** trục khác biệt là **chủ động tự bật** so với **do người dùng bấm**. Nhóm chọn “Micro-Check do người dùng bấm” vì giữ quyền kiểm soát và tránh làm gián đoạn học; phương án tự bật bị loại. Bằng chứng hai phương án và quyết định: `CP2-PROTOTYPE-BAM-DUOC.md`.
 
 ## §9. Changelog
 
