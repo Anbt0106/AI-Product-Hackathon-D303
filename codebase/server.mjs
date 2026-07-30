@@ -4,8 +4,9 @@
  * KHÔNG dependency. Chỉ dùng module có sẵn của Node (>=18, cần global fetch).
  *
  *   node server.mjs            → http://localhost:5173  (chế độ mock)
- *   AI_PROVIDER=anthropic ANTHROPIC_API_KEY=... node server.mjs   → AI thật
- *   AI_PROVIDER=gemini    GEMINI_API_KEY=...    node server.mjs   → AI thật
+ *   AI_PROVIDER=openai OPENAI_API_KEY=... node server.mjs → AI thật
+ *   AI_PROVIDER=anthropic ANTHROPIC_API_KEY=... node server.mjs → AI thật
+ *   AI_PROVIDER=gemini GEMINI_API_KEY=... node server.mjs → AI thật
  *
  * Vì sao khoá nằm ở server: trang web không bao giờ được giữ API key
  * (02-guide.md §3.4). Không commit .env, không hardcode khoá vào file này.
@@ -49,10 +50,18 @@ function loadLocalEnv(path) {
 
 loadLocalEnv(join(ROOT, '.env'));
 const PORT = Number(process.env.PORT || 5173);
+const HOST = process.env.HOST || '127.0.0.1';
 
 /* ========================= cấu hình provider ========================= */
 
 const PROVIDER = (process.env.AI_PROVIDER || '').toLowerCase();
+
+const OPENAI = {
+  key: process.env.OPENAI_API_KEY || '',
+  // Terra cân bằng chất lượng/chi phí cho classifier ngắn; có thể đổi qua .env.
+  model: process.env.OPENAI_MODEL || 'gpt-5.6-terra',
+  url: 'https://api.openai.com/v1/responses'
+};
 
 const ANTHROPIC = {
   key: process.env.ANTHROPIC_API_KEY || '',
@@ -70,6 +79,15 @@ const GEMINI = {
 };
 
 export function providerState() {
+  if (PROVIDER === 'openai' && OPENAI.key) {
+    return {
+      mode: 'live',
+      provider: 'openai',
+      model: OPENAI.model,
+      live_steps: ['question_generate', 'mastery_classify'],
+      reason: 'đã cấu hình OPENAI_API_KEY'
+    };
+  }
   if (PROVIDER === 'anthropic' && ANTHROPIC.key) {
     return { mode: 'live', provider: 'anthropic', model: ANTHROPIC.model,
       live_steps: ['mastery_classify'], reason: 'đã cấu hình ANTHROPIC_API_KEY' };
@@ -105,7 +123,7 @@ const VERDICT_SCHEMA = {
     next_action: { type: 'string', enum: ['continue', 'reinforce', 'retry', 'clarify'] },
     reason: { type: 'string' }
   },
-  required: ['mastery_state', 'evidence_from_student', 'gap', 'feedback', 'confidence', 'next_action', 'reason'],
+  required: ['mastery_state', 'evidence_from_student', 'gap', 'feedback', 'reinforce', 'confidence', 'next_action', 'reason'],
   additionalProperties: false
 };
 
@@ -243,6 +261,61 @@ async function callGemini({ system, user, schema }) {
   return { data: JSON.parse(text), model: GEMINI.model };
 }
 
+/**
+ * Tách structured output khỏi Responses API. Không tin output cho tới khi JSON
+ * được parse và validator nghiệp vụ kiểm tra ở tầng gọi phía trên.
+ */
+export function parseOpenAIResponse(response) {
+  const output = Array.isArray(response?.output) ? response.output : [];
+  for (const item of output) {
+    if (item?.type === 'refusal' || item?.refusal) {
+      throw new Error(`openai refusal: ${item.refusal || 'request refused'}`);
+    }
+    const content = Array.isArray(item?.content) ? item.content : [];
+    for (const part of content) {
+      if (part?.type === 'refusal' || part?.refusal) {
+        throw new Error(`openai refusal: ${part.refusal || 'request refused'}`);
+      }
+      if (part?.type === 'output_text' && typeof part.text === 'string') {
+        return { data: JSON.parse(part.text), model: response.model || OPENAI.model };
+      }
+    }
+  }
+  if (typeof response?.output_text === 'string' && response.output_text.trim()) {
+    return { data: JSON.parse(response.output_text), model: response.model || OPENAI.model };
+  }
+  throw new Error('openai: response không có structured output');
+}
+
+async function callOpenAI({ system, user, schema }) {
+  const schemaName = schema === QUESTION_SCHEMA ? 'micro_check_question' : 'mastery_verdict';
+  const res = await fetch(OPENAI.url, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${OPENAI.key}`
+    },
+    body: JSON.stringify({
+      model: OPENAI.model,
+      instructions: system,
+      input: user,
+      reasoning: { effort: 'low' },
+      text: {
+        verbosity: 'low',
+        format: {
+          type: 'json_schema',
+          name: schemaName,
+          strict: true,
+          schema
+        }
+      },
+      store: false
+    })
+  });
+  if (!res.ok) throw new Error(`openai ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  return parseOpenAIResponse(await res.json());
+}
+
 async function callProvider(args) {
   const st = providerState();
   if (st.mode !== 'live') {
@@ -250,6 +323,7 @@ async function callProvider(args) {
     err.statusCode = 503;
     throw err;
   }
+  if (st.provider === 'openai') return callOpenAI(args);
   return st.provider === 'anthropic' ? callAnthropic(args) : callGemini(args);
 }
 
@@ -316,6 +390,7 @@ const MIME = {
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.pdf': 'application/pdf',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon'
 };
@@ -404,9 +479,9 @@ const IS_MAIN = process.argv[1] &&
   normalize(fileURLToPath(import.meta.url)) === normalize(resolve(process.argv[1]));
 
 if (IS_MAIN) {
-  server.listen(PORT, () => {
+  server.listen(PORT, HOST, () => {
     const st = providerState();
-    console.log(`VLearn prototype → http://localhost:${PORT}`);
+    console.log(`VLearn prototype → http://${HOST}:${PORT}`);
     console.log(`Chế độ AI: ${st.mode}${st.provider ? ' · ' + st.provider + ' · ' + st.model : ''} — ${st.reason}`);
   });
 }
