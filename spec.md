@@ -1,6 +1,6 @@
 # AI SPEC — VLearn Hiểu Đúng, Hiểu Thật · Nhóm D303
 
-Hướng: [x] A — VLearn · Loại: [x] Tính năng mới
+Hướng: A — Tính năng AI mới trên VLearn, có lớp khắc phục lỗi ngữ cảnh của Tutor
 
 ## §1. User & Job
 
