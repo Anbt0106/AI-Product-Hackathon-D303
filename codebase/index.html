@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VLearn Hiểu Đúng, Hiểu Thật — Prototype CP2</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="logo">VLearn</span>
+    <span class="feature">Hiểu Đúng, Hiểu Thật</span>
+  </div>
+  <div class="topbar-right">
+    <span id="mode-badge" class="badge badge-mock">Đang kiểm tra chế độ…</span>
+    <button id="btn-trace" class="btn btn-ghost" type="button">Trace (0)</button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- ================= CỘT TRÁI: SLIDE ================= -->
+  <section class="pane pane-slide" aria-label="Tài liệu bài giảng">
+    <div class="pane-head">
+      <label class="field">
+        <span class="field-label">Tài liệu</span>
+        <select id="doc-select" class="input"></select>
+      </label>
+      <div id="page-tabs" class="page-tabs" role="tablist" aria-label="Trang tài liệu"></div>
+    </div>
+
+    <div class="pane-body">
+      <div id="slide-meta" class="slide-meta"></div>
+      <div id="slide-body" class="slide-body"></div>
+      <p class="hint">Bấm vào một đoạn để chọn nó làm ngữ cảnh hỏi Tutor.</p>
+    </div>
+  </section>
+
+  <!-- ================= CỘT PHẢI: TUTOR ================= -->
+  <section class="pane pane-tutor" aria-label="Panel Tutor">
+    <div class="pane-head pane-head-tutor">
+      <div>
+        <strong>Tutor</strong>
+        <!-- HAX G1: nói rõ phạm vi -->
+        <p class="scope">Mình chỉ giải thích dựa trên đoạn tài liệu bạn đang chọn.</p>
+        <!-- HAX G2: nói rõ độ tin cậy -->
+        <p class="scope scope-dim">Thiếu hoặc lệch nguồn thì mình báo, không đoán.</p>
+      </div>
+    </div>
+
+    <div class="pane-body" id="tutor-body">
+      <div id="selection-chip" class="selection-chip selection-empty">
+        Chưa chọn đoạn nào
+      </div>
+
+      <div id="thread" class="thread"></div>
+
+      <div class="composer">
+        <div id="suggested" class="suggested"></div>
+        <div class="composer-row">
+          <textarea id="ask-input" class="input textarea" rows="2"
+            placeholder="Hỏi về đoạn bạn vừa chọn…"></textarea>
+          <button id="btn-ask" class="btn btn-primary" type="button">Hỏi</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ================= BẢNG ĐIỀU KHIỂN DEMO ================= -->
+<footer class="devbar">
+  <span class="devbar-label">Bảng điều khiển demo — không thuộc sản phẩm</span>
+  <div class="devbar-actions">
+    <button class="btn btn-dev" type="button" data-scenario="happy">1 · Hiểu đúng</button>
+    <button class="btn btn-dev" type="button" data-scenario="partial">2 · Hiểu một phần</button>
+    <button class="btn btn-dev" type="button" data-scenario="misconception">3 · Đang nhầm</button>
+    <button class="btn btn-dev" type="button" data-scenario="insufficient">4 · Chưa đủ căn cứ</button>
+    <button class="btn btn-dev" type="button" data-scenario="no-source">5 · Thiếu nguồn</button>
+    <button class="btn btn-dev" type="button" data-scenario="cross-page">6 · Cite lệch trang</button>
+    <button class="btn btn-dev" type="button" data-scenario="off-topic">7 · Ngoài phạm vi</button>
+    <button class="btn btn-dev" type="button" data-scenario="injection">8 · Prompt injection</button>
+    <button id="btn-reset" class="btn btn-ghost" type="button">Reset</button>
+  </div>
+</footer>
+
+<!-- ================= NGĂN TRACE ================= -->
+<aside id="trace-drawer" class="drawer" hidden aria-label="Trace log">
+  <div class="drawer-head">
+    <strong>Trace log</strong>
+    <div>
+      <button id="btn-trace-download" class="btn btn-ghost" type="button">Tải .json</button>
+      <button id="btn-trace-close" class="btn btn-ghost" type="button">Đóng</button>
+    </div>
+  </div>
+  <div id="trace-body" class="drawer-body"></div>
+</aside>
+
+<!-- Thứ tự nạp có ý nghĩa: text → data/context → các thành phần → điểm nối AI → app -->
+<script src="engine/text.js"></script>
+<script src="data/slides.js"></script>
+<script src="engine/context.js"></script>
+<script src="engine/trace.js"></script>
+<script src="engine/scope-guard.js"></script>
+<script src="engine/grounding-gate.js"></script>
+<script src="engine/question.js"></script>
+<script src="engine/mastery.js"></script>
+<script src="engine/feedback.js"></script>
+<script src="engine/ai-client.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
