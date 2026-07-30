@@ -24,7 +24,7 @@ globalThis.performance = globalThis.performance || { now: () => 0 };
 
 for (const f of [
   'engine/text.js',
-  'data/material-catalog.js',
+  'data/slides.js',
   'engine/context.js',
   'engine/trace.js',
   'engine/scope-guard.js',
@@ -50,21 +50,8 @@ function check(name, actual, expected) {
   }
 }
 
-const DOC = 'Lecture_material_ms2039d0_hnxpxy';
-const DAY2 = 'Lecture_material_day02_hackathon';
-
-/* ======================= 0. Real-data catalog ======================= */
-console.log('\n[0] Real-data catalog');
-
-check('catalog có đúng 2 PDF thật và 1 fixture thiếu nguồn',
-  window.VLEARN_SLIDES.length, 3);
-check('Day 1 trỏ tới PDF thật trong data pack',
-  window.SlideContext.getDoc(DOC).pdfUrl,
-  'data/vlearn-pack/slides/d1-slide-hackathon.pdf');
-check('Day 1 có 29 trang',
-  window.SlideContext.getDoc(DOC).pageCount, 29);
-check('context giữ mã transcript thật',
-  window.SlideContext.build(DOC, 15, ['p15-a']).sourceCodes[0], 'T06-130');
+const DOC = 'Lecture_material_ms2044ey_k6uor3';
+const DAY2 = 'day02-c301';
 
 /** Chạy trọn một vòng: chọn đoạn → Tutor trả lời → gate → câu hỏi → phân loại. */
 function runRound(docCode, page, passageIds, studentAnswer, opts = {}) {

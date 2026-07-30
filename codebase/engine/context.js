@@ -10,16 +10,7 @@ window.SlideContext = (function () {
 
   function docs() {
     return DOCS.map(function (d) {
-      return {
-        docCode: d.docCode,
-        materialId: d.materialId || null,
-        docTitle: d.docTitle,
-        courseCode: d.courseCode || null,
-        day: d.day || null,
-        pageCount: d.pageCount || d.pages.length,
-        pdfUrl: d.pdfUrl || null,
-        note: d.note || null
-      };
+      return { docCode: d.docCode, docTitle: d.docTitle, note: d.note || null };
     });
   }
 
@@ -53,10 +44,7 @@ window.SlideContext = (function () {
     var selected = p ? p.passages.filter(function (x) { return ids.indexOf(x.id) !== -1; }) : [];
     return {
       docCode: docCode,
-      materialId: d ? d.materialId || null : null,
       docTitle: d ? d.docTitle : null,
-      pdfUrl: d ? d.pdfUrl || null : null,
-      pageCount: d ? d.pageCount || d.pages.length : 0,
       selectedPage: page,
       heading: p ? p.heading : null,
       passages: p ? p.passages : [],

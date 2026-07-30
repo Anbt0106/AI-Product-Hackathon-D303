@@ -2,7 +2,7 @@
   "artifact": "CP3 evaluation run",
   "golden_set": "VLearn Mastery + safety golden set v1",
   "summary": {
-    "run_at": "2026-07-30T07:30:33.807Z",
+    "run_at": "2026-07-30T16:10:10.616Z",
     "mode": "baseline",
     "provider": null,
     "model": "rule-based-baseline-v1",
@@ -120,7 +120,7 @@
         }
       ],
       "pass": true,
-      "latency_ms": 1
+      "latency_ms": 0
     },
     {
       "id": "M03",
@@ -168,7 +168,7 @@
         }
       ],
       "pass": true,
-      "latency_ms": 0
+      "latency_ms": 1
     },
     {
       "id": "M04",
@@ -216,7 +216,7 @@
         }
       ],
       "pass": true,
-      "latency_ms": 1
+      "latency_ms": 0
     },
     {
       "id": "M05",
@@ -266,7 +266,7 @@
         }
       ],
       "pass": true,
-      "latency_ms": 0
+      "latency_ms": 1
     },
     {
       "id": "M06",
@@ -316,7 +316,7 @@
         }
       ],
       "pass": true,
-      "latency_ms": 1
+      "latency_ms": 0
     },
     {
       "id": "M07",
@@ -366,7 +366,7 @@
         }
       ],
       "pass": true,
-      "latency_ms": 0
+      "latency_ms": 1
     },
     {
       "id": "M08",
@@ -461,7 +461,7 @@
         }
       ],
       "pass": true,
-      "latency_ms": 1
+      "latency_ms": 0
     },
     {
       "id": "M10",
@@ -600,7 +600,7 @@
         }
       ],
       "pass": true,
-      "latency_ms": 0
+      "latency_ms": 1
     },
     {
       "id": "M13",
@@ -776,7 +776,7 @@
         }
       ],
       "pass": true,
-      "latency_ms": 1
+      "latency_ms": 0
     },
     {
       "id": "G01",
@@ -923,7 +923,7 @@
       ],
       "invariants": [],
       "pass": true,
-      "latency_ms": 0
+      "latency_ms": 1
     },
     {
       "id": "S02",

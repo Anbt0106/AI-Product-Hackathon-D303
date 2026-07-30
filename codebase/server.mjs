@@ -4,9 +4,8 @@
  * KHÔNG dependency. Chỉ dùng module có sẵn của Node (>=18, cần global fetch).
  *
  *   node server.mjs            → http://localhost:5173  (chế độ mock)
- *   AI_PROVIDER=openai OPENAI_API_KEY=... node server.mjs → AI thật
- *   AI_PROVIDER=anthropic ANTHROPIC_API_KEY=... node server.mjs → AI thật
- *   AI_PROVIDER=gemini GEMINI_API_KEY=... node server.mjs → AI thật
+ *   AI_PROVIDER=anthropic ANTHROPIC_API_KEY=... node server.mjs   → AI thật
+ *   AI_PROVIDER=gemini    GEMINI_API_KEY=...    node server.mjs   → AI thật
  *
  * Vì sao khoá nằm ở server: trang web không bao giờ được giữ API key
  * (02-guide.md §3.4). Không commit .env, không hardcode khoá vào file này.
@@ -50,18 +49,10 @@ function loadLocalEnv(path) {
 
 loadLocalEnv(join(ROOT, '.env'));
 const PORT = Number(process.env.PORT || 5173);
-const HOST = process.env.HOST || '127.0.0.1';
 
 /* ========================= cấu hình provider ========================= */
 
 const PROVIDER = (process.env.AI_PROVIDER || '').toLowerCase();
-
-const OPENAI = {
-  key: process.env.OPENAI_API_KEY || '',
-  // Terra cân bằng chất lượng/chi phí cho classifier ngắn; có thể đổi qua .env.
-  model: process.env.OPENAI_MODEL || 'gpt-5.6-terra',
-  url: 'https://api.openai.com/v1/responses'
-};
 
 const ANTHROPIC = {
   key: process.env.ANTHROPIC_API_KEY || '',
@@ -79,41 +70,22 @@ const GEMINI = {
 };
 
 export function providerState() {
-  if (PROVIDER === 'openai' && OPENAI.key) {
-    return {
-      mode: 'live',
-      provider: 'openai',
-      model: OPENAI.model,
-      live_steps: ['tutor_answer', 'question_generate', 'mastery_classify'],
-      reason: 'đã cấu hình OPENAI_API_KEY'
-    };
-  }
   if (PROVIDER === 'anthropic' && ANTHROPIC.key) {
-    return {
-      mode: 'live',
-      provider: 'anthropic',
-      model: ANTHROPIC.model,
-      live_steps: ['tutor_answer', 'question_generate', 'mastery_classify'],
-      reason: 'đã cấu hình ANTHROPIC_API_KEY'
-    };
+    return { mode: 'live', provider: 'anthropic', model: ANTHROPIC.model,
+      live_steps: ['mastery_classify'], reason: 'đã cấu hình ANTHROPIC_API_KEY' };
   }
   if (PROVIDER === 'gemini' && GEMINI.key) {
-    return {
-      mode: 'live',
-      provider: 'gemini',
-      model: GEMINI.model,
-      live_steps: ['tutor_answer', 'question_generate', 'mastery_classify'],
-      reason: 'đã cấu hình GEMINI_API_KEY'
-    };
+    return { mode: 'live', provider: 'gemini', model: GEMINI.model,
+      live_steps: ['mastery_classify'], reason: 'đã cấu hình GEMINI_API_KEY' };
   }
   return {
-    mode: 'unavailable',
+    mode: 'mock',
     provider: null,
     model: null,
     live_steps: [],
     reason: PROVIDER
       ? `AI_PROVIDER=${PROVIDER} nhưng thiếu API key trong biến môi trường`
-      : 'chưa set AI_PROVIDER'
+      : 'chưa set AI_PROVIDER — đang chạy bản mock của CP2'
   };
 }
 
@@ -133,7 +105,7 @@ const VERDICT_SCHEMA = {
     next_action: { type: 'string', enum: ['continue', 'reinforce', 'retry', 'clarify'] },
     reason: { type: 'string' }
   },
-  required: ['mastery_state', 'evidence_from_student', 'gap', 'feedback', 'reinforce', 'confidence', 'next_action', 'reason'],
+  required: ['mastery_state', 'evidence_from_student', 'gap', 'feedback', 'confidence', 'next_action', 'reason'],
   additionalProperties: false
 };
 
@@ -143,64 +115,6 @@ const QUESTION_SCHEMA = {
   required: ['question'],
   additionalProperties: false
 };
-
-const TUTOR_SCHEMA = {
-  type: 'object',
-  properties: {
-    answer: { type: 'string' },
-    citations: {
-      type: 'array',
-      items: { type: 'string' },
-      minItems: 1
-    }
-  },
-  required: ['answer', 'citations'],
-  additionalProperties: false
-};
-
-const SYSTEM_TUTOR = [
-  'Bạn là VLearn Tutor trả lời bằng tiếng Việt.',
-  'Chỉ dùng các đoạn tài liệu được cấp; không thêm kiến thức ngoài.',
-  'Trả lời ngắn gọn, dễ hiểu và trích ít nhất một source code đã được cấp.',
-  'Không được tạo hoặc sửa source code.',
-  'Nếu ngữ cảnh không đủ, nói rõ phần chưa đủ thay vì đoán.'
-].join('\n');
-
-export function validateTutorAnswer(value, allowedSourceCodes) {
-  if (!value || typeof value.answer !== 'string' || !value.answer.trim()) {
-    throw new Error('Tutor answer rỗng/không phải string');
-  }
-  if (!Array.isArray(value.citations) || value.citations.length === 0) {
-    throw new Error('Tutor answer cần ít nhất một citation');
-  }
-  const allowed = new Set(allowedSourceCodes || []);
-  const normalizedCitations = [];
-  for (let citation of value.citations) {
-    if (typeof citation === 'string') {
-      citation = citation.replace(/^\[|\]$/g, '').trim();
-    }
-    if (!allowed.has(citation)) {
-      throw new Error(`Tutor citation không thuộc ngữ cảnh: ${citation}`);
-    }
-    normalizedCitations.push(citation);
-  }
-  return { answer: value.answer.trim(), citations: [...new Set(normalizedCitations)] };
-}
-
-function tutorUserPrompt(body) {
-  const c = body.context || {};
-  const sources = (c.source_codes || c.sourceCodes || []).map((code) => `Mã nguồn: ${code}\nNội dung: ${c.selected_text || c.selectedText || ''}`).join('\n\n');
-  return [
-    `Mã tài liệu: ${c.doc_code || c.docCode || ''}`,
-    `Trang: ${c.source_page || c.selectedPage || ''}`,
-    `Tiêu đề: ${c.heading || ''}`,
-    `Nguồn trích dẫn:\n${sources}`,
-    '',
-    `Câu hỏi của sinh viên: ${body.question}`,
-    '',
-    'Trả lời câu hỏi theo schema. Trong mảng citations, chỉ ghi mã nguồn hợp lệ (ví dụ: "T06-130").'
-  ].join('\n');
-}
 
 /* ========================= prompt ========================= */
 
@@ -329,61 +243,6 @@ async function callGemini({ system, user, schema }) {
   return { data: JSON.parse(text), model: GEMINI.model };
 }
 
-/**
- * Tách structured output khỏi Responses API. Không tin output cho tới khi JSON
- * được parse và validator nghiệp vụ kiểm tra ở tầng gọi phía trên.
- */
-export function parseOpenAIResponse(response) {
-  const output = Array.isArray(response?.output) ? response.output : [];
-  for (const item of output) {
-    if (item?.type === 'refusal' || item?.refusal) {
-      throw new Error(`openai refusal: ${item.refusal || 'request refused'}`);
-    }
-    const content = Array.isArray(item?.content) ? item.content : [];
-    for (const part of content) {
-      if (part?.type === 'refusal' || part?.refusal) {
-        throw new Error(`openai refusal: ${part.refusal || 'request refused'}`);
-      }
-      if (part?.type === 'output_text' && typeof part.text === 'string') {
-        return { data: JSON.parse(part.text), model: response.model || OPENAI.model };
-      }
-    }
-  }
-  if (typeof response?.output_text === 'string' && response.output_text.trim()) {
-    return { data: JSON.parse(response.output_text), model: response.model || OPENAI.model };
-  }
-  throw new Error('openai: response không có structured output');
-}
-
-async function callOpenAI({ system, user, schema }) {
-  const schemaName = schema === TUTOR_SCHEMA ? 'tutor_answer' : schema === QUESTION_SCHEMA ? 'micro_check_question' : 'mastery_verdict';
-  const res = await fetch(OPENAI.url, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      authorization: `Bearer ${OPENAI.key}`
-    },
-    body: JSON.stringify({
-      model: OPENAI.model,
-      instructions: system,
-      input: user,
-      reasoning: { effort: 'low' },
-      text: {
-        verbosity: 'low',
-        format: {
-          type: 'json_schema',
-          name: schemaName,
-          strict: true,
-          schema
-        }
-      },
-      store: false
-    })
-  });
-  if (!res.ok) throw new Error(`openai ${res.status}: ${(await res.text()).slice(0, 300)}`);
-  return parseOpenAIResponse(await res.json());
-}
-
 async function callProvider(args) {
   const st = providerState();
   if (st.mode !== 'live') {
@@ -391,7 +250,6 @@ async function callProvider(args) {
     err.statusCode = 503;
     throw err;
   }
-  if (st.provider === 'openai') return callOpenAI(args);
   return st.provider === 'anthropic' ? callAnthropic(args) : callGemini(args);
 }
 
@@ -437,49 +295,6 @@ export function validateVerdict(verdict) {
   return verdict;
 }
 
-export async function tutorWithProvider(body) {
-  const sourceCodes = body?.context?.source_codes || body?.context?.sourceCodes || [];
-  const selectedText = body?.context?.selected_text || body?.context?.selectedText || '';
-  if (!sourceCodes.length || !selectedText.trim()) {
-    const error = new Error('Cần chọn nguồn trước khi hỏi Tutor');
-    error.statusCode = 400;
-    throw error;
-  }
-  const t0 = Date.now();
-  const result = await callProvider({
-    system: SYSTEM_TUTOR,
-    user: tutorUserPrompt(body),
-    schema: TUTOR_SCHEMA
-  });
-  return {
-    ...validateTutorAnswer(result.data, sourceCodes),
-    model: result.model,
-    latency_ms: Date.now() - t0
-  };
-}
-
-export function toPublicApiError(error) {
-  const rawStatus = Number(error?.statusCode || 0);
-  const message = String(error?.message || '');
-  if (rawStatus === 400) {
-    return { status: 400, code: 'invalid_request', message: 'Dữ liệu gửi lên chưa hợp lệ.' };
-  }
-  if (rawStatus === 401 || rawStatus === 403 || /\b(401|403)\b/.test(message)) {
-    return { status: 503, code: 'ai_not_configured', message: 'Cấu hình AI chưa hợp lệ.' };
-  }
-  if (rawStatus === 429 || /\b429\b/.test(message)) {
-    return { status: 429, code: 'rate_limit', message: 'Dịch vụ AI đang bận. Vui lòng thử lại.' };
-  }
-  if (error?.name === 'AbortError' || /timeout/i.test(message)) {
-    return { status: 504, code: 'timeout', message: 'AI phản hồi quá lâu. Vui lòng thử lại.' };
-  }
-  return {
-    status: 502,
-    code: 'invalid_response',
-    message: 'AI trả về kết quả không hợp lệ. Vui lòng thử lại.'
-  };
-}
-
 export async function classifyWithProvider(body) {
   const t0 = Date.now();
   const r = await callProvider({
@@ -496,13 +311,11 @@ export async function classifyWithProvider(body) {
 
 /* ========================= HTTP ========================= */
 
-export const MIME = {
+const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
-  '.pdf': 'application/pdf',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon'
 };
@@ -555,7 +368,7 @@ const server = createServer(async (req, res) => {
 
   if (p === '/api/health') return sendJson(res, 200, providerState());
 
-  if (p === '/api/tutor' || p === '/api/question' || p === '/api/classify') {
+  if (p === '/api/question' || p === '/api/classify') {
     if (req.method !== 'POST') return sendJson(res, 405, { error: 'chỉ nhận POST' });
     let body;
     try { body = await readBody(req); }
@@ -563,10 +376,6 @@ const server = createServer(async (req, res) => {
 
     const t0 = Date.now();
     try {
-      if (p === '/api/tutor') {
-        const r = await tutorWithProvider(body);
-        return sendJson(res, 200, r);
-      }
       if (p === '/api/question') {
         const r = await callProvider({
           system: SYSTEM_QUESTION,
@@ -578,11 +387,9 @@ const server = createServer(async (req, res) => {
       const r = await classifyWithProvider(body);
       return sendJson(res, 200, r);
     } catch (e) {
-      const publicError = toPublicApiError(e);
-      return sendJson(res, publicError.status, {
-        error: publicError.message,
-        code: publicError.code
-      });
+      const code = e.statusCode || 502;
+      // Trả lỗi rõ ràng để front-end ghi vào trace là đã fallback về mock.
+      return sendJson(res, code, { error: String(e.message || e) });
     }
   }
 
@@ -597,9 +404,9 @@ const IS_MAIN = process.argv[1] &&
   normalize(fileURLToPath(import.meta.url)) === normalize(resolve(process.argv[1]));
 
 if (IS_MAIN) {
-  server.listen(PORT, HOST, () => {
+  server.listen(PORT, () => {
     const st = providerState();
-    console.log(`VLearn prototype → http://${HOST}:${PORT}`);
+    console.log(`VLearn prototype → http://localhost:${PORT}`);
     console.log(`Chế độ AI: ${st.mode}${st.provider ? ' · ' + st.provider + ' · ' + st.model : ''} — ${st.reason}`);
   });
 }

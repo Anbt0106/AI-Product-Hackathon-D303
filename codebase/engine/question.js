@@ -3,7 +3,7 @@
  * ----------------------------------------------------------------------------
  * Sinh ĐÚNG MỘT câu teach-back cho đoạn slide đã qua Grounding Gate.
  *
- * CP2: đọc từ bank trích ngắn trong data/material-catalog.js (không gọi AI).
+ * CP2: đọc từ bank trong data/slides.js (data giả, không gọi AI).
  * CP3: AiClient.generateQuestion() sẽ gọi AI thật; hàm mock ở đây trở thành
  *      đường lui khi API lỗi, và là baseline để so sánh chất lượng câu hỏi.
  *

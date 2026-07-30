@@ -1,0 +1,126 @@
+{
+  "artifact": "CP5 simulated technical pilot — NOT human validation",
+  "disclaimer": "Năm persona là mô phỏng trên input đã chốt. Đây là output Gemini thật nhưng không có quan sát hay quote của người dùng thật; không thay thế yêu cầu ≥5 người ngoài nhóm.",
+  "run_at": "2026-07-30T15:51:29.742Z",
+  "transport": "codebase/server.mjs classifyWithProvider",
+  "provider": {
+    "mode": "live",
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "live_steps": [
+      "mastery_classify"
+    ],
+    "reason": "đã cấu hình GEMINI_API_KEY"
+  },
+  "summary": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0,
+    "live_calls": 5
+  },
+  "results": [
+    {
+      "id": "M03",
+      "persona": "Người học trả lời đủ ý",
+      "source_ref": "C0115/T0984",
+      "input": "Mỗi token nhìn toàn bộ token khác cùng lúc rồi dùng similarity score Q K V để xác định quan hệ.",
+      "expected_state": "understood",
+      "actual_state": "understood",
+      "pass": true,
+      "model": "gemini-3.5-flash-lite",
+      "latency_ms": 1758,
+      "output": {
+        "mastery_state": "understood",
+        "evidence_from_student": "Mỗi token nhìn toàn bộ token khác cùng lúc rồi dùng similarity score Q K V để xác định quan hệ.",
+        "gap": null,
+        "feedback": "Em đã nêu chính xác cách các token tương tác song song với nhau và sử dụng similarity score cùng Q-K-V. Khái niệm này giúp mô hình nắm bắt ngữ cảnh toàn cục mà không bị giới hạn bởi độ dài.",
+        "reinforce": null,
+        "confidence": "high",
+        "next_action": "continue",
+        "reason": "Học viên đã bao gồm đầy đủ các ý đúng cần tìm trong rubric: mỗi token nhìn tất cả token khác, nhắc đến tính song song (cùng lúc), và nhắc đến similarity score hoặc Q-K-V."
+      }
+    },
+    {
+      "id": "M05",
+      "persona": "Người học mới nắm một phần",
+      "source_ref": "C0163/T1190",
+      "input": "Self-attention cho các token được xử lý song song nên mô hình đọc nhanh hơn.",
+      "expected_state": "partial",
+      "actual_state": "partial",
+      "pass": true,
+      "model": "gemini-3.5-flash-lite",
+      "latency_ms": 1457,
+      "output": {
+        "mastery_state": "partial",
+        "evidence_from_student": "Self-attention cho các token được xử lý song song nên mô hình đọc nhanh hơn.",
+        "gap": "Chưa giải thích được cơ chế token nhìn tất cả token khác và chưa nhắc đến similarity score hoặc Q–K–V để giải thích vì sao không quên đoạn đầu.",
+        "feedback": "Em đã nêu đúng ý token được xử lý song song, tuy nhiên cần bổ sung thêm cách các token tương tác với nhau để giải thích việc không quên đoạn đầu văn bản.",
+        "confidence": "high",
+        "next_action": "reinforce",
+        "reason": "Học viên nêu đúng ý song song nhưng thiếu hai ý quan trọng còn lại trong rubric, nên đạt mức partial."
+      }
+    },
+    {
+      "id": "M09",
+      "persona": "Người học dùng đúng thuật ngữ nhưng sai quan hệ",
+      "source_ref": "C0247/T0098",
+      "input": "Self-attention đọc tuần tự từ trái sang phải rồi lưu lại các token đã đọc trong bộ nhớ.",
+      "expected_state": "misconception",
+      "actual_state": "misconception",
+      "pass": true,
+      "model": "gemini-3.5-flash-lite",
+      "latency_ms": 1859,
+      "output": {
+        "mastery_state": "misconception",
+        "evidence_from_student": "Self-attention đọc tuần tự từ trái sang phải rồi lưu lại các token đã đọc trong bộ nhớ.",
+        "gap": "Học viên hiểu sai bản chất cơ chế self-attention thành xử lý tuần tự và lưu trữ bộ nhớ như RNN/LSTM thay vì các token tự nhìn lẫn nhau song song.",
+        "feedback": "Học viên đã cố gắng giải thích cách xử lý văn bản, tuy nhiên self-attention thực chất tính toán song song để các token nhìn lẫn nhau chứ không đọc tuần tự và lưu bộ nhớ.",
+        "reinforce": "Xem lại khái niệm self-attention tính toán đồng thời similarity score giữa các token trong ngữ cảnh.",
+        "confidence": "high",
+        "next_action": "reinforce",
+        "reason": "Học viên khẳng định quan hệ sai khi cho rằng self-attention đọc tuần tự và lưu bộ nhớ, khớp với quan hệ sai đã biết trong ngữ cảnh."
+      }
+    },
+    {
+      "id": "M13",
+      "persona": "Người học trả lời mơ hồ",
+      "source_ref": "C0232/T0130",
+      "input": "Em hiểu rồi",
+      "expected_state": "insufficient",
+      "actual_state": "insufficient",
+      "pass": true,
+      "model": "gemini-3.5-flash-lite",
+      "latency_ms": 1342,
+      "output": {
+        "mastery_state": "insufficient",
+        "evidence_from_student": "Em hiểu rồi",
+        "gap": null,
+        "feedback": "Câu trả lời của bạn quá ngắn và chưa có nội dung để đối chiếu với các bước trong bài. Hãy cho biết bước nào trong 5 bước tạo ra sự khác biệt so với RNN nhé.",
+        "confidence": "high",
+        "next_action": "clarify",
+        "reason": "Học viên chỉ tuyên bố hiểu rồi mà không có nội dung để đối chiếu, vi phạm luật cứng về trường hợp câu trả lời quá ngắn hoặc mơ hồ."
+      }
+    },
+    {
+      "id": "M11",
+      "persona": "Người học hiểu sai về token",
+      "source_ref": "C0068/T0048",
+      "input": "Đúng, mỗi từ tương ứng chính xác với một token nên mô hình đọc word by word.",
+      "expected_state": "misconception",
+      "actual_state": "misconception",
+      "pass": true,
+      "model": "gemini-3.5-flash-lite",
+      "latency_ms": 1807,
+      "output": {
+        "mastery_state": "misconception",
+        "evidence_from_student": "Đúng, mỗi từ tương ứng chính xác với một token nên mô hình đọc word by word.",
+        "gap": "Học viên khẳng định một từ ứng với một token và mô hình đọc theo từng từ.",
+        "feedback": "Học viên đã cố gắng giải thích cách mô hình xử lý văn bản, tuy nhiên phát biểu cho rằng một từ tương ứng một token và mô hình đọc theo từ là chưa chính xác vì thực tế một từ có thể tách thành nhiều token và LLM đọc theo token.",
+        "reinforce": "Xem lại ví dụ tách token ở trang 18 để thấy một từ hoặc cụm từ có thể thành nhiều token và mô hình không đọc word by word.",
+        "confidence": "high",
+        "next_action": "reinforce",
+        "reason": "Học viên khẳng định một quan hệ sai hoàn toàn so với nội dung trong bài (cho rằng một từ bằng một token và mô hình đọc word by word), do đó thuộc mức misconception."
+      }
+    }
+  ]
+}

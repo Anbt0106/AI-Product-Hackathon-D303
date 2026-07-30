@@ -1,7 +1,7 @@
 {
   "product": "VLearn Hieu Dung Hieu That",
   "checkpoint": "CP2-baseline",
-  "run_at": "2026-07-30T07:30:33.807Z",
+  "run_at": "2026-07-30T16:10:10.616Z",
   "mode": "baseline",
   "provider": null,
   "model": "rule-based-baseline-v1",
@@ -10,7 +10,7 @@
     {
       "case_id": "M01",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.802Z",
+      "at": "2026-07-30T16:10:10.611Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -46,7 +46,7 @@
     {
       "case_id": "M02",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.803Z",
+      "at": "2026-07-30T16:10:10.611Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -82,7 +82,7 @@
     {
       "case_id": "M03",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.803Z",
+      "at": "2026-07-30T16:10:10.612Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -118,7 +118,7 @@
     {
       "case_id": "M04",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.803Z",
+      "at": "2026-07-30T16:10:10.612Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -154,7 +154,7 @@
     {
       "case_id": "M05",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.804Z",
+      "at": "2026-07-30T16:10:10.612Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -191,7 +191,7 @@
     {
       "case_id": "M06",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.805Z",
+      "at": "2026-07-30T16:10:10.613Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -228,7 +228,7 @@
     {
       "case_id": "M07",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.805Z",
+      "at": "2026-07-30T16:10:10.614Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -266,7 +266,7 @@
     {
       "case_id": "M08",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.805Z",
+      "at": "2026-07-30T16:10:10.614Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -303,7 +303,7 @@
     {
       "case_id": "M09",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.805Z",
+      "at": "2026-07-30T16:10:10.614Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -336,7 +336,7 @@
     {
       "case_id": "M10",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.806Z",
+      "at": "2026-07-30T16:10:10.614Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -370,7 +370,7 @@
     {
       "case_id": "M11",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.806Z",
+      "at": "2026-07-30T16:10:10.614Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -403,7 +403,7 @@
     {
       "case_id": "M12",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.806Z",
+      "at": "2026-07-30T16:10:10.614Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -438,7 +438,7 @@
     {
       "case_id": "M13",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.806Z",
+      "at": "2026-07-30T16:10:10.615Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -469,7 +469,7 @@
     {
       "case_id": "M14",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.806Z",
+      "at": "2026-07-30T16:10:10.615Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -500,7 +500,7 @@
     {
       "case_id": "M15",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.806Z",
+      "at": "2026-07-30T16:10:10.615Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -531,7 +531,7 @@
     {
       "case_id": "M16",
       "step": "mastery_classify",
-      "at": "2026-07-30T07:30:33.807Z",
+      "at": "2026-07-30T16:10:10.615Z",
       "mode": "mock",
       "provider": null,
       "model": "rule-based-baseline-v1",
@@ -563,7 +563,7 @@
     {
       "case_id": "G01",
       "step": "grounding_gate",
-      "at": "2026-07-30T07:30:33.807Z",
+      "at": "2026-07-30T16:10:10.615Z",
       "mode": "rule",
       "provider": null,
       "model": null,
@@ -585,7 +585,7 @@
     {
       "case_id": "G02",
       "step": "grounding_gate",
-      "at": "2026-07-30T07:30:33.807Z",
+      "at": "2026-07-30T16:10:10.615Z",
       "mode": "rule",
       "provider": null,
       "model": null,
@@ -609,7 +609,7 @@
     {
       "case_id": "G03",
       "step": "grounding_gate",
-      "at": "2026-07-30T07:30:33.807Z",
+      "at": "2026-07-30T16:10:10.615Z",
       "mode": "rule",
       "provider": null,
       "model": null,
@@ -633,7 +633,7 @@
     {
       "case_id": "G04",
       "step": "grounding_gate",
-      "at": "2026-07-30T07:30:33.807Z",
+      "at": "2026-07-30T16:10:10.615Z",
       "mode": "rule",
       "provider": null,
       "model": null,
@@ -657,7 +657,7 @@
     {
       "case_id": "S01",
       "step": "scope_guard",
-      "at": "2026-07-30T07:30:33.807Z",
+      "at": "2026-07-30T16:10:10.616Z",
       "mode": "rule",
       "provider": null,
       "model": null,
@@ -674,7 +674,7 @@
     {
       "case_id": "S02",
       "step": "scope_guard",
-      "at": "2026-07-30T07:30:33.807Z",
+      "at": "2026-07-30T16:10:10.616Z",
       "mode": "rule",
       "provider": null,
       "model": null,
@@ -691,7 +691,7 @@
     {
       "case_id": "S03",
       "step": "scope_guard",
-      "at": "2026-07-30T07:30:33.807Z",
+      "at": "2026-07-30T16:10:10.616Z",
       "mode": "rule",
       "provider": null,
       "model": null,
@@ -708,7 +708,7 @@
     {
       "case_id": "S04",
       "step": "scope_guard",
-      "at": "2026-07-30T07:30:33.807Z",
+      "at": "2026-07-30T16:10:10.616Z",
       "mode": "rule",
       "provider": null,
       "model": null,

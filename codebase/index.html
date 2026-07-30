@@ -1,154 +1,113 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>VLearn Reader · Hiểu Đúng, Hiểu Thật</title>
-  <link rel="stylesheet" href="app.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VLearn Hiểu Đúng, Hiểu Thật — Prototype CP2/CP3</title>
+<link rel="stylesheet" href="app.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-left">
-      <button class="icon-btn" type="button" aria-label="Quay lại">←</button>
-      <div class="brand-mark" aria-hidden="true">V</div>
-      <div>
-        <div class="brand-line"><strong>VLearn</strong><span>Reader</span></div>
-        <div class="document-line">
-          <strong id="doc-title">day01_302.pdf</strong>
-          <span>COMP2010 · Lecture material</span>
-        </div>
-      </div>
-    </div>
-    <div class="topbar-right">
-      <span id="mode-badge" class="badge badge-mock">Đang kiểm tra chế độ…</span>
-      <button id="btn-trace" class="btn btn-ghost" type="button">Trace (0)</button>
-      <button class="icon-btn" type="button" aria-label="Đổi giao diện">☾</button>
-    </div>
-  </header>
 
-  <main class="reader-layout">
-    <nav class="materials-panel" aria-label="Học liệu môn học">
-      <div class="panel-title">
-        <span class="eyebrow">COMP2010</span>
-        <h1>Học liệu môn học</h1>
-        <p>AI Product Development</p>
-      </div>
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="logo">VLearn</span>
+    <span class="feature">Hiểu Đúng, Hiểu Thật</span>
+  </div>
+  <div class="topbar-right">
+    <span id="mode-badge" class="badge badge-mock">Đang kiểm tra chế độ…</span>
+    <button id="btn-trace" class="btn btn-ghost" type="button">Trace (0)</button>
+  </div>
+</header>
 
-      <label class="field sr-only">
-        <span class="field-label">Tài liệu đang đọc</span>
+<main class="layout">
+
+  <!-- ================= CỘT TRÁI: SLIDE ================= -->
+  <section class="pane pane-slide" aria-label="Tài liệu bài giảng">
+    <div class="pane-head">
+      <label class="field">
+        <span class="field-label">Tài liệu</span>
         <select id="doc-select" class="input"></select>
       </label>
+      <div id="page-tabs" class="page-tabs" role="tablist" aria-label="Trang tài liệu"></div>
+    </div>
 
-      <div class="day-card day-active" data-day-card="Lecture_material_ms2039d0_hnxpxy">
-        <div class="day-heading"><span>Day01</span><span class="status-dot">Đang học</span></div>
-        <button class="material-card material-active" type="button"
-          data-doc="Lecture_material_ms2039d0_hnxpxy">
-          <span class="file-icon">PDF</span>
-          <div><strong>AI & LLM Foundation</strong><small>29 trang · bản hackathon</small></div>
-        </button>
-      </div>
+    <div class="pane-body">
+      <div id="slide-meta" class="slide-meta"></div>
+      <div id="slide-body" class="slide-body"></div>
+      <p class="hint">Bấm vào một đoạn để chọn nó làm ngữ cảnh hỏi Tutor.</p>
+    </div>
+  </section>
 
-      <div class="day-card" data-day-card="Lecture_material_day02_hackathon">
-        <div class="day-heading"><span>Day02</span><span>⌄</span></div>
-        <button class="material-card" type="button"
-          data-doc="Lecture_material_day02_hackathon">
-          <span class="file-icon">PDF</span>
-          <div><strong>Xác định bài toán AI</strong><small>29 trang · bản hackathon</small></div>
-        </button>
-      </div>
-
-      <div class="day-list" aria-label="Các ngày khác">
-        <span>Day03</span><span>Day04</span><span>Day05</span><span>Day06</span>
-      </div>
-
-      <div class="feature-callout">
-        <span class="spark">✦</span>
-        <div><strong>Hiểu Đúng, Hiểu Thật</strong><p>AI không chỉ trả lời — AI kiểm tra xem bạn có thực sự hiểu.</p></div>
-      </div>
-    </nav>
-
-    <section class="reader-canvas" aria-label="Trình đọc tài liệu">
-      <div class="reader-toolbar">
-        <div class="tool-group">
-          <button class="tool active" type="button">▣ Đọc</button>
-          <button class="tool" type="button">✎ Bút</button>
-          <button class="tool" type="button">▰ Highlight</button>
-        </div>
-        <div id="slide-meta" class="slide-meta"></div>
-        <div class="tool-group">
-          <button class="tool" type="button" aria-label="Thu nhỏ">−</button>
-          <span class="zoom">100%</span>
-          <button class="tool" type="button" aria-label="Phóng to">＋</button>
-          <a id="pdf-download" class="tool" href="#" download aria-label="Tải PDF">⇩</a>
-        </div>
-      </div>
-
-      <div class="pdf-stage">
-        <div id="pdf-reader" class="pdf-reader" aria-label="Slide bài giảng">
-          <div id="pdf-reader-status" class="pdf-reader-status" role="status" aria-live="polite"></div>
-          <div id="pdf-pages" class="pdf-pages"></div>
-        </div>
-      </div>
-    </section>
-
-    <aside class="tutor-panel" aria-label="VLearn Tutor">
-      <div class="tutor-head">
-        <div class="tutor-avatar">✦</div>
-        <div><strong>VLearn Tutor</strong><p>Trợ lý học theo ngữ cảnh</p></div>
-        <button class="icon-btn" type="button" aria-label="Cuộc trò chuyện mới">＋</button>
-      </div>
-      <div id="ai-status" class="sr-only" aria-live="polite"></div>
-
-      <div class="tutor-context">
-        <span id="selection-chip" class="selection-chip selection-empty">Đang tải ngữ cảnh…</span>
-        <p>Thiếu hoặc lệch nguồn thì Tutor sẽ báo, không đoán.</p>
-      </div>
-
-      <div class="tutor-body" id="tutor-body">
-        <div id="thread" class="thread">
-          <div class="welcome-card">
-            <span class="spark">✦</span>
-            <h2>Hỏi ngay trên slide</h2>
-            <p>Tutor trả lời theo trang đang đọc. Sau đó bạn có thể làm một Micro-Check trong 30 giây để tự kiểm tra mức hiểu.</p>
-          </div>
-        </div>
-
-        <div class="composer">
-          <div id="suggested" class="suggested"></div>
-          <div class="composer-row">
-            <textarea id="ask-input" class="input textarea" rows="2"
-              placeholder="Hỏi Tutor về nội dung trang này…"></textarea>
-            <button id="btn-ask" class="btn btn-primary send-btn" type="button" aria-label="Gửi">↑</button>
-          </div>
-          <span class="composer-hint">Ctrl + Enter để gửi · Chỉ dùng ngữ cảnh đã chọn</span>
-        </div>
-      </div>
-    </aside>
-  </main>
-
-  <aside id="trace-drawer" class="drawer" hidden aria-label="Trace log">
-    <div class="drawer-head">
-      <strong>Trace log</strong>
+  <!-- ================= CỘT PHẢI: TUTOR ================= -->
+  <section class="pane pane-tutor" aria-label="Panel Tutor">
+    <div class="pane-head pane-head-tutor">
       <div>
-        <button id="btn-trace-download" class="btn btn-ghost" type="button">Tải .json</button>
-        <button id="btn-trace-close" class="btn btn-ghost" type="button">Đóng</button>
+        <strong>Tutor</strong>
+        <!-- HAX G1: nói rõ phạm vi -->
+        <p class="scope">Mình chỉ giải thích dựa trên đoạn tài liệu bạn đang chọn.</p>
+        <!-- HAX G2: nói rõ độ tin cậy -->
+        <p class="scope scope-dim">Thiếu hoặc lệch nguồn thì mình báo, không đoán.</p>
       </div>
     </div>
-    <div id="trace-body" class="drawer-body"></div>
-  </aside>
 
-  <script src="engine/text.js"></script>
-  <script src="data/material-catalog.js"></script>
-  <script src="engine/context.js"></script>
-  <script src="engine/trace.js"></script>
-  <script src="engine/scope-guard.js"></script>
-  <script src="engine/grounding-gate.js"></script>
-  <script src="engine/question.js"></script>
-  <script src="engine/mastery.js"></script>
-  <script src="engine/feedback.js"></script>
-  <script src="engine/ai-client.js"></script>
-  <script src="engine/page-context.js"></script>
-  <script type="module" src="engine/pdf-reader.mjs"></script>
-  <script src="app.js"></script>
+    <div class="pane-body" id="tutor-body">
+      <div id="selection-chip" class="selection-chip selection-empty">
+        Chưa chọn đoạn nào
+      </div>
+
+      <div id="thread" class="thread"></div>
+
+      <div class="composer">
+        <div id="suggested" class="suggested"></div>
+        <div class="composer-row">
+          <textarea id="ask-input" class="input textarea" rows="2"
+            placeholder="Hỏi về đoạn bạn vừa chọn…"></textarea>
+          <button id="btn-ask" class="btn btn-primary" type="button">Hỏi</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ================= BẢNG ĐIỀU KHIỂN DEMO ================= -->
+<footer class="devbar">
+  <span class="devbar-label">Bảng điều khiển demo — không thuộc sản phẩm</span>
+  <div class="devbar-actions">
+    <button class="btn btn-dev" type="button" data-scenario="happy">1 · Hiểu đúng</button>
+    <button class="btn btn-dev" type="button" data-scenario="partial">2 · Hiểu một phần</button>
+    <button class="btn btn-dev" type="button" data-scenario="misconception">3 · Đang nhầm</button>
+    <button class="btn btn-dev" type="button" data-scenario="insufficient">4 · Chưa đủ căn cứ</button>
+    <button class="btn btn-dev" type="button" data-scenario="no-source">5 · Thiếu nguồn</button>
+    <button class="btn btn-dev" type="button" data-scenario="cross-page">6 · Cite lệch trang</button>
+    <button class="btn btn-dev" type="button" data-scenario="off-topic">7 · Ngoài phạm vi</button>
+    <button class="btn btn-dev" type="button" data-scenario="injection">8 · Prompt injection</button>
+    <button id="btn-reset" class="btn btn-ghost" type="button">Reset</button>
+  </div>
+</footer>
+
+<!-- ================= NGĂN TRACE ================= -->
+<aside id="trace-drawer" class="drawer" hidden aria-label="Trace log">
+  <div class="drawer-head">
+    <strong>Trace log</strong>
+    <div>
+      <button id="btn-trace-download" class="btn btn-ghost" type="button">Tải .json</button>
+      <button id="btn-trace-close" class="btn btn-ghost" type="button">Đóng</button>
+    </div>
+  </div>
+  <div id="trace-body" class="drawer-body"></div>
+</aside>
+
+<!-- Thứ tự nạp có ý nghĩa: text → data/context → các thành phần → điểm nối AI → app -->
+<script src="engine/text.js"></script>
+<script src="data/slides.js"></script>
+<script src="engine/context.js"></script>
+<script src="engine/trace.js"></script>
+<script src="engine/scope-guard.js"></script>
+<script src="engine/grounding-gate.js"></script>
+<script src="engine/question.js"></script>
+<script src="engine/mastery.js"></script>
+<script src="engine/feedback.js"></script>
+<script src="engine/ai-client.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

@@ -1,17 +1,27 @@
 /* ============================================================================
- * engine/ai-client.js — ĐIỂM NỐI AI (Live Only cho Student Demo)
+ * engine/ai-client.js — ĐIỂM NỐI AI (mối hàn cho CP3)
  * ----------------------------------------------------------------------------
- * Kết nối với /api/health, /api/tutor, /api/question, /api/classify.
- * Không fallback về mock khi có lỗi API.
+ * Ở CP2 file này KHÔNG gọi AI. Nó chỉ làm ba việc:
+ *   1. thăm dò /api/health để biết có server và server đã cấu hình AI chưa,
+ *   2. nếu có → gọi /api/question và /api/classify,
+ *   3. nếu không có, hoặc gọi lỗi → chạy bản mock và GHI RÕ vào trace là đã
+ *      fallback (không được im lặng, vì trace là bằng chứng cho eval).
+ *
+ * Toàn bộ khoá API nằm ở phía server (server.mjs đọc biến môi trường). Trang
+ * web không bao giờ giữ khoá — luật an toàn 02-guide.md §3.4.
+ *
+ * Mở index.html bằng file:// → luôn chạy mock, không cần server.
+ * Chạy `node server.mjs` → dùng API nếu đã cấu hình.
  * ========================================================================== */
 
 window.AiClient = (function () {
 
   var state = {
-    mode: 'unavailable',   // 'unavailable' | 'live'
-    provider: null,        // 'openai' | null
+    mode: 'mock',        // 'mock' | 'live'
+    provider: null,      // 'anthropic' | 'gemini' | null
     model: null,
     probed: false,
+    verified: false,     // chỉ true sau ít nhất một classify live thành công
     reason: 'chưa thăm dò',
     liveSteps: []
   };
@@ -21,46 +31,33 @@ window.AiClient = (function () {
   function emit() { listeners.forEach(function (fn) { fn(getMode()); }); }
   function getMode() { return JSON.parse(JSON.stringify(state)); }
 
-  function publicError(status, body) {
-    var error = new Error(body && body.error || 'Không gọi được AI.');
-    error.status = status;
-    error.code = body && body.code || 'request_failed';
-    return error;
-  }
-
-  function requireLive(step) {
-    if (state.mode !== 'live' || state.liveSteps.indexOf(step) === -1) {
-      var error = new Error('AI chưa sẵn sàng cho bước này.');
-      error.code = 'ai_unavailable';
-      throw error;
-    }
-  }
-
   /* ---------------------------------------------------------------------- */
 
   function probe() {
     if (location.protocol === 'file:') {
-      state.mode = 'unavailable';
       state.probed = true;
-      state.reason = 'mở bằng file:// nên không có server AI';
+      state.reason = 'mở bằng file:// nên không có server — chạy mock';
       emit();
       return Promise.resolve(getMode());
     }
     return fetch('api/health', { method: 'GET' })
       .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('health ' + r.status)); })
       .then(function (j) {
-        state.mode = j.mode === 'live' ? 'live' : 'unavailable';
+        state.mode = j.mode === 'live' ? 'live' : 'mock';
         state.provider = j.provider || null;
         state.model = j.model || null;
         state.liveSteps = j.live_steps || [];
-        state.reason = j.reason || '';
+        state.verified = false;
+        state.reason = (j.reason || '') + (state.mode === 'live'
+          ? ' · mới xác nhận cấu hình, chưa xác minh kết nối provider'
+          : '');
         state.probed = true;
         emit();
         return getMode();
       })
       .catch(function (e) {
-        state.mode = 'unavailable';
-        state.reason = 'Không kết nối được server AI (' + e.message + ').';
+        state.mode = 'mock';
+        state.reason = 'không gọi được /api/health (' + e.message + ') — chạy mock';
         state.probed = true;
         emit();
         return getMode();
@@ -69,103 +66,29 @@ window.AiClient = (function () {
 
   /* ---------------------------------------------------------------------- */
 
-  function answerTutor(args) {
-    try {
-      requireLive('tutor_answer');
-    } catch (err) {
-      return Promise.reject(err);
-    }
-    return post('api/tutor', {
-      question: args.question,
-      context: slim(args.context)
-    }).then(function (json) {
-      if (window.Trace) {
-        window.Trace.add('tutor_answer', {
-          mode: 'live',
-          model: json.model || state.model,
-          latency_ms: json.latency_ms || null,
-          context: {
-            doc_code: args.context.docCode,
-            source_page: args.context.selectedPage,
-            source_codes: args.context.sourceCodes
-          },
-          input: { student_question: args.question },
-          output: { answer: json.answer, citations: json.citations }
-        });
-      }
-      return json;
-    }).catch(function (error) {
-      if (window.Trace) {
-        window.Trace.add('tutor_answer_error', {
-          mode: 'live',
-          code: error.code || 'request_failed',
-          status: error.status || 0
-        });
-      }
-      return Promise.reject(error);
-    });
-  }
-
   function generateQuestion(context, gate) {
-    try {
-      requireLive('question_generate');
-    } catch (err) {
-      return Promise.reject(err);
-    }
-    return post('api/question', { context: slim(context) })
-      .then(function (j) {
-        var out = {
-          question: j.question,
-          mode: 'live',
-          model: j.model || state.model
-        };
-        if (window.Trace) {
-          window.Trace.add('question_generate_live', {
-            mode: 'live',
-            model: out.model,
-            latency_ms: j.latency_ms || null,
-            context: { doc_code: context.docCode, source_page: context.selectedPage, source_codes: context.sourceCodes },
-            output: { question: out.question }
-          });
-        }
-        return out;
-      })
-      .catch(function (error) {
-        if (window.Trace) {
-          window.Trace.add('question_generate_error', {
-            mode: 'live',
-            code: error.code || 'request_failed',
-            status: error.status || 0
-          });
-        }
-        return Promise.reject(error);
-      });
+    // CP3 cố ý chỉ gọi AI ở quyết định trung tâm. Câu hỏi dùng bank đã duyệt để
+    // mỗi lần demo/eval giữ nguyên input; phần mock này được khai rõ trong §4.
+    return Promise.resolve(window.QuestionGenerator.generateMock({ context: context, gate: gate }));
   }
 
   function classify(args) {
-    try {
-      requireLive('mastery_classify');
-    } catch (err) {
-      return Promise.reject(err);
+    if (state.mode !== 'live') {
+      return Promise.resolve(window.Mastery.classifyMock(args));
     }
-    var questionText = typeof args.question === 'object' ? args.question.question : args.question;
-    var keyPoints = args.question && Array.isArray(args.question.keyPoints)
-      ? args.question.keyPoints.map(function (k) { return k.label || k; })
-      : [];
-    var misconceptions = args.question && Array.isArray(args.question.misconceptions)
-      ? args.question.misconceptions.map(function (m) { return m.gap || m; })
-      : [];
-
     return post('api/classify', {
       context: slim(args.context),
-      question: questionText,
+      question: args.question.question,
       rubric: {
-        key_points: keyPoints,
-        misconceptions: misconceptions
+        key_points: (args.question.keyPoints || []).map(function (k) { return k.label; }),
+        misconceptions: (args.question.misconceptions || []).map(function (m) { return m.gap; })
       },
       student_answer: args.answer
     })
       .then(function (j) {
+        state.verified = true;
+        state.reason = 'đã có lời gọi Mastery live thành công';
+        emit();
         var verdict = j.verdict;
         verdict.source_page = args.context.selectedPage;
         if (window.Trace) {
@@ -177,7 +100,7 @@ window.AiClient = (function () {
               doc_code: args.context.docCode,
               source_page: args.context.selectedPage,
               source_codes: args.context.sourceCodes,
-              question: questionText
+              question: args.question.question
             },
             input: { student_answer: args.answer, answer_length: String(args.answer || '').length },
             output: verdict
@@ -185,15 +108,12 @@ window.AiClient = (function () {
         }
         return verdict;
       })
-      .catch(function (error) {
-        if (window.Trace) {
-          window.Trace.add('mastery_classify_error', {
-            mode: 'live',
-            code: error.code || 'request_failed',
-            status: error.status || 0
-          });
-        }
-        return Promise.reject(error);
+      .catch(function (e) {
+        state.verified = false;
+        state.reason = 'lời gọi live lỗi; verdict hiện tại dùng fallback mock';
+        emit();
+        logFallback('mastery_classify', e);
+        return window.Mastery.classifyMock(args);
       });
   }
 
@@ -205,22 +125,12 @@ window.AiClient = (function () {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     }).then(function (r) {
-      return r.json().then(
-        function (j) {
-          if (!r.ok) {
-            return Promise.reject(publicError(r.status, j));
-          }
-          return j;
-        },
-        function () {
-          return Promise.reject(publicError(r.status, { error: 'Response không phải JSON' }));
-        }
-      );
-    }, function (err) {
-      return Promise.reject(publicError(0, { error: 'Không thể kết nối tới server: ' + (err && err.message || err) }));
+      if (!r.ok) return r.text().then(function (t) { return Promise.reject(new Error(r.status + ' ' + t.slice(0, 200))); });
+      return r.json();
     });
   }
 
+  /** Chỉ gửi phần ngữ cảnh tối thiểu — không gửi thêm dữ liệu không cần. */
   function slim(context) {
     return {
       doc_code: context.docCode,
@@ -232,11 +142,18 @@ window.AiClient = (function () {
     };
   }
 
+  function logFallback(step, err) {
+    if (!window.Trace) return;
+    window.Trace.add(step + '_fallback', {
+      mode: 'mock',
+      output: { fell_back: true, error: String(err && err.message || err) }
+    });
+  }
+
   return {
     probe: probe,
     getMode: getMode,
     onModeChange: onModeChange,
-    answerTutor: answerTutor,
     generateQuestion: generateQuestion,
     classify: classify
   };

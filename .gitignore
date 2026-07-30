@@ -10,3 +10,5 @@ secrets.json
 
 # Data pack thật chỉ dùng cục bộ trong hackathon, không đưa lên repo nộp bài.
 codebase/data/vlearn-pack/
+.tmp-cp5-deck/
+*.inspect.ndjson
