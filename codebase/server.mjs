@@ -133,8 +133,7 @@ const TUTOR_SCHEMA = {
     citations: {
       type: 'array',
       items: { type: 'string' },
-      minItems: 1,
-      uniqueItems: true
+      minItems: 1
     }
   },
   required: ['answer', 'citations'],
@@ -157,17 +156,22 @@ export function validateTutorAnswer(value, allowedSourceCodes) {
     throw new Error('Tutor answer cần ít nhất một citation');
   }
   const allowed = new Set(allowedSourceCodes || []);
-  for (const citation of value.citations) {
+  const normalizedCitations = [];
+  for (let citation of value.citations) {
+    if (typeof citation === 'string') {
+      citation = citation.replace(/^\[|\]$/g, '').trim();
+    }
     if (!allowed.has(citation)) {
       throw new Error(`Tutor citation không thuộc ngữ cảnh: ${citation}`);
     }
+    normalizedCitations.push(citation);
   }
-  return { answer: value.answer.trim(), citations: [...new Set(value.citations)] };
+  return { answer: value.answer.trim(), citations: [...new Set(normalizedCitations)] };
 }
 
 function tutorUserPrompt(body) {
   const c = body.context || {};
-  const sources = (c.source_codes || c.sourceCodes || []).map((code) => `[${code}] ${c.selected_text || c.selectedText || ''}`).join('\n');
+  const sources = (c.source_codes || c.sourceCodes || []).map((code) => `Mã nguồn: ${code}\nNội dung: ${c.selected_text || c.selectedText || ''}`).join('\n\n');
   return [
     `Mã tài liệu: ${c.doc_code || c.docCode || ''}`,
     `Trang: ${c.source_page || c.selectedPage || ''}`,
@@ -176,7 +180,7 @@ function tutorUserPrompt(body) {
     '',
     `Câu hỏi của sinh viên: ${body.question}`,
     '',
-    'Trả lời câu hỏi theo schema và chỉ trích các mã [SOURCE_CODE] trong ngữ cảnh.'
+    'Trả lời câu hỏi theo schema. Trong mảng citations, chỉ ghi mã nguồn hợp lệ (ví dụ: "T06-130").'
   ].join('\n');
 }
 
