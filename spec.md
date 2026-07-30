@@ -29,19 +29,19 @@ Chọn lát cắt đầu vì nó nối hai bằng chứng thành một vòng kh�
 
 - **Lát cắt một câu:** Với học viên vừa được giải thích một khái niệm từ đoạn slide đã qua Grounding Gate, AI đánh giá câu teach-back để quyết định `understood`, `partial`, `misconception` hay `insufficient`, rồi đưa đúng một bước củng cố có nguồn trong tối đa 60 giây.
 - **Non-goals:** không thay LMS/VLearn production; không chấm điểm chính thức; không đồng bộ tiến độ dài hạn; không sinh cả bộ quiz; không trả lời logistics; không giữ bộ nhớ sau reload.
-- **Mức prototype:** **Mock có AI thật ở lõi**.
+- **Mức prototype:** **Web demo dùng AI thật 100% cho 3 bước trung tâm**.
 
 | Thành phần | Thật hay mock | Bằng chứng/file |
 |---|---|---|
 | Chọn tài liệu/trang/đoạn, 7 bước UI | Thật | `codebase/index.html`, `codebase/app.js` |
 | Grounding Gate, Scope Guard | Thật, luật xác định | `codebase/engine/grounding-gate.js`, `scope-guard.js` |
-| **Mastery Classifier — quyết định trung tâm** | **AI thật khi server có key**; fallback rule phải ghi trace | `codebase/server.mjs`, `engine/ai-client.js` |
-| Tutor giải thích | **Mock**, văn bản viết sẵn theo trang | `codebase/data/slides.js` |
-| Câu Micro-Check | **Mock**, bank đã duyệt để input eval ổn định | `codebase/engine/question.js` |
-| Tài liệu, đăng nhập, danh sách khoá | **Mock/data giả** | `codebase/data/slides.js` |
+| **Mastery Classifier — quyết định trung tâm** | **AI thật (OpenAI live)** | `codebase/server.mjs`, `engine/ai-client.js` |
+| **Tutor giải thích** | **AI thật (OpenAI live)** theo trích đoạn | `codebase/server.mjs`, `engine/ai-client.js` |
+| **Câu Micro-Check** | **AI thật (OpenAI live)** sau khi qua Gate | `codebase/server.mjs`, `engine/ai-client.js` |
+| Tài liệu, danh sách khoá | Data catalog từ PDF thật | `codebase/data/material-catalog.js` |
 | Trace và eval | Thật | `codebase/engine/trace.js`, `eval/` |
 
-- **Đường gọi live duy nhất trong demo:** `Gửi câu trả lời` → `AiClient.classify()` → `POST /api/classify` → Gemini/Anthropic structured output → server kiểm schema + bất biến → UI hiển thị state. Badge phải ghi `CP3 · AI thật ở Mastery (<model>)`; nếu lỗi, badge/trace ghi fallback, không giả vờ live.
+- **Đường gọi live trong demo:** Học viên chọn ngữ cảnh → `POST /api/tutor` (Tutor live) → Grounding Gate kiểm tra citation → `POST /api/question` (Micro-Check live) → Học viên nhập teach-back → `POST /api/classify` (Classifier live) → UI hiển thị kết quả. Badge ghi `AI thật · <model>`; nếu lỗi, hiển thị thông báo an toàn và nút Thử lại, không tự động fallback sang mock.
 - **Automation:** **Augment**. AI đề xuất state và bước củng cố; học viên được bỏ qua, trả lời lại hoặc “Tôi không đồng ý”. Sai `understood` có thể khiến học viên tiếp tục với kiến thức sai, nên không tự động chấm điểm/khóa tiến độ.
 
 ### §4b. Nguyên tắc đã áp dụng
@@ -114,3 +114,4 @@ Kết quả đầy đủ: `eval/results/`; trace: `eval/traces/`.
 | CP3 | Server tự validate schema + state/action | Structured JSON không bảo đảm đúng bất biến nghiệp vụ |
 | CP3 | Cấp rubric ý đúng/quan hệ sai cho classifier | Lượt live 70,8% cho thấy model tự suy diễn thiếu ý thành misconception và không bám nhãn đo |
 | CP3 | Giữ toàn bộ lượt lỗi và lượt dưới bar | Kết quả đo phải trung thực, phúc khảo được |
+| 2026-07-30 | Nâng cấp Live Student Demo: 3 bước AI live (Tutor, Micro-Check, Classify) với OpenAI | Trải nghiệm sinh viên tự do, loại bỏ mock fallback và fixture ẩn |
