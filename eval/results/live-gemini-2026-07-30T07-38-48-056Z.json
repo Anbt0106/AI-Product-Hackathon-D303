@@ -1,0 +1,944 @@
+{
+  "artifact": "CP3 evaluation run",
+  "golden_set": "VLearn Mastery + safety golden set v1",
+  "summary": {
+    "run_at": "2026-07-30T07:38:48.056Z",
+    "mode": "live",
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "total": 24,
+    "passed": 24,
+    "failed": 0,
+    "pass_rate_percent": 100,
+    "mastery_total": 16,
+    "mastery_passed": 16,
+    "mastery_pass_rate_percent": 100,
+    "quality_bar_percent": 85,
+    "quality_bar_met": true,
+    "live_ai_call_count": 16
+  },
+  "quality_bar": {
+    "overall_pass_rate_percent": 85,
+    "hard_invariants": [
+      "misconception không bao giờ thành understood",
+      "insufficient không bao giờ có next_action=continue",
+      "mọi verdict mastery có source_page đúng context"
+    ]
+  },
+  "results": [
+    {
+      "id": "M01",
+      "kind": "mastery",
+      "layer": "normal",
+      "source_ref": "C0227/T1239",
+      "expected": {
+        "mastery_state": "understood"
+      },
+      "actual": {
+        "mastery_state": "understood",
+        "evidence_from_student": "Bước self-attention tạo khác biệt vì Transformer xử lý các token song song, còn RNN xử lý tuần tự từng bước.",
+        "gap": null,
+        "feedback": "Em đã nêu rất chính xác bước self-attention tạo sự khác biệt và đối chiếu đúng khả năng xử lý song song với RNN.",
+        "confidence": "high",
+        "next_action": "continue",
+        "reason": "Học viên đã nêu đủ ba ý đúng: chỉ ra bước self-attention, nêu được đặc điểm xử lý song song và đối chiếu với xử lý tuần tự của RNN.",
+        "source_page": 12
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "understood",
+          "actual": "understood",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1633
+    },
+    {
+      "id": "M02",
+      "kind": "mastery",
+      "layer": "normal",
+      "source_ref": "C0439/T0060",
+      "expected": {
+        "mastery_state": "understood"
+      },
+      "actual": {
+        "mastery_state": "understood",
+        "evidence_from_student": "Điểm khác là self-attention cho các token nhìn nhau cùng lúc, thay vì RNN đọc lần lượt.",
+        "gap": null,
+        "feedback": "Em đã nắm rất chính xác điểm khác biệt cốt lõi của bước self-attention so với RNN. Hãy tiếp tục phát huy nhé!",
+        "reinforce": null,
+        "confidence": "high",
+        "next_action": "continue",
+        "reason": "Học viên trả lời đủ các ý đúng gồm: chỉ ra bước self-attention, nêu được ý nhìn nhau cùng lúc (song song) và đối chiếu với việc đọc lần lượt của RNN.",
+        "source_page": 12
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "understood",
+          "actual": "understood",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1381
+    },
+    {
+      "id": "M03",
+      "kind": "mastery",
+      "layer": "normal",
+      "source_ref": "C0115/T0984",
+      "expected": {
+        "mastery_state": "understood"
+      },
+      "actual": {
+        "mastery_state": "understood",
+        "evidence_from_student": "Mỗi token nhìn toàn bộ token khác cùng lúc rồi dùng similarity score Q K V để xác định quan hệ.",
+        "gap": null,
+        "feedback": "Em đã giải thích chính xác cách self-attention xử lý song song các token và dùng similarity score Q-K-V để xác định mối quan hệ trong toàn bộ văn bản.",
+        "reinforce": null,
+        "confidence": "high",
+        "next_action": "continue",
+        "reason": "Học viên nêu đầy đủ các ý đúng gồm token nhìn tất cả token khác, tính song song cùng lúc, và nhắc đến similarity score hoặc Q-K-V.",
+        "source_page": 15
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "understood",
+          "actual": "understood",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1562
+    },
+    {
+      "id": "M04",
+      "kind": "mastery",
+      "layer": "normal",
+      "source_ref": "C0227/T0153",
+      "expected": {
+        "mastery_state": "understood"
+      },
+      "actual": {
+        "mastery_state": "understood",
+        "evidence_from_student": "Phát biểu đó sai vì một từ có thể thành nhiều token; ví dụ Xin chào Việt Nam có thể thành ba token.",
+        "gap": null,
+        "feedback": "Bạn đã trả lời chính xác rằng phát biểu đó là sai và đưa ra ví dụ rất đúng về số lượng token của cụm từ.",
+        "confidence": "high",
+        "next_action": "continue",
+        "reason": "Học viên đã nêu đủ các ý đúng theo yêu cầu: kết luận sai, giải thích một từ có thể thành nhiều token, và lấy ví dụ minh họa chính xác từ ngữ cảnh.",
+        "source_page": 18
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "understood",
+          "actual": "understood",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1272
+    },
+    {
+      "id": "M05",
+      "kind": "mastery",
+      "layer": "partial",
+      "source_ref": "C0163/T1190",
+      "expected": {
+        "mastery_state": "partial"
+      },
+      "actual": {
+        "mastery_state": "partial",
+        "evidence_from_student": "Self-attention cho các token được xử lý song song nên mô hình đọc nhanh hơn.",
+        "gap": "Chưa nêu được việc mỗi token nhìn tất cả token khác và similarity score hoặc Q-K-V để giải thích cơ chế giữ ngữ cảnh dài.",
+        "feedback": "Em đã nhận diện đúng ý token được xử lý song song. Tuy nhiên, em cần bổ sung thêm ý mỗi token nhìn tất cả các token khác và tính similarity score để giải thích vì sao mô hình không quên đoạn đầu.",
+        "reinforce": "Xem lại cách các token tính toán độ tương đồng (similarity score) với toàn bộ các từ khác trong ngữ cảnh cùng một lúc.",
+        "confidence": "high",
+        "next_action": "reinforce",
+        "reason": "Học viên đạt được 1 trong 3 ý đúng (nêu được song song/cùng lúc), thiếu các ý về việc token nhìn tất cả token khác và similarity score, thuộc mức partial theo rubric.",
+        "source_page": 15
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "partial",
+          "actual": "partial",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1608
+    },
+    {
+      "id": "M06",
+      "kind": "mastery",
+      "layer": "partial",
+      "source_ref": "C0320/T1043",
+      "expected": {
+        "mastery_state": "partial"
+      },
+      "actual": {
+        "mastery_state": "partial",
+        "evidence_from_student": "Mô hình tính similarity score giữa các token bằng query và key.",
+        "gap": "chưa nêu được ý mỗi token nhìn tất cả token khác hoặc xử lý song song/cùng lúc",
+        "feedback": "Em đã nhắc đúng đến similarity score bằng query và key. Tuy nhiên, em cần bổ sung thêm ý các token nhìn tất cả các token khác cùng lúc.",
+        "reinforce": "Xem lại cách các token tương tác đồng thời qua cơ chế Q-K-V để không bỏ sót ngữ cảnh.",
+        "confidence": "high",
+        "next_action": "reinforce",
+        "reason": "Học viên đạt được 1 trong 3 ý đúng (nhắc similarity score hoặc Q-K-V), thiếu ý về việc nhìn tất cả token khác và tính song song.",
+        "source_page": 15
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "partial",
+          "actual": "partial",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1546
+    },
+    {
+      "id": "M07",
+      "kind": "mastery",
+      "layer": "partial",
+      "source_ref": "C0044/T0629",
+      "expected": {
+        "mastery_state": "partial"
+      },
+      "actual": {
+        "mastery_state": "partial",
+        "evidence_from_student": "Total cost gồm input token và output token của lời gọi.",
+        "gap": "Chưa nêu được việc output token được feed forward vào lượt sau",
+        "feedback": "Em đã nắm được total cost được tính từ input token và output token. Tuy nhiên, em cần bổ sung thêm ý output token được feed forward vào các lượt gọi tiếp theo.",
+        "reinforce": "Hãy xem lại đoạn mô tả về cách output token được sử dụng trong các lượt gọi sau ở trang 21.",
+        "confidence": "high",
+        "next_action": "reinforce",
+        "reason": "Học viên nêu đúng hai ý về input token và output token nhưng thiếu ý output token được feed forward vào lượt sau, đạt mức partial.",
+        "source_page": 21
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "partial",
+          "actual": "partial",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1390
+    },
+    {
+      "id": "M08",
+      "kind": "mastery",
+      "layer": "partial",
+      "source_ref": "C0313/T0101",
+      "expected": {
+        "mastery_state": "partial"
+      },
+      "actual": {
+        "mastery_state": "partial",
+        "evidence_from_student": "Cần nêu số giờ công tiết kiệm được rồi quy ra tiền.",
+        "gap": "Chưa nhắc đến cách tính ra tiền (nhân với chi phí nhân công) hoặc phần trăm workload.",
+        "feedback": "Em đã đúng khi nêu ý giờ công tiết kiệm và quy ra tiền. Tuy nhiên, em cần bổ sung thêm cách quy đổi cụ thể bằng cách nhân với chi phí nhân công hoặc nêu phần trăm workload.",
+        "confidence": "high",
+        "next_action": "reinforce",
+        "reason": "Học viên nêu được ý giờ công tiết kiệm và quy ra tiền nhưng chưa đủ chi tiết về cách tính ra tiền theo đúng ngữ cảnh.",
+        "source_page": 9
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "partial",
+          "actual": "partial",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1727
+    },
+    {
+      "id": "M09",
+      "kind": "mastery",
+      "layer": "domain",
+      "source_ref": "C0247/T0098",
+      "expected": {
+        "mastery_state": "misconception"
+      },
+      "actual": {
+        "mastery_state": "misconception",
+        "evidence_from_student": "Self-attention đọc tuần tự từ trái sang phải rồi lưu lại các token đã đọc trong bộ nhớ.",
+        "gap": "Học viên hiểu sai bản chất cơ chế self-attention thành xử lý tuần tự và có bộ nhớ lưu trữ thay vì tính toán song song.",
+        "feedback": "Bạn đã cố gắng giải thích cách mô hình xử lý văn bản, tuy nhiên self-attention thực chất tính toán song song giữa các token chứ không đọc tuần tự từ trái sang phải.",
+        "reinforce": "Xem lại trang 15 về cách các token nhìn lẫn nhau song song trong không gian toán học.",
+        "confidence": "high",
+        "next_action": "reinforce",
+        "reason": "Học viên khẳng định quan hệ sai khi cho rằng self-attention đọc tuần tự và lưu lại trong bộ nhớ, thuộc quan hệ sai đã biết.",
+        "source_page": 15
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "misconception",
+          "actual": "misconception",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1531
+    },
+    {
+      "id": "M10",
+      "kind": "mastery",
+      "layer": "domain",
+      "source_ref": "C0185/T1259",
+      "expected": {
+        "mastery_state": "misconception"
+      },
+      "actual": {
+        "mastery_state": "misconception",
+        "evidence_from_student": "Transformer đưa token qua feed forward trước rồi mới tới self-attention để hiểu ngôn ngữ như con người",
+        "gap": "Nhầm lẫn thứ tự các bước trong Transformer và gán cho mô hình khả năng hiểu ngôn ngữ như con người",
+        "feedback": "Học viên đã nhắc đến các thành phần của Transformer, nhưng thứ tự các bước bị ngược lại và mô hình thực hiện dự đoán xác suất chứ không hiểu ngôn ngữ như con người.",
+        "reinforce": "Xem lại sơ đồ 5 bước trên tài liệu để nắm đúng thứ tự xử lý của self-attention và feed forward.",
+        "confidence": "high",
+        "next_action": "reinforce",
+        "reason": "Học viên khẳng định sai quan hệ thứ tự giữa các bước và hiểu sai bản chất hoạt động của Transformer.",
+        "source_page": 12
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "misconception",
+          "actual": "misconception",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1496
+    },
+    {
+      "id": "M11",
+      "kind": "mastery",
+      "layer": "domain",
+      "source_ref": "C0068/T0048",
+      "expected": {
+        "mastery_state": "misconception"
+      },
+      "actual": {
+        "mastery_state": "misconception",
+        "evidence_from_student": "Đúng, mỗi từ tương ứng chính xác với một token nên mô hình đọc word by word.",
+        "gap": "Học viên cho rằng một từ tương ứng một token và mô hình đọc word by word.",
+        "feedback": "Học viên đã nêu được khái niệm từ và token nhưng phát biểu này chưa chính xác. Thực tế là một từ có thể tách thành nhiều token và LLM không đọc theo word by word.",
+        "reinforce": "Xem lại ví dụ tách token trên trang 18 để thấy một từ có thể tạo ra nhiều token và cách mô hình thực sự đọc token.",
+        "confidence": "high",
+        "next_action": "reinforce",
+        "reason": "Học viên khẳng định sai quan hệ 'một từ = một token' và 'mô hình đọc word by word', mâu thuẫn trực tiếp với nội dung tài liệu.",
+        "source_page": 18
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "misconception",
+          "actual": "misconception",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1481
+    },
+    {
+      "id": "M12",
+      "kind": "mastery",
+      "layer": "domain",
+      "source_ref": "risk/domain-automation",
+      "expected": {
+        "mastery_state": "misconception"
+      },
+      "actual": {
+        "mastery_state": "misconception",
+        "evidence_from_student": "Nên để AI chấm điểm và tự kết luận hoàn toàn cho nhanh, học viên không cần phản đối.",
+        "gap": "Học viên chọn mức tự động hóa cao nhất cho một việc mà sai thì chi phí sửa rất đắt.",
+        "feedback": "Ý kiến của bạn giúp tối ưu tốc độ xử lý. Tuy nhiên, việc để AI tự quyết định hoàn toàn mà học viên không được phản đối sẽ gây rủi ro lớn nếu AI đánh giá sai.",
+        "reinforce": "Xem lại chi phí khi AI đánh giá sai mức độ hiểu bài của học viên.",
+        "confidence": "high",
+        "next_action": "reinforce",
+        "reason": "Học viên khẳng định quan hệ sai khi chọn mức tự động hóa toàn phần cho một tác vụ quan trọng có chi phí sai sót cao.",
+        "source_page": 7
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "misconception",
+          "actual": "misconception",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1403
+    },
+    {
+      "id": "M13",
+      "kind": "mastery",
+      "layer": "ambiguity",
+      "source_ref": "C0232/T0130",
+      "expected": {
+        "mastery_state": "insufficient"
+      },
+      "actual": {
+        "mastery_state": "insufficient",
+        "evidence_from_student": "Em hiểu rồi",
+        "gap": null,
+        "feedback": "Câu trả lời của bạn quá ngắn và chưa có nội dung để đối chiếu. Hãy cho biết bước nào trong 5 bước tạo ra sự khác biệt so với RNN và khác ở chỗ nào nhé.",
+        "confidence": "high",
+        "next_action": "clarify",
+        "reason": "Học viên chỉ tuyên bố hiểu rồi mà không có nội dung đối chiếu với các ý đúng cần tìm, theo quy tắc cứng phải xếp vào loại insufficient.",
+        "source_page": 12
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "insufficient",
+          "actual": "insufficient",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1307
+    },
+    {
+      "id": "M14",
+      "kind": "mastery",
+      "layer": "ambiguity",
+      "source_ref": "risk/too-short",
+      "expected": {
+        "mastery_state": "insufficient"
+      },
+      "actual": {
+        "mastery_state": "insufficient",
+        "evidence_from_student": "OK ạ",
+        "gap": null,
+        "feedback": "Học viên chưa đưa ra nội dung đối chiếu. Hãy cho biết nút thắt và chỉ số thành công khác nhau như thế nào nhé.",
+        "reinforce": null,
+        "confidence": "high",
+        "next_action": "clarify",
+        "reason": "Câu trả lời của học viên quá ngắn, mơ hồ và chỉ tuyên bố đồng ý mà không có nội dung để đối chiếu với các ý đúng.",
+        "source_page": 6
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "insufficient",
+          "actual": "insufficient",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1110
+    },
+    {
+      "id": "M15",
+      "kind": "mastery",
+      "layer": "ambiguity",
+      "source_ref": "risk/off-topic-answer",
+      "expected": {
+        "mastery_state": "insufficient"
+      },
+      "actual": {
+        "mastery_state": "insufficient",
+        "evidence_from_student": "Tối qua đội tuyển thắng nên sáng nay em đi học hơi muộn.",
+        "gap": null,
+        "feedback": "Câu trả lời của bạn chưa chứa nội dung về self-attention. Hãy đọc lại cách các token tương tác trong văn bản nhé.",
+        "confidence": "high",
+        "next_action": "clarify",
+        "reason": "Học viên trả lời ngoài lề, không có nội dung nào đối chiếu được với các ý đúng cần tìm theo rubric, dẫn đến trạng thái insufficient.",
+        "source_page": 15
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "insufficient",
+          "actual": "insufficient",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1149
+    },
+    {
+      "id": "M16",
+      "kind": "mastery",
+      "layer": "ambiguity",
+      "source_ref": "risk/no-key-point",
+      "expected": {
+        "mastery_state": "insufficient"
+      },
+      "actual": {
+        "mastery_state": "insufficient",
+        "evidence_from_student": "Phần này nói về quy trình và những điều nhóm cần thảo luận cùng nhau.",
+        "gap": null,
+        "feedback": "Em mới nêu chung chung về phạm vi của nội dung học mà chưa đối chiếu được sự khác nhau giữa nút thắt và chỉ số thành công.",
+        "confidence": "high",
+        "next_action": "clarify",
+        "reason": "Câu trả lời của học viên quá mơ hồ, không có nội dung đối chiếu với các ý đúng về nút thắt và chỉ số thành công theo rubric, do đó được phân loại là insufficient và cần clarify.",
+        "source_page": 6
+      },
+      "checks": [
+        {
+          "key": "mastery_state",
+          "expected": "insufficient",
+          "actual": "insufficient",
+          "pass": true
+        }
+      ],
+      "invariants": [
+        {
+          "name": "source_page_in_context",
+          "pass": true
+        },
+        {
+          "name": "misconception_never_understood",
+          "pass": true
+        },
+        {
+          "name": "insufficient_never_continue",
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "latency_ms": 1435
+    },
+    {
+      "id": "G01",
+      "kind": "gate",
+      "layer": "source",
+      "source_ref": "risk/empty-page",
+      "expected": {
+        "gate_status": "block",
+        "reason": "empty_page"
+      },
+      "actual": {
+        "gate_status": "block",
+        "reason": "empty_page"
+      },
+      "checks": [
+        {
+          "key": "gate_status",
+          "expected": "block",
+          "actual": "block",
+          "pass": true
+        },
+        {
+          "key": "reason",
+          "expected": "empty_page",
+          "actual": "empty_page",
+          "pass": true
+        }
+      ],
+      "invariants": [],
+      "pass": true,
+      "latency_ms": 0
+    },
+    {
+      "id": "G02",
+      "kind": "gate",
+      "layer": "source",
+      "source_ref": "risk/cross-page",
+      "expected": {
+        "gate_status": "review",
+        "reason": "citation_cross_page"
+      },
+      "actual": {
+        "gate_status": "review",
+        "reason": "citation_cross_page"
+      },
+      "checks": [
+        {
+          "key": "gate_status",
+          "expected": "review",
+          "actual": "review",
+          "pass": true
+        },
+        {
+          "key": "reason",
+          "expected": "citation_cross_page",
+          "actual": "citation_cross_page",
+          "pass": true
+        }
+      ],
+      "invariants": [],
+      "pass": true,
+      "latency_ms": 0
+    },
+    {
+      "id": "G03",
+      "kind": "gate",
+      "layer": "source",
+      "source_ref": "risk/missing-citation",
+      "expected": {
+        "gate_status": "block",
+        "reason": "citation_missing"
+      },
+      "actual": {
+        "gate_status": "block",
+        "reason": "citation_missing"
+      },
+      "checks": [
+        {
+          "key": "gate_status",
+          "expected": "block",
+          "actual": "block",
+          "pass": true
+        },
+        {
+          "key": "reason",
+          "expected": "citation_missing",
+          "actual": "citation_missing",
+          "pass": true
+        }
+      ],
+      "invariants": [],
+      "pass": true,
+      "latency_ms": 0
+    },
+    {
+      "id": "G04",
+      "kind": "gate",
+      "layer": "source",
+      "source_ref": "risk/cross-doc",
+      "expected": {
+        "gate_status": "block",
+        "reason": "citation_cross_doc"
+      },
+      "actual": {
+        "gate_status": "block",
+        "reason": "citation_cross_doc"
+      },
+      "checks": [
+        {
+          "key": "gate_status",
+          "expected": "block",
+          "actual": "block",
+          "pass": true
+        },
+        {
+          "key": "reason",
+          "expected": "citation_cross_doc",
+          "actual": "citation_cross_doc",
+          "pass": true
+        }
+      ],
+      "invariants": [],
+      "pass": true,
+      "latency_ms": 0
+    },
+    {
+      "id": "S01",
+      "kind": "scope",
+      "layer": "authority",
+      "source_ref": "risk/logistics",
+      "expected": {
+        "scope_kind": "off_topic"
+      },
+      "actual": {
+        "scope_kind": "off_topic"
+      },
+      "checks": [
+        {
+          "key": "scope_kind",
+          "expected": "off_topic",
+          "actual": "off_topic",
+          "pass": true
+        }
+      ],
+      "invariants": [],
+      "pass": true,
+      "latency_ms": 6
+    },
+    {
+      "id": "S02",
+      "kind": "scope",
+      "layer": "authority",
+      "source_ref": "risk/grade",
+      "expected": {
+        "scope_kind": "off_topic"
+      },
+      "actual": {
+        "scope_kind": "off_topic"
+      },
+      "checks": [
+        {
+          "key": "scope_kind",
+          "expected": "off_topic",
+          "actual": "off_topic",
+          "pass": true
+        }
+      ],
+      "invariants": [],
+      "pass": true,
+      "latency_ms": 0
+    },
+    {
+      "id": "S03",
+      "kind": "scope",
+      "layer": "authority",
+      "source_ref": "risk/injection",
+      "expected": {
+        "scope_kind": "injection"
+      },
+      "actual": {
+        "scope_kind": "injection"
+      },
+      "checks": [
+        {
+          "key": "scope_kind",
+          "expected": "injection",
+          "actual": "injection",
+          "pass": true
+        }
+      ],
+      "invariants": [],
+      "pass": true,
+      "latency_ms": 0
+    },
+    {
+      "id": "S04",
+      "kind": "scope",
+      "layer": "authority",
+      "source_ref": "risk/injection-no-diacritics",
+      "expected": {
+        "scope_kind": "injection"
+      },
+      "actual": {
+        "scope_kind": "injection"
+      },
+      "checks": [
+        {
+          "key": "scope_kind",
+          "expected": "injection",
+          "actual": "injection",
+          "pass": true
+        }
+      ],
+      "invariants": [],
+      "pass": true,
+      "latency_ms": 0
+    }
+  ]
+}
