@@ -35,9 +35,9 @@ Chọn lát cắt đầu vì nó nối hai bằng chứng thành một vòng kh�
 |---|---|---|
 | Chọn tài liệu/trang/đoạn, 7 bước UI | Thật | `codebase/index.html`, `codebase/app.js` |
 | Grounding Gate, Scope Guard | Thật, luật xác định | `codebase/engine/grounding-gate.js`, `scope-guard.js` |
-| **Mastery Classifier — quyết định trung tâm** | **AI thật (OpenAI live)** | `codebase/server.mjs`, `engine/ai-client.js` |
-| **Tutor giải thích** | **AI thật (OpenAI live)** theo trích đoạn | `codebase/server.mjs`, `engine/ai-client.js` |
-| **Câu Micro-Check** | **AI thật (OpenAI live)** sau khi qua Gate | `codebase/server.mjs`, `engine/ai-client.js` |
+| **Mastery Classifier — quyết định trung tâm** | **AI thật (Gemini multimodal live)** | `codebase/server.mjs`, `engine/ai-client.js` |
+| **Tutor giải thích** | **AI thật (Gemini multimodal live)** theo toàn trang | `codebase/server.mjs`, `engine/ai-client.js` |
+| **Câu Micro-Check** | **AI thật (Gemini multimodal live)** sau khi qua Gate | `codebase/server.mjs`, `engine/ai-client.js` |
 | Tài liệu, danh sách khoá | Data catalog từ PDF thật | `codebase/data/material-catalog.js` |
 | Trace và eval | Thật | `codebase/engine/trace.js`, `eval/` |
 
@@ -114,4 +114,4 @@ Kết quả đầy đủ: `eval/results/`; trace: `eval/traces/`.
 | CP3 | Server tự validate schema + state/action | Structured JSON không bảo đảm đúng bất biến nghiệp vụ |
 | CP3 | Cấp rubric ý đúng/quan hệ sai cho classifier | Lượt live 70,8% cho thấy model tự suy diễn thiếu ý thành misconception và không bám nhãn đo |
 | CP3 | Giữ toàn bộ lượt lỗi và lượt dưới bar | Kết quả đo phải trung thực, phúc khảo được |
-| 2026-07-30 | Nâng cấp Live Student Demo: 3 bước AI live (Tutor, Micro-Check, Classify) với OpenAI | Trải nghiệm sinh viên tự do, loại bỏ mock fallback và fixture ẩn |
+| 2026-07-30 | Nâng cấp Live Student Demo: 3 bước Gemini multimodal live (Tutor, Micro-Check, Classify) | Trải nghiệm sinh viên tự do, đọc cả chữ và ảnh đúng trang, loại bỏ mock fallback |

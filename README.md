@@ -4,7 +4,7 @@
 
 - **Demo 5 phút:** xem [`DEMO-5-PHUT.md`](DEMO-5-PHUT.md) — ghi đúng bấm đâu, gõ gì, ra gì.
 - **Spec:** [`spec.md`](spec.md), đặc biệt §4 khai rõ phần AI thật/phần mock.
-- **Prototype:** `codebase/`; chạy mock bằng `node codebase/server.mjs`.
+- **Prototype:** `codebase/`; chạy Gemini live bằng `codebase/start.ps1`.
 - **Eval:** 24 case trong `eval/golden-set.json`; baseline 24/24; lượt Gemini live chính thức 24/24 với 16 lời gọi thật.
 - **Trạng thái CP3:** xem [`CP3-AI-THAT-DO-LUOT-DAU.md`](CP3-AI-THAT-DO-LUOT-DAU.md). Trace live chính thức nằm trong `eval/traces/`; `.env` vẫn không được commit.
 **SPEC → Prototype → Demo.** Đây không phải cuộc thi code — đây là cuộc thi **tư duy sản phẩm AI**.

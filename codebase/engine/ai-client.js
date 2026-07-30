@@ -77,18 +77,14 @@ window.AiClient = (function () {
     }
     return post('api/tutor', {
       question: args.question,
-      context: slim(args.context)
+      page_context: slimPageContext(args.context)
     }).then(function (json) {
       if (window.Trace) {
         window.Trace.add('tutor_answer', {
           mode: 'live',
           model: json.model || state.model,
           latency_ms: json.latency_ms || null,
-          context: {
-            doc_code: args.context.docCode,
-            source_page: args.context.selectedPage,
-            source_codes: args.context.sourceCodes
-          },
+          context: safePageTrace(args.context),
           input: { student_question: args.question },
           output: { answer: json.answer, citations: json.citations }
         });
@@ -112,7 +108,7 @@ window.AiClient = (function () {
     } catch (err) {
       return Promise.reject(err);
     }
-    return post('api/question', { context: slim(context) })
+    return post('api/question', { page_context: slimPageContext(context) })
       .then(function (j) {
         var out = {
           question: j.question,
@@ -124,7 +120,7 @@ window.AiClient = (function () {
             mode: 'live',
             model: out.model,
             latency_ms: j.latency_ms || null,
-            context: { doc_code: context.docCode, source_page: context.selectedPage, source_codes: context.sourceCodes },
+            context: safePageTrace(context),
             output: { question: out.question }
           });
         }
@@ -157,7 +153,7 @@ window.AiClient = (function () {
       : [];
 
     return post('api/classify', {
-      context: slim(args.context),
+      page_context: slimPageContext(args.context),
       question: questionText,
       rubric: {
         key_points: keyPoints,
@@ -173,12 +169,7 @@ window.AiClient = (function () {
             mode: 'live',
             model: j.model || state.model,
             latency_ms: j.latency_ms || null,
-            context: {
-              doc_code: args.context.docCode,
-              source_page: args.context.selectedPage,
-              source_codes: args.context.sourceCodes,
-              question: questionText
-            },
+            context: Object.assign(safePageTrace(args.context), { question: questionText }),
             input: { student_answer: args.answer, answer_length: String(args.answer || '').length },
             output: verdict
           });
@@ -221,14 +212,39 @@ window.AiClient = (function () {
     });
   }
 
-  function slim(context) {
+  function pageFrom(context) {
+    return context && context.pageContext ? context.pageContext : context;
+  }
+
+  function slimPageContext(context) {
+    var page = pageFrom(context) || {};
     return {
-      doc_code: context.docCode,
-      doc_title: context.docTitle,
-      page: context.selectedPage,
-      heading: context.heading,
-      selected_text: context.selectedText,
-      source_codes: context.sourceCodes
+      document_code: page.documentCode,
+      document_title: page.documentTitle,
+      page: page.pageNumber,
+      page_count: page.pageCount,
+      source_id: page.sourceId,
+      text: page.text,
+      image_data_url: page.imageDataUrl,
+      image_bytes: page.imageBytes,
+      width: page.width,
+      height: page.height
+    };
+  }
+
+  function safePageTrace(context) {
+    var page = pageFrom(context) || {};
+    if (window.PageContext && window.PageContext.safeTrace) {
+      return window.PageContext.safeTrace(page);
+    }
+    return {
+      document_code: page.documentCode,
+      page: page.pageNumber,
+      source_id: page.sourceId,
+      text_length: String(page.text || '').length,
+      image_bytes: page.imageBytes,
+      width: page.width,
+      height: page.height
     };
   }
 

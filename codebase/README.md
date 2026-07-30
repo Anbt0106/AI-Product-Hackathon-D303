@@ -1,58 +1,77 @@
-# VLearn Reader · Hiểu Đúng, Hiểu Thật (Live Student Demo)
+# VLearn Reader · Hiểu Đúng, Hiểu Thật
 
-Demo nâng cấp VLearn Tutor bằng **Adaptive Micro-Check**: sinh viên chọn tài liệu, trang slide và trích đoạn transcript, tự hỏi Tutor, sinh câu hỏi Micro-Check và trả lời teach-back. Cả ba bước AI đều gọi OpenAI thật live.
+Demo giao diện học viên đọc PDF liên tục. Khi người học cuộn đến trang nào, VLearn
+Tutor đóng băng đúng trang đó, gửi cả văn bản trích xuất và ảnh render của trang
+cho Gemini, trả lời câu hỏi rồi đưa ra một Micro-Check để kiểm tra lại kiến thức.
+
+Cả ba bước đều dùng Gemini thật:
+
+1. Giải thích câu hỏi của học viên (`POST /api/tutor`).
+2. Sinh câu hỏi Micro-Check (`POST /api/question`).
+3. Đánh giá câu trả lời teach-back (`POST /api/classify`).
+
+Không có fallback sang câu trả lời mock. Nếu Gemini lỗi, giao diện hiển thị lỗi và
+nút thử lại. Lịch sử hội thoại được giữ, mỗi lượt có nhãn tài liệu và trang nguồn.
+
+## Cấu hình Gemini
+
+Từ thư mục `codebase`, tạo file `.env` dựa trên `.env.example`:
+
+```dotenv
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your_key_here
+GEMINI_MODEL=gemini-3.5-flash-lite
+PORT=5173
+```
+
+Không commit `.env` và không dán API key vào mã frontend. Key chỉ được đọc bởi
+`server.mjs`.
 
 ## Chạy demo
-
-Chạy với OpenAI:
 
 ```powershell
 cd codebase
 .\start.ps1
 ```
 
-Yêu cầu `codebase/.env` chứa `AI_PROVIDER=openai`, `OPENAI_API_KEY` và `OPENAI_MODEL` (mặc định `gpt-5.6-terra`). API key chỉ được đọc phía server; frontend không bao giờ nhận hoặc lưu key.
+Sau đó mở <http://127.0.0.1:5173>. Góc trên bên phải phải hiển thị
+`AI thật · gemini-3.5-flash-lite`.
 
-Khi server chạy, cả ba bước:
-1. **Tutor trả lời** (`POST /api/tutor`),
-2. **Sinh câu hỏi Micro-Check** (`POST /api/question`),
-3. **Đánh giá teach-back** (`POST /api/classify`)
-đều gọi OpenAI live. Khi API lỗi, hệ thống hiển thị thông báo lỗi rõ ràng và nút "Thử lại", tuyệt đối không tự chuyển sang mock.
+Luồng demo:
 
-## Đường demo chính
+1. Chọn tài liệu Day 1 hoặc Day 2.
+2. Cuộn PDF đến trang cần hỏi và đợi nhãn trang bên Tutor cập nhật.
+3. Nhập câu hỏi như một học viên bình thường.
+4. Đọc phần giải thích có nguồn của đúng trang.
+5. Bấm `Kiểm tra tôi · 30 giây`, trả lời bằng lời của mình và xem đánh giá.
 
-1. Chọn Day 1 hoặc Day 2 ở danh sách tài liệu.
-2. Mở một trang có ngữ cảnh transcript.
-3. Nhập câu hỏi tự do cho Tutor.
-4. Grounding Gate kiểm tra trích dẫn nguồn trả về từ Tutor.
-5. Bấm **Kiểm tra tôi · 30 giây**.
-6. Trả lời một câu teach-back bằng lời của mình.
-7. Xem trạng thái hiểu, căn cứ nguồn và đúng một bước củng cố; có thể phản đối hoặc trả lời lại.
+## Dữ liệu gửi tới Gemini
 
-Giao diện không có nút kịch bản hay điền sẵn câu trả lời. Sinh viên tự do thao tác toàn bộ luồng.
+- Ảnh JPEG của đúng trang đang hoạt động.
+- Văn bản PDF.js trích xuất từ toàn trang.
+- Câu hỏi hoặc câu trả lời hiện tại của học viên.
+- Mã nguồn ổn định theo dạng `document:page-N`.
 
-## Dữ liệu thật và bảo mật
-
-- Hai PDF thật được đọc cục bộ từ `data/vlearn-pack/slides/`.
-- `data/material-catalog.js` chỉ giữ metadata và trích đoạn ngắn có mã nguồn `[Txx-NNN]`.
-- Không đọc hoặc gửi chatlog lên OpenAI.
-- Chỉ gửi đoạn transcript đã chọn và nội dung câu hỏi/trả lời của sinh viên.
-- `data/vlearn-pack/` và `.env` bị Git bỏ qua.
+Ảnh base64 không được ghi vào trace. Server giới hạn kích thước request và chỉ
+chấp nhận ảnh JPEG/PNG có source ID khớp với tài liệu và số trang.
 
 ## Kiểm thử
 
 ```powershell
-node test/server.mjs
+node test/page-context.mjs
+node test/pdf-reader.mjs
 node test/ai-client.mjs
+node test/server.mjs
 node test/smoke.mjs
 node test/manual-demo-ui.mjs
 ```
 
 ## Thành phần chính
 
-- `data/material-catalog.js`: catalog an toàn trỏ tới hai PDF và trích đoạn transcript thật.
-- `engine/context.js`: tạo context tối thiểu theo tài liệu/trang/đoạn.
-- `engine/grounding-gate.js`: chặn thiếu nguồn, sai tài liệu và yêu cầu đối chiếu khi lệch trang.
-- `engine/ai-client.js`: client AI live-only cho cả 3 bước với tracing và error mapping.
-- `server.mjs`: giữ secret, gọi OpenAI Responses API cho Tutor, question và classify, validate structured output.
-- `app.js` + `app.css`: VLearn Reader ba cột và luồng Adaptive Micro-Check live.
+- `engine/page-context.js`: hợp đồng snapshot trang bất biến và trace an toàn.
+- `engine/pdf-reader.mjs`: PDF.js reader cuộn liên tục, trích text và render ảnh.
+- `engine/ai-client.js`: gửi cùng snapshot trang cho cả ba bước AI.
+- `engine/grounding-gate.js`: kiểm citation phải khớp đúng trang.
+- `server.mjs`: giữ Gemini key, kiểm tra payload, gọi Gemini multimodal và kiểm
+  structured output.
+- `app.js` + `app.css`: giao diện học viên, lịch sử theo trang và luồng Micro-Check.

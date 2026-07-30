@@ -4,17 +4,17 @@
 
 ```powershell
 cd codebase
-# Bảo đảm codebase/.env đã có OPENAI_API_KEY
+# Bảo đảm codebase/.env có AI_PROVIDER=gemini và GEMINI_API_KEY
 .\start.ps1
 ```
 
-Mở `http://127.0.0.1:5173`. Chỉ bắt đầu khi badge góc trên phải ghi **`AI thật · gpt-5.6-terra`** (hoặc model OpenAI đang dùng).
+Mở `http://127.0.0.1:5173`. Chỉ bắt đầu khi badge góc trên phải ghi **`AI thật · gemini-3.5-flash-lite`** (hoặc model Gemini đang dùng).
 
 ---
 
 ## 0:00–0:40 — Nỗi đau và giải pháp VLearn
 
-Nói: "Khi sinh viên hỏi Tutor, AI có thể trả lời sai nguồn hoặc làm sinh viên ngộ nhận là đã hiểu. VLearn giải quyết bằng vòng lặp khép kín: Tutor trả lời trích nguồn → Grounding Gate kiểm định → AI sinh Micro-Check teach-back → AI đánh giá mức hiểu thật và đưa đúng một bước củng cố. Cả 3 bước đều gọi OpenAI thật."
+Nói: "Khi sinh viên hỏi Tutor, AI có thể trả lời sai nguồn hoặc làm sinh viên ngộ nhận là đã hiểu. VLearn giải quyết bằng vòng lặp khép kín: Gemini đọc cả chữ và ảnh đúng trang → Tutor trả lời trích nguồn → Grounding Gate kiểm định → Gemini sinh Micro-Check teach-back → Gemini đánh giá mức hiểu thật và đưa đúng một bước củng cố."
 
 ---
 
@@ -48,7 +48,7 @@ Nói: "Khi sinh viên hỏi Tutor, AI có thể trả lời sai nguồn hoặc l
 ## 3:30–4:15 — Chặn khi thiếu nguồn và kiểm soát lệch trang
 
 1. **Thiếu nguồn:** Bỏ chọn các đoạn transcript (hoặc chuyển sang trang trống). Bấm gửi câu hỏi.
-2. **Kết quả:** Hệ thống báo *"Hãy chọn ít nhất một đoạn transcript trước khi hỏi Tutor"* và không gửi request lên OpenAI.
+2. **Kết quả:** Hệ thống báo thiếu ngữ cảnh trang và không gửi request lên Gemini.
 3. **Lệch trang:** Nếu Tutor trích dẫn trang khác, **Grounding Gate** đưa trạng thái `Cần đối chiếu` chứ không tự ý phán quyết sai hay chặn Micro-Check.
 
 ---
@@ -60,5 +60,5 @@ Nói: "Khi sinh viên hỏi Tutor, AI có thể trả lời sai nguồn hoặc l
    - Căn cứ được hiển thị lại để sinh viên xem xét và nhập câu trả lời mới.
 2. Bấm **Trace (N)** ở thanh tiêu đề:
    - Chỉ cho người xem thấy các entry `tutor_answer`, `question_generate_live`, và `mastery_classify`.
-   - Tất cả đều ghi rõ `mode: live`, model `gpt-5.6-terra`, latency và output đã được kiểm schema strict.
+   - Tất cả đều ghi rõ `mode: live`, model Gemini, latency và output đã được kiểm schema.
    - Không chứa API key, auth header hay system prompt.

@@ -78,30 +78,16 @@ const GEMINI = {
   base: 'https://generativelanguage.googleapis.com/v1beta/models'
 };
 
-export function providerState() {
-  if (PROVIDER === 'openai' && OPENAI.key) {
-    return {
-      mode: 'live',
-      provider: 'openai',
-      model: OPENAI.model,
-      live_steps: ['tutor_answer', 'question_generate', 'mastery_classify'],
-      reason: 'đã cấu hình OPENAI_API_KEY'
-    };
-  }
-  if (PROVIDER === 'anthropic' && ANTHROPIC.key) {
-    return {
-      mode: 'live',
-      provider: 'anthropic',
-      model: ANTHROPIC.model,
-      live_steps: ['tutor_answer', 'question_generate', 'mastery_classify'],
-      reason: 'đã cấu hình ANTHROPIC_API_KEY'
-    };
-  }
-  if (PROVIDER === 'gemini' && GEMINI.key) {
+const MAX_BODY_BYTES = 6 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+const GEMINI_TIMEOUT_MS = 90 * 1000;
+
+export function resolveProviderState({ provider, geminiKey, geminiModel }) {
+  if (provider === 'gemini' && geminiKey) {
     return {
       mode: 'live',
       provider: 'gemini',
-      model: GEMINI.model,
+      model: geminiModel,
       live_steps: ['tutor_answer', 'question_generate', 'mastery_classify'],
       reason: 'đã cấu hình GEMINI_API_KEY'
     };
@@ -111,10 +97,18 @@ export function providerState() {
     provider: null,
     model: null,
     live_steps: [],
-    reason: PROVIDER
-      ? `AI_PROVIDER=${PROVIDER} nhưng thiếu API key trong biến môi trường`
-      : 'chưa set AI_PROVIDER'
+    reason: provider && provider !== 'gemini'
+      ? `Demo này chỉ hỗ trợ AI_PROVIDER=gemini, không hỗ trợ ${provider}`
+      : 'Thiếu AI_PROVIDER=gemini hoặc GEMINI_API_KEY'
   };
+}
+
+export function providerState() {
+  return resolveProviderState({
+    provider: PROVIDER,
+    geminiKey: GEMINI.key,
+    geminiModel: GEMINI.model
+  });
 }
 
 /* ========================= schema đầu ra ========================= */
@@ -158,6 +152,79 @@ const TUTOR_SCHEMA = {
   additionalProperties: false
 };
 
+/**
+ * Validate the immutable browser snapshot before it can enter a prompt.
+ * Decoded image fields stay inside the server/provider boundary and must not
+ * be copied into logs or API responses.
+ */
+export function validatePageContext(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw invalidPageContext('Ngữ cảnh trang không hợp lệ');
+  }
+
+  const documentCode = String(value.document_code || '').trim();
+  const documentTitle = String(value.document_title || '').trim();
+  const page = Number(value.page);
+  const pageCount = Number(value.page_count);
+  const sourceId = String(value.source_id || '').trim();
+  const text = String(value.text || '').trim();
+  const imageBytes = Number(value.image_bytes);
+  const width = Number(value.width);
+  const height = Number(value.height);
+
+  if (!documentCode || !documentTitle) {
+    throw invalidPageContext('Thiếu mã hoặc tên tài liệu');
+  }
+  if (!Number.isInteger(page) || !Number.isInteger(pageCount) ||
+      page < 1 || page > pageCount) {
+    throw invalidPageContext('Số trang không hợp lệ');
+  }
+  const expectedSourceId = `${documentCode}:page-${page}`;
+  if (sourceId !== expectedSourceId) {
+    throw invalidPageContext('source_id không khớp tài liệu và trang');
+  }
+  if (!(width > 0) || !(height > 0) || width > 4096 || height > 4096) {
+    throw invalidPageContext('Kích thước ảnh trang không hợp lệ');
+  }
+
+  const match = /^data:(image\/(?:jpeg|png));base64,([A-Za-z0-9+/]+={0,2})$/i
+    .exec(String(value.image_data_url || ''));
+  if (!match) {
+    throw invalidPageContext('Ảnh trang phải là JPEG hoặc PNG data URL hợp lệ');
+  }
+  const imageBase64 = match[2];
+  const decoded = Buffer.from(imageBase64, 'base64');
+  const canonicalInput = imageBase64.replace(/=+$/, '');
+  const canonicalDecoded = decoded.toString('base64').replace(/=+$/, '');
+  if (!decoded.length || canonicalInput !== canonicalDecoded) {
+    throw invalidPageContext('Ảnh trang có dữ liệu base64 không hợp lệ');
+  }
+  if (!Number.isInteger(imageBytes) || imageBytes !== decoded.length ||
+      imageBytes > MAX_IMAGE_BYTES) {
+    throw invalidPageContext('Kích thước dữ liệu ảnh trang không hợp lệ');
+  }
+
+  return {
+    document_code: documentCode,
+    document_title: documentTitle,
+    page,
+    page_count: pageCount,
+    source_id: sourceId,
+    text,
+    image_bytes: imageBytes,
+    width,
+    height,
+    image_mime_type: match[1].toLowerCase(),
+    image_base64: imageBase64
+  };
+}
+
+function invalidPageContext(message) {
+  const error = new Error(message);
+  error.statusCode = 400;
+  return error;
+}
+
 const SYSTEM_TUTOR = [
   'Bạn là VLearn Tutor trả lời bằng tiếng Việt.',
   'Chỉ dùng các đoạn tài liệu được cấp; không thêm kiến thức ngoài.',
@@ -199,6 +266,52 @@ function tutorUserPrompt(body) {
     `Câu hỏi của sinh viên: ${body.question}`,
     '',
     'Trả lời câu hỏi theo schema. Trong mảng citations, chỉ ghi mã nguồn hợp lệ (ví dụ: "T06-130").'
+  ].join('\n');
+}
+
+function pageTutorUserPrompt(body) {
+  const c = body.page_context || {};
+  return [
+    `Mã tài liệu: ${c.document_code || ''}`,
+    `Tên tài liệu: ${c.document_title || ''}`,
+    `Trang: ${c.page || ''}/${c.page_count || ''}`,
+    `Mã nguồn duy nhất: ${c.source_id || ''}`,
+    `Văn bản trích xuất từ toàn trang:\n${c.text || '(không trích xuất được văn bản; hãy đọc ảnh trang)'}`,
+    '',
+    `Câu hỏi của sinh viên: ${body.question}`,
+    '',
+    `Trả lời theo cả văn bản và ảnh của đúng trang này. Trong citations chỉ ghi "${c.source_id || ''}".`
+  ].join('\n');
+}
+
+function pageQuestionUserPrompt(body) {
+  const c = body.page_context || {};
+  return [
+    `Mã tài liệu: ${c.document_code || ''}`,
+    `Tên tài liệu: ${c.document_title || ''}`,
+    `Trang: ${c.page || ''}/${c.page_count || ''}`,
+    `Mã nguồn: ${c.source_id || ''}`,
+    `Văn bản toàn trang: ${c.text || '(không trích xuất được văn bản; hãy đọc ảnh trang)'}`,
+    '',
+    'Hãy đọc cả văn bản và ảnh, rồi sinh đúng một câu hỏi teach-back theo schema.'
+  ].join('\n');
+}
+
+function pageClassifyUserPrompt(body) {
+  const c = body.page_context || {};
+  return [
+    `Mã tài liệu: ${c.document_code || ''}`,
+    `Tên tài liệu: ${c.document_title || ''}`,
+    `Trang: ${c.page || ''}/${c.page_count || ''}`,
+    `Mã nguồn: ${c.source_id || ''}`,
+    `Văn bản toàn trang: ${c.text || '(không trích xuất được văn bản; hãy đọc ảnh trang)'}`,
+    '',
+    `Câu hỏi kiểm tra: ${body.question}`,
+    `Các ý đúng cần tìm: ${(body.rubric?.key_points || []).join(' | ')}`,
+    `Các quan hệ sai đã biết: ${(body.rubric?.misconceptions || []).join(' | ')}`,
+    `Câu trả lời của học viên: ${body.student_answer}`,
+    '',
+    'Đọc cả văn bản và ảnh rồi phân loại mức hiểu theo schema. Chấp nhận diễn đạt tương đương.'
   ].join('\n');
 }
 
@@ -303,11 +416,33 @@ async function callAnthropic({ system, user, schema }) {
   return { data: JSON.parse(textBlock.text), model: j.model };
 }
 
-async function callGemini({ system, user, schema }) {
+export function buildGeminiParts(pageContext, user) {
+  return [
+    {
+      inlineData: {
+        mimeType: pageContext.image_mime_type,
+        data: pageContext.image_base64
+      }
+    },
+    { text: user }
+  ];
+}
+
+export async function fetchWithTimeout(url, options, timeoutMs, fetchImpl = fetch) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetchImpl(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function callGemini({ system, user, schema, pageContext }) {
   /* Shape đã đối chiếu tài liệu Google AI for Developers ngày 30/07/2026.
    * Chỉ gửi data giả/trích ngắn trong prototype, không gửi dữ liệu định danh. */
   const url = `${GEMINI.base}/${GEMINI.model}:generateContent`;
-  const res = await fetch(url, {
+  const res = await fetchWithTimeout(url, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
@@ -315,13 +450,13 @@ async function callGemini({ system, user, schema }) {
     },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
-      contents: [{ role: 'user', parts: [{ text: user }] }],
+      contents: [{ role: 'user', parts: buildGeminiParts(pageContext, user) }],
       generationConfig: {
         responseMimeType: 'application/json',
         responseJsonSchema: schema
       }
     })
-  });
+  }, GEMINI_TIMEOUT_MS);
   if (!res.ok) throw new Error(`gemini ${res.status}: ${(await res.text()).slice(0, 300)}`);
   const j = await res.json();
   const text = j?.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -391,8 +526,7 @@ async function callProvider(args) {
     err.statusCode = 503;
     throw err;
   }
-  if (st.provider === 'openai') return callOpenAI(args);
-  return st.provider === 'anthropic' ? callAnthropic(args) : callGemini(args);
+  return callGemini(args);
 }
 
 const STATE_ACTION = {
@@ -438,8 +572,9 @@ export function validateVerdict(verdict) {
 }
 
 export async function tutorWithProvider(body) {
-  const sourceCodes = body?.context?.source_codes || body?.context?.sourceCodes || [];
-  const selectedText = body?.context?.selected_text || body?.context?.selectedText || '';
+  const pageContext = validatePageContext(body?.page_context);
+  const sourceCodes = [pageContext.source_id];
+  const selectedText = pageContext.text || '(image-only page)';
   if (!sourceCodes.length || !selectedText.trim()) {
     const error = new Error('Cần chọn nguồn trước khi hỏi Tutor');
     error.statusCode = 400;
@@ -448,8 +583,9 @@ export async function tutorWithProvider(body) {
   const t0 = Date.now();
   const result = await callProvider({
     system: SYSTEM_TUTOR,
-    user: tutorUserPrompt(body),
-    schema: TUTOR_SCHEMA
+    user: pageTutorUserPrompt({ ...body, page_context: pageContext }),
+    schema: TUTOR_SCHEMA,
+    pageContext
   });
   return {
     ...validateTutorAnswer(result.data, sourceCodes),
@@ -461,6 +597,9 @@ export async function tutorWithProvider(body) {
 export function toPublicApiError(error) {
   const rawStatus = Number(error?.statusCode || 0);
   const message = String(error?.message || '');
+  if (rawStatus === 413) {
+    return { status: 413, code: 'payload_too_large', message: 'Ảnh trang quá lớn để gửi tới AI.' };
+  }
   if (rawStatus === 400) {
     return { status: 400, code: 'invalid_request', message: 'Dữ liệu gửi lên chưa hợp lệ.' };
   }
@@ -481,11 +620,13 @@ export function toPublicApiError(error) {
 }
 
 export async function classifyWithProvider(body) {
+  const pageContext = validatePageContext(body?.page_context);
   const t0 = Date.now();
   const r = await callProvider({
     system: SYSTEM_CLASSIFY,
-    user: classifyUserPrompt(body),
-    schema: VERDICT_SCHEMA
+    user: pageClassifyUserPrompt({ ...body, page_context: pageContext }),
+    schema: VERDICT_SCHEMA,
+    pageContext
   });
   return {
     verdict: validateVerdict(r.data),
@@ -515,13 +656,29 @@ function sendJson(res, code, obj) {
 
 function readBody(req) {
   return new Promise((resolve, reject) => {
-    let raw = '';
+    const chunks = [];
+    let totalBytes = 0;
+    let settled = false;
     req.on('data', (c) => {
-      raw += c;
-      if (raw.length > 1e6) { reject(new Error('body quá lớn')); req.destroy(); }
+      if (settled) return;
+      totalBytes += c.length;
+      if (totalBytes > MAX_BODY_BYTES) {
+        settled = true;
+        const error = new Error('body quá lớn');
+        error.statusCode = 413;
+        reject(error);
+        return;
+      }
+      chunks.push(c);
     });
     req.on('end', () => {
-      try { resolve(raw ? JSON.parse(raw) : {}); } catch (e) { reject(e); }
+      if (settled) return;
+      try {
+        const raw = Buffer.concat(chunks).toString('utf8');
+        resolve(raw ? JSON.parse(raw) : {});
+      } catch (e) {
+        reject(e);
+      }
     });
     req.on('error', reject);
   });
@@ -549,7 +706,7 @@ async function serveStatic(req, res, pathname) {
   }
 }
 
-const server = createServer(async (req, res) => {
+export const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const p = url.pathname;
 
@@ -559,7 +716,14 @@ const server = createServer(async (req, res) => {
     if (req.method !== 'POST') return sendJson(res, 405, { error: 'chỉ nhận POST' });
     let body;
     try { body = await readBody(req); }
-    catch (e) { return sendJson(res, 400, { error: 'body không phải JSON: ' + e.message }); }
+    catch (e) {
+      if (!e.statusCode) e.statusCode = 400;
+      const publicError = toPublicApiError(e);
+      return sendJson(res, publicError.status, {
+        error: publicError.message,
+        code: publicError.code
+      });
+    }
 
     const t0 = Date.now();
     try {
@@ -568,10 +732,12 @@ const server = createServer(async (req, res) => {
         return sendJson(res, 200, r);
       }
       if (p === '/api/question') {
+        const pageContext = validatePageContext(body?.page_context);
         const r = await callProvider({
           system: SYSTEM_QUESTION,
-          user: questionUserPrompt(body),
-          schema: QUESTION_SCHEMA
+          user: pageQuestionUserPrompt({ ...body, page_context: pageContext }),
+          schema: QUESTION_SCHEMA,
+          pageContext
         });
         return sendJson(res, 200, { question: r.data.question, model: r.model, latency_ms: Date.now() - t0 });
       }
