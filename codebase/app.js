@@ -605,11 +605,13 @@
     if (block.type === 'gate') return tag + renderGate(block.gate);
     if (block.type === 'offer') {
       return '<div class="card card-offer">' + tag +
+        '<p class="check-prompt"><strong>AI đã trả lời xong. Bạn đã thật sự hiểu?</strong>' +
+        '<span>Teach-back một câu để kiểm tra, không tính điểm.</span></p>' +
+        '<div class="card-actions">' +
         '<button type="button" class="btn btn-check" data-action="start-check">' +
-        'Kiểm tra lại kiến thức</button>' +
+        'Kiểm tra tôi · 30 giây</button>' +
         '<button type="button" class="btn btn-ghost" data-action="continue-reading">' +
-        'Tiếp tục đọc</button>' +
-        '<p class="card-note">Một câu teach-back khoảng 30 giây, không tính điểm.</p></div>';
+        'Tiếp tục đọc</button></div></div>';
     }
     if (block.type === 'question') {
       return '<div class="card card-question">' + tag +
@@ -635,6 +637,22 @@
       '<p>' + esc(gate.message) + '</p></div>';
   }
 
+  function stateMeaning(state) {
+    var meanings = {
+      understood: 'Đủ ý chính và đúng quan hệ — bạn có thể học tiếp.',
+      partial: 'Có ý đúng nhưng còn thiếu ít nhất một ý quan trọng.',
+      misconception: 'Có chi tiết đúng nhưng đang hiểu sai một khái niệm hoặc quan hệ.',
+      insufficient: 'Chưa đủ bằng chứng để đánh giá: câu trả lời có thể quá ngắn, mơ hồ hoặc lệch câu hỏi.'
+    };
+    return meanings[state] || meanings.insufficient;
+  }
+
+  function resultBodyLabel(state) {
+    if (state === 'partial' || state === 'misconception') return 'Điểm cần sửa:';
+    if (state === 'insufficient') return 'Vì sao chưa đủ:';
+    return 'Kết luận:';
+  }
+
   function renderResult(verdict, feedback, block) {
     var actions = verdict.next_action === 'clarify'
       ? '<button class="btn btn-primary" data-action="retry-answer">Trả lời rõ hơn</button>'
@@ -647,8 +665,12 @@
       '<div class="result-head"><span class="state-chip">' +
       esc(feedback.label) + '</span><span class="conf">Độ tin cậy: ' +
       esc(verdict.confidence) + '</span></div>' +
+      '<p class="state-meaning"><strong>Ý nghĩa:</strong> ' +
+      esc(stateMeaning(verdict.mastery_state)) + '</p>' +
       '<p class="result-headline">' + esc(feedback.headline) + '</p>' +
-      '<p class="result-body">' + esc(feedback.body) + '</p>' +
+      '<p class="result-body"><strong>' +
+      esc(resultBodyLabel(verdict.mastery_state)) + '</strong> ' +
+      esc(feedback.body) + '</p>' +
       (feedback.reinforce
         ? '<div class="reinforce"><span class="card-label">Một bước củng cố</span><p>' +
           esc(feedback.reinforce) + '</p></div>'

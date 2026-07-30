@@ -1,26 +1,22 @@
 # CP5 — Trạng thái nghiệm thu
 
-> Bản nội dung nộp form và checklist bàn giao thống nhất: CP5-SUBMISSION-DRAFT.md.
+> Bản nội dung nộp form: `CP5-SUBMISSION-DRAFT.md`.
 
-## Đã có
+## Đã hoàn thành
 
-- Flow bấm được và AI thật ở quyết định Mastery.
-- Golden set 24 case; quality bar chốt trước là ≥85% và không vi phạm ba bất biến.
-- Lượt live đầu có response hợp lệ: 17/24; lượt live chính thức: 24/24 với 16 lời gọi AI thật.
-- Demo script 5 phút có happy path, hard case và đường lỗi thiếu nguồn.
-- Bộ validation 10 phút, log, mẫu tổng hợp và dry-run checklist trong `validation/`.
-- Deck 6 slide ở trạng thái draft có đánh dấu đúng phần cần dữ liệu thật.
-- Simulated technical pilot: giữ hai lượt HTTP 0/5 và một lượt direct-live 5/5; đây không phải human validation.
-- Từ pilot đã sửa badge để chỉ ghi “AI thật đã xác minh” sau classify live thành công.
-- Kiểm kỹ thuật ngày 30/07/2026: trang chủ HTTP 200; provider gemini, mode live, model gemini-3.5-flash-lite; smoke test **39 pass, 0 fail**.
-- demo-slides.pptx có đúng 6 slide; demo-slides.pdf đã xuất; từng slide đã render và kiểm tra trực quan.
+- Flow bấm được; Tutor, Micro-Check và Mastery Classifier đều gọi Gemini thật trên đúng trang PDF.
+- Golden set 24 case; quality bar ≥85% và ba bất biến cứng.
+- Lượt live đầu có response hợp lệ: 17/24; lượt chính thức: **24/24**, với **16/16 output AI live hợp lệ**.
+- Simulated technical pilot giữ hai lượt HTTP 0/5 và một lượt direct-live 5/5.
+- Human validation: **5/5 người ngoài nhóm**; **4/5 tự hoàn thành**, **5/5 tin/khá tin**, **5/5 willing users**.
+- Hai chủ đề đã xử lý: CTA Micro-Check khó thấy và bốn mastery state chưa đủ rõ.
+- Hai thay đổi UI đã triển khai; test `cp5-feedback-ui.mjs` đạt.
+- Slide 5 có hai quote thật có tên/vai.
+- Dry run ngày 30/07/2026 đi hết happy, hard, insufficient, Gate và trace; tổng **5:08**.
+- Deck 6 slide, PDF, reflection, eval, trace và validation artifact đều có trong repo.
 
-## Chưa thể xác nhận thay nhóm
+## Điểm cần nói trung thực khi nộp
 
-- 5/5 buổi test với người ngoài nhóm.
-- Tên/vai, quan sát và quote nguyên văn của từng người.
-- Ít nhất 2 willing users được xác nhận.
-- Thay đổi thiết kế dựa trên feedback thật.
-- Dry run nói thật đã bấm giờ với cả nhóm.
-
-CP5 chỉ hoàn tất khi các mục trên có dữ liệu thật; không dùng placeholder làm bằng chứng nộp.
+- Với câu “Đã chạy thử demo có bấm giờ chưa?”, chọn **“Rồi, nhưng quá giờ”** vì bằng chứng hiện tại là 5:08.
+- Nhóm đã rút gọn kịch bản để nhắm 4:50 nhưng chưa có biên bản rerun mới.
+- Kiểm tra thành viên ngẫu nhiên chưa có dữ liệu trong biên bản nhóm cung cấp; không tự đánh dấu đạt.

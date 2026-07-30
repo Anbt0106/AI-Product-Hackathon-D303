@@ -3,7 +3,7 @@
  * ----------------------------------------------------------------------------
  * KHÔNG dependency. Chỉ dùng module có sẵn của Node (>=18, cần global fetch).
  *
- *   node server.mjs            → http://localhost:5173  (chế độ mock)
+ *   node server.mjs            → http://localhost:5173  (AI unavailable nếu thiếu credential)
  *   AI_PROVIDER=openai OPENAI_API_KEY=... node server.mjs → AI thật
  *   AI_PROVIDER=anthropic ANTHROPIC_API_KEY=... node server.mjs → AI thật
  *   AI_PROVIDER=gemini GEMINI_API_KEY=... node server.mjs → AI thật
@@ -11,9 +11,8 @@
  * Vì sao khoá nằm ở server: trang web không bao giờ được giữ API key
  * (02-guide.md §3.4). Không commit .env, không hardcode khoá vào file này.
  *
- * CP2: chưa set biến môi trường → /api/health trả mode "mock", front-end tự
- * chạy bản rule-based và ghi rõ vào trace là đang mock. Không có chỗ nào giả vờ
- * là AI thật.
+ * Thiếu biến môi trường → /api/health trả mode "unavailable". Front-end chặn
+ * ba bước AI và hiển thị lỗi; không fallback sang câu trả lời mock.
  * ========================================================================== */
 
 import { createServer } from 'node:http';

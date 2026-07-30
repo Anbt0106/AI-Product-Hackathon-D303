@@ -240,7 +240,14 @@ body {
 .gate-review, .card-warn { background: var(--warn-bg); border-color: #ecdca8; color: #785100; }
 .gate-block, .card-alert { background: var(--alert-bg); border-color: #efc1bd; color: #8c2921; }
 .gate-extra, .card-note, .countdown, .evidence, .source-line, .conf { color: var(--muted); font-size: 10px; }
-.card-offer { background: linear-gradient(145deg,#edf6ff,#f5f1ff); border-color: #c8dbf5; }
+.card-offer {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 14px; background: linear-gradient(145deg,#edf6ff,#f5f1ff);
+  border-color: #b9d2ff; border-left: 4px solid var(--brand);
+}
+.check-prompt { display: flex; flex-direction: column; gap: 3px; margin: 0; }
+.check-prompt strong { color: var(--ink); }
+.check-prompt span { color: var(--muted); font-size: 11px; }
 .card-question { background: var(--brand-soft); border-color: #c8ddf8; }
 .card-question .q { font-size: 13px; font-weight: 700; color: #174274; }
 .card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
@@ -255,6 +262,11 @@ body {
 .tone-neutral { background: #f3f5f8; }
 .tone-neutral .state-chip { background: #e0e5ec; }
 .result-headline { font-weight: 750; margin: 8px 0 2px !important; }
+.state-meaning {
+  margin: 8px 0 0; padding: 7px 9px;
+  background: rgba(255,255,255,.72); border-radius: 7px;
+  font-size: 10.5px;
+}
 .result-body { margin: 0 !important; }
 .reinforce { margin-top: 8px; padding: 8px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
 .basis { margin-top: 8px; }
@@ -274,6 +286,7 @@ body {
 .btn { border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 7px 10px; border-radius: 9px; cursor: pointer; font-size: 11px; }
 .btn:hover { background: #f4f7fb; }
 .btn-primary, .btn-check { color: #fff; background: var(--brand); border-color: var(--brand); font-weight: 700; }
+.btn-check { padding: 10px 17px; box-shadow: 0 3px 10px rgba(23,105,224,.22); }
 .btn-disagree { color: var(--alert); border-color: #efc1bd; }
 .btn-ghost { background: transparent; }
 

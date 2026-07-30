@@ -34,7 +34,7 @@ Chọn **Grounding Gate + teach-back** vì đây là ứng viên duy nhất khé
 
 - **Lát cắt một câu:** Với học viên vừa được giải thích một khái niệm từ đoạn slide đã qua Grounding Gate, **`gemini-3.5-flash-lite`** đánh giá câu teach-back để quyết định `understood`, `partial`, `misconception` hay `insufficient`, rồi hệ thống đưa đúng một bước củng cố có nguồn trong tối đa 60 giây.
 - **Non-goals:** không thay LMS/VLearn production; không chấm điểm chính thức; không đồng bộ tiến độ dài hạn; không sinh cả bộ quiz; không trả lời logistics; không giữ bộ nhớ sau reload.
-- **Mức prototype:** **Mock có AI thật ở lõi**.
+- **Mức prototype:** **Live Student Demo** — ba bước sinh/đánh giá dùng Gemini thật; Grounding Gate và Scope Guard là luật xác định; không fallback sang câu trả lời mock khi AI lỗi.
 
 | Thành phần | Thật hay mock | Bằng chứng/file |
 |---|---|---|
@@ -46,7 +46,7 @@ Chọn **Grounding Gate + teach-back** vì đây là ứng viên duy nhất khé
 | Tài liệu, danh sách khoá | Data catalog từ PDF thật | `codebase/data/material-catalog.js` |
 | Trace và eval | Thật | `codebase/engine/trace.js`, `eval/` |
 
-- **Đường gọi live duy nhất trong demo:** `Gửi câu trả lời` → `AiClient.classify()` → `POST /api/classify` → Gemini `gemini-3.5-flash-lite` structured output → server kiểm schema + bất biến → UI hiển thị state. Badge có ba trạng thái theo bằng chứng: `CP2 · Mock — chưa gọi AI`; `CP3 · AI đã cấu hình — chưa xác minh kết nối`; và chỉ sau một classify live thành công mới là `CP3 · AI thật đã xác minh (<model>)`. Nếu lỗi, hệ thống fallback mock, đưa badge về trạng thái chưa xác minh và giữ lỗi trong trace.
+- **Ba đường gọi live trong demo:** câu hỏi học viên → `POST /api/tutor`; Gate pass → `POST /api/question`; gửi teach-back → `POST /api/classify`. Cả ba dùng Gemini `gemini-3.5-flash-lite` với context đúng trang; server kiểm payload/output và trace giữ model, latency, input/output. Badge chỉ có `AI chưa sẵn sàng` hoặc model live; nếu API lỗi, UI báo lỗi và cho thử lại, **không fallback mock**.
 - **Automation:** **Augment**. AI đề xuất state và bước củng cố, nhưng học viên được bỏ qua, trả lời lại hoặc “Tôi không đồng ý”. Cost-of-error của một `understood` sai là học viên tiếp tục với kiến thức sai; vì vậy prototype không tự động chấm điểm, khóa tiến độ hay ghi mastery chính thức.
 
 ### §4b. Nguyên tắc đã áp dụng
@@ -54,7 +54,7 @@ Chọn **Grounding Gate + teach-back** vì đây là ứng viên duy nhất khé
 | Nguyên tắc | Áp cụ thể vào đâu trong prototype |
 |---|---|
 | G1 — nói rõ khả năng | Panel Tutor nói chỉ dựa trên đoạn đang chọn |
-| G2 — nói rõ trạng thái và giới hạn | Badge phân biệt ba trạng thái `mock`, `đã cấu hình nhưng chưa xác minh`, và `AI thật đã xác minh`; Gate pass/review/block cho biết mức căn cứ. Badge không phải xác suất đúng đã calibration. |
+| G2 — nói rõ trạng thái và giới hạn | Badge phân biệt `AI chưa sẵn sàng` với model live; Gate pass/review/block cho biết mức căn cứ. Badge không phải xác suất đúng đã calibration. |
 | G8 — gạt bỏ dễ | Nút “Bỏ qua”; hết 30 giây vẫn trả lời được |
 | G9 — sửa dễ | “Trả lời lại” và “Tôi không đồng ý” bỏ verdict cũ |
 | G10 — thu hẹp khi nghi ngờ | `insufficient` khi mơ hồ/không khớp, không đoán |
@@ -115,8 +115,8 @@ Kết quả đầy đủ: `eval/results/`; trace: `eval/traces/`. Lượt dướ
 - **Phạm Nguyễn Hùng Nguyên — prompt, AI & eval:** chịu trách nhiệm context, classifier, golden set, runner và phân tích failure.
 - **Lê Tuấn Cảnh — code & prototype/UI:** chịu trách nhiệm flow end-to-end, Gate/Scope, correction và trace UI.
 - **Nguyễn Văn Tuấn Anh — validation & demo:** mời người thử, điều phối task, ghi log nguyên văn, tổng hợp feedback và bấm giờ dry run.
-- **Willing users — trạng thái hiện tại:** **0/3 người ngoài nhóm được xác nhận**; không dùng tên hoặc persona mô phỏng để thay dữ liệu thật.
-- **Validation CP5 — trạng thái hiện tại:** human validation **0/5**. Nhóm đã có simulated technical pilot và output Gemini thật, nhưng các artifact này không được tính là người thử thật. Khi tổ chức test, mỗi người làm task 10 phút; Nguyễn Văn Tuấn Anh ghi vào `validation/feedback-log.md` và hỏi đúng ba câu: “Điều gì khó hiểu hoặc khó chịu nhất?”; “Kết quả này bạn có tin không — vì sao?”; “Bạn có dùng thật không — vì sao / vì sao chưa?”.
+- **Willing users — kết quả CP5:** **5/5 người ngoài nhóm nói sẽ dùng thật**, vượt chuẩn tối thiểu 3; danh sách, vai trò và quote nằm trong `validation/feedback-log.md`.
+- **Validation CP5 — kết quả:** **5/5 người ngoài nhóm đã thử**, **4/5 tự hoàn thành không cần trợ giúp**, **5/5 tin hoặc khá tin kết quả**, **5/5 nói sẽ dùng thật**. Ba trên năm người cần phản hồi mastery ngắn/rõ hơn; một người bị chặn vì không thấy CTA Micro-Check. Log và phương pháp tổng hợp: `validation/feedback-log.md`, `validation/summary.md`.
 - **Multi-prototype:** trục khác biệt là **chủ động tự bật** so với **do người dùng bấm**. Nhóm chọn “Micro-Check do người dùng bấm” vì giữ quyền kiểm soát và tránh làm gián đoạn học; phương án tự bật bị loại. Bằng chứng hai phương án và quyết định: `CP2-PROTOTYPE-BAM-DUOC.md`.
 
 ## §9. Changelog
@@ -138,3 +138,6 @@ Kết quả đầy đủ: `eval/results/`; trace: `eval/traces/`. Lượt dướ
 | CP4 | Nối evidence với ba lượt “chưa hiểu”, làm rõ exposure và attempts/output live | Tránh suy rộng 1.252 lượt thành nhu cầu teach-back và tránh nhập nhằng số AI call |
 | CP5 mô phỏng | Badge tách “đã cấu hình” khỏi “AI thật đã xác minh” | Hai pilot HTTP 0/5 cho thấy có key chưa chứng minh kết nối provider; pilot direct-live sau đó đạt 5/5 |
 | CP5 rà soát | Ghi rõ human validation 0/5 và willing users 0/3 | Không biến persona mô phỏng hoặc output AI thành bằng chứng người dùng thật |
+| CP5 human validation | Test 5 người ngoài nhóm; 4/5 tự hoàn thành, 5/5 tin/khá tin, 5/5 willing | Chứng minh flow có giá trị nhưng CTA và mastery labels cần rõ hơn |
+| CP5 feedback fix | Làm nổi bật CTA “Kiểm tra tôi”; thêm định nghĩa state và nhãn lý do | Lan không thấy CTA; Minh, Huy và Phương cần kết quả ngắn/rõ hơn |
+| CP5 dry run | Đi hết các đường demo trong 5:08 | Form phải chọn “Rồi, nhưng quá giờ”; rút ít nhất 8 giây trước demo |

@@ -63,7 +63,7 @@
 
 > “Flow có bốn bước: Gate kiểm nguồn, học viên teach-back, AI quyết định một trong bốn mastery state, rồi hệ thống đưa đúng một bước tiếp theo có nguồn.
 >
-> Tutor và câu Micro-Check đang là mock để giữ input demo ổn định. Phần AI thật duy nhất là Mastery Classifier, dùng `gemini-3.5-flash-lite`.”
+> Tutor, câu Micro-Check và Mastery Classifier đều gọi Gemini `gemini-3.5-flash-lite` trên đúng trang PDF đang mở. Grounding Gate là luật xác định ở giữa; nếu AI lỗi, hệ thống báo lỗi và cho thử lại, không âm thầm chuyển sang mock.”
 
 ### Live demo — case chuẩn
 
@@ -124,30 +124,21 @@
 **Thời gian:** 3:35–4:15
 **Mục tiêu:** đưa feedback nguyên văn và chứng minh nhóm đã thay đổi sản phẩm.
 
-> **Không trình bày placeholder `0/5` như kết quả validation. Chỉ dùng phần dưới sau khi đã có dữ liệu thật.**
+### Lời nói
 
-### Lời nói cần điền sau validation
-
-> “Nhóm em đã test với **[X/5] người ngoài nhóm**. Chủ đề lặp lại nhiều nhất là **[THEME — ví dụ: 3/5 người không hiểu nhãn Gate review]**.
+> “Nhóm em đã test với **5 người ngoài nhóm**. Bốn người tự hoàn thành không cần trợ giúp; cả năm người tin hoặc khá tin kết quả và nói sẽ dùng thật.
 >
-> **[Tên người 1], [vai]** nói nguyên văn: ‘**[QUOTE 1]**’.
+> Chủ đề lớn nhất là **3/5 người cần phần mastery ngắn và rõ hơn**. Huy, học viên AI, nói: ‘**Mình không rõ Partial khác Misconception ở mức nào.**’
 >
-> **[Tên người 2], [vai]** nói: ‘**[QUOTE 2]**’.
+> Lan, sinh viên năm 2, không tìm thấy bước tiếp theo và nói: ‘**Mình tưởng cuộc hội thoại kết thúc sau khi AI trả lời.**’
 >
-> Từ feedback này, nhóm em đã thay đổi **[NỘI DUNG ĐÃ SỬA]**. Nhóm giữ nguyên **[NỘI DUNG GIỮ]** vì **[TRADE-OFF CÓ CĂN CỨ]**.”
-
-### Nếu đến lúc trình bày vẫn chưa có validation thật
-
-Không bịa quote. Nói ngắn:
-
-> “Phần validation người dùng của nhóm chưa đủ điều kiện nghiệm thu: log hiện chưa có 5 người thật. Nhóm giữ trạng thái này công khai thay vì tạo feedback giả. Đây là phần còn thiếu lớn nhất của CP5.”
+> Nhóm đã làm card ‘Kiểm tra tôi’ nổi bật hơn, thêm câu dẫn sau câu trả lời Tutor và giải nghĩa từng mastery state bằng một dòng. Nhóm không tự bật Micro-Check vì muốn giữ quyền chủ động và tránh làm gián đoạn người học.”
 
 ### Chuyển slide
 
-> “Những gì chưa xử lý được đi thẳng vào ba ưu tiên của tuần tiếp theo.”
+> “Dry run đã đi hết các đường chính nhưng mất 5 phút 08 giây, nên ưu tiên tiếp theo là đo lại sau thay đổi và cắt ít nhất 8 giây.”
 
 ---
-
 ## Slide 6 — Nếu có thêm một tuần
 
 **Thời gian:** 4:15–4:45
@@ -157,7 +148,7 @@ Không bịa quote. Nói ngắn:
 
 > “Nếu có thêm một tuần, nhóm em ưu tiên ba việc.
 >
-> Thứ nhất, hoàn tất năm user test và sửa đúng điểm có ít nhất hai người cùng mắc.
+> Thứ nhất, chạy vòng validation thứ hai để đo lại khả năng tìm CTA và hiểu bốn mastery state sau thay đổi.
 >
 > Thứ hai, mở rộng eval ngoài 24 case bằng câu cụt, typo, trộn Anh–Việt và domain mới.
 >
@@ -173,10 +164,10 @@ Không bịa quote. Nói ngắn:
 
 ## Checklist trước khi lên demo
 
-- [ ] Chạy thử một classify live; badge chuyển từ `AI đã cấu hình — chưa xác minh kết nối` sang `AI thật đã xác minh (gemini-3.5-flash-lite)`.
-- [ ] Case `1 · Hiểu đúng` trả về `understood`.
-- [ ] Case `3 · Đang nhầm` trả về `misconception`.
-- [ ] Trace mở được và không lộ API key.
-- [ ] Slide 5 đã thay bằng ≥2 quote thật có tên/vai; nếu chưa có thì không tuyên bố đã validation.
+- [x] Tutor, Question và Classify live thành công; badge hiển thị `gemini-3.5-flash-lite`; trace có model, latency và output.
+- [x] Case `1 · Hiểu đúng` trả về `understood`.
+- [x] Case `3 · Đang nhầm` trả về `misconception`.
+- [x] Trace mở được và không lộ API key.
+- [x] Slide 5 có 2 quote thật của Huy và Lan, kèm vai trò.
 - [ ] Mỗi thành viên nói được phần có tên mình mà không cần đọc file.
-- [ ] Tổng rehearsal ≤4:45, còn ≥15 giây buffer.
+- [ ] Rerun sau khi rút gọn: lượt hiện tại 5:08, cần cắt ít nhất 8 giây.

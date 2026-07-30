@@ -43,11 +43,8 @@ Trước pilot, `/api/health` trả `mode=live` ngay khi có API key. Badge UI v
 
 Bằng chứng code: `codebase/engine/ai-client.js`, `codebase/app.js`.
 
-## Phần CP5 vẫn chưa đạt
+## Trạng thái tại thời điểm pilot kỹ thuật
 
-- Human validation: **0/5 người thật**.
-- Quote nguyên văn có tên/vai: **0/2**.
-- Feedback-driven usability change: chưa có; thay đổi badge ở trên đến từ simulated technical failure.
-- Spoken dry run có bấm giờ với cả nhóm: chưa có.
+Khi artifact này được tạo, human validation là **0/5**, quote thật **0/2** và chưa có feedback-driven usability change. Trạng thái đó được giữ để thể hiện đúng trình tự thử nghiệm, không phải trạng thái CP5 hiện tại.
 
-Không dùng persona mô phỏng làm tên người thử hoặc dùng output AI làm quote người dùng.
+Human validation sau đó đã đạt **5/5**, có hai thay đổi UI và dry run 5:08; xem `feedback-log.md`, `summary.md` và `dry-run.md`. Persona mô phỏng vẫn không được tính là người thử thật.
