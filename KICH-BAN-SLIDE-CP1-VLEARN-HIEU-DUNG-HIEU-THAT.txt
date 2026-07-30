@@ -1,0 +1,467 @@
+KỊCH BẢN SLIDE 6 TRANG — VLEARN HIỂU ĐÚNG, HIỂU THẬT
+========================================================
+
+Canvas nguồn: CP1-CANVAS-VLEARN-HIEU-DUNG-HIEU-THAT.md
+Thời lượng: 5 phút trình bày + 5 phút Q&A
+Thông điệp trung tâm: Đúng nguồn trước, hiểu thật sau.
+
+COMMUNICATION JOB
+-----------------
+
+Sau 5 phút, giám khảo cần tin rằng nhóm đã chọn một pain có bằng chứng, cắt đúng
+một tính năng AI và biết cách đo nó, bởi vì Grounded Adaptive Micro-Check giải
+quyết hai rủi ro nối tiếp: Tutor dùng sai/thiếu ngữ cảnh và học viên tiếp tục học
+mà chưa biết mình đã hiểu thật hay chưa.
+
+PHÂN VAI TRÌNH BÀY
+------------------
+
+[TV1] — Slide 1 và 2: user, pain, evidence, quyết định chọn.
+[TV3] — Slide 3: live demo và UX.
+[TV2] — Slide 3 phần quyết định AI + Slide 4 eval.
+[TV4] — Slide 5 và 6: validation, thay đổi, roadmap.
+
+Thay [TV1]–[TV4] bằng tên thật trước dry-run.
+
+
+SLIDE 1 — HỌC VIÊN CHƯA BIẾT CÂU TRẢ LỜI ĐÚNG NGUỒN, CŨNG CHƯA BIẾT MÌNH ĐÃ HIỂU
+================================================================================
+
+Thời lượng: 45 giây
+Người nói: [TV1]
+Narrative job: Giới thiệu đúng người dùng, job và hậu quả đủ đáng để giải quyết.
+
+NỘI DUNG HIỂN THỊ TRÊN SLIDE
+----------------------------
+
+Title:
+Học viên chưa biết câu trả lời đúng nguồn — cũng chưa biết mình đã hiểu
+
+Subhead:
+Job: Hiểu đúng một khái niệm trên slide trước khi tiếp tục học.
+
+Hai con số lớn:
+573 / 1.252
+lượt có selected page nhưng không có citation
+
+3 / 1.261
+lượt Tutor hỏi kiểm tra hiểu
+
+Pain statement:
+Sai ngữ cảnh + không có vòng xác nhận hiểu
+→ tự tra lại, mất niềm tin hoặc tiếp tục học với misconception.
+
+Visual gợi ý:
+- Một học viên đang đọc slide ở bên trái.
+- Tutor panel ở bên phải có dấu hỏi tại “Nguồn?” và “Đã hiểu?”.
+- Không dùng bốn card nhỏ; giữ một bố cục hai nửa với hai con số làm trọng tâm.
+
+LỜI THOẠI
+---------
+
+“Người dùng của nhóm là học viên đang trong buổi học, vừa bôi đen một đoạn slide
+và nhờ Tutor giải thích một khái niệm khó. Công việc của họ không phải là nhận
+thêm một đoạn văn; họ cần hiểu đúng khái niệm trước khi học tiếp.”
+
+“Nhưng hiện có hai rủi ro nối tiếp. Trong 1.252 lượt có selected page, 573 lượt
+không có citation. Và trên toàn bộ 1.261 lượt hỏi–đáp, Tutor chỉ hỏi kiểm tra hiểu
+3 lần. Học viên có thể vừa nhận một câu trả lời thiếu căn cứ, vừa không biết mình
+đã hiểu đúng hay chưa.”
+
+TRANSITION
+----------
+
+“Nhóm đã cân nhắc nhiều điểm đau, nhưng không chọn chúng như những feature rời.”
+
+[Sources]
+- CP1-CANVAS-VLEARN-HIEU-DUNG-HIEU-THAT.md — Canvas dòng 2–4.
+- data/vlearn-pack/chatlog/chat_history_anonymized_for_hackathon.csv.
+- data/vlearn-pack/chatlog/DATA_DICTIONARY.md.
+
+
+SLIDE 2 — CHÚNG TÔI CHỌN KHÉP KÍN VÒNG HỌC, KHÔNG CHỈ VÁ MỘT CÂU TRẢ LỜI
+============================================================================
+
+Thời lượng: 45 giây
+Người nói: [TV1]
+Narrative job: Cho thấy nhóm đã so sánh lựa chọn và có lý do chọn bằng evidence.
+
+NỘI DUNG HIỂN THỊ TRÊN SLIDE
+----------------------------
+
+Title:
+Chúng tôi chọn khép kín vòng học, không chỉ vá một câu trả lời
+
+Bảng impact rút gọn:
+
+Ứng viên                         Evidence               Impact      Quyết định
+Sửa retrieval/context đơn lẻ     573 không citation     Rất cao     Cần, chưa đủ
+Micro-Check đơn lẻ               3/1.261 check          Rất cao     Sáng tạo, nhưng rủi ro sai nguồn
+Tối ưu latency                   49 lượt >5 giây        Thấp hơn    Không chọn
+Grounded Adaptive Micro-Check    Cả hai signal trên     Rất cao     CHỌN
+
+Callout:
+Một tính năng:
+Grounding Gate → Micro-Check → củng cố có nguồn
+
+Footnote:
+239 lượt chỉ cite trang khác cần audit; không mặc định mọi dẫn chéo trang đều sai.
+
+Visual gợi ý:
+- Bảng impact chiếm khoảng 70% slide.
+- Dòng được chọn dùng một màu nhấn duy nhất.
+- Dưới bảng là flow ba bước mảnh, không dùng dashboard/card grid.
+
+LỜI THOẠI
+---------
+
+“Nếu chỉ sửa retrieval, câu trả lời có thể đúng nguồn nhưng học viên vẫn chưa biết
+mình đã hiểu. Nếu chỉ thêm quiz, hệ thống có thể củng cố từ sai ngữ cảnh. Còn
+latency có tần suất và impact thấp hơn.”
+
+“Nhóm chọn Grounded Adaptive Micro-Check. Grounding Gate là điều kiện để vòng
+kiểm tra được phép chạy; phân loại mức hiểu là quyết định AI trung tâm. Như vậy
+đây vẫn là một tính năng, không phải bốn tính năng ghép lại.”
+
+TRANSITION
+----------
+
+“Cách hoạt động rõ nhất là nhìn vào một vòng học thật.”
+
+[Sources]
+- CP1-CANVAS-VLEARN-HIEU-DUNG-HIEU-THAT.md — bảng bốn pain point.
+- docs/superpowers/specs/2026-07-30-vlearn-hieu-that-design.md — mục 2.2.
+- data/vlearn-pack/chatlog/DATA_DICTIONARY.md — latency và citation fields.
+
+
+SLIDE 3 — ĐÚNG NGUỒN TRƯỚC, HIỂU THẬT SAU
+===========================================
+
+Thời lượng: 2 phút
+Người nói: [TV3] thao tác; [TV2] giải thích quyết định AI
+Narrative job: Chứng minh lát cắt chạy end-to-end và xử lý được failure đáng sợ.
+
+NỘI DUNG HIỂN THỊ TRÊN SLIDE
+----------------------------
+
+Title:
+Đúng nguồn trước, hiểu thật sau
+
+Lát cắt:
+Một học viên · xác nhận mức hiểu · một mastery decision · một bước củng cố ≤60 giây
+
+Flow:
+1. Grounding Gate
+2. Giải thích + citation
+3. “Kiểm tra tôi · 30 giây”
+4. understood | partial | misconception | insufficient
+5. Một bước củng cố có nguồn
+
+Automation:
+Augment — sai nguồn thì dừng; học viên được bỏ qua hoặc phản đối đánh giá.
+
+Live demo labels:
+CASE CHUẨN: hiểu đúng
+CASE KHÓ: misconception / sai context
+
+Visual gợi ý:
+- Slide chỉ giữ flow và lát cắt.
+- Prototype chiếm phần lớn màn hình trong lúc demo.
+- Không đặt toàn bộ JSON schema lên slide.
+
+LIVE DEMO — CASE CHUẨN
+----------------------
+
+Nguồn:
+[T04-047]–[T04-048] về next-token prediction và hallucination.
+
+Câu hỏi:
+“Vì sao câu trả lời của LLM nghe rất hợp lý nhưng vẫn có thể sai?”
+
+Tutor output mong đợi:
+“LLM dự đoán token tiếp theo theo xác suất. Cách này tạo văn bản trôi chảy nhưng
+không bảo đảm mọi thông tin đã được kiểm chứng, nên câu trả lời có thể hợp lý mà
+vẫn sai. [T04-047] [T04-048]”
+
+Thao tác:
+1. Mở source chip để chứng minh đúng nguồn.
+2. Bấm “Kiểm tra tôi · 30 giây”.
+3. Hệ thống hỏi:
+   “Vì sao dự đoán token tốt không đồng nghĩa LLM luôn nói đúng sự thật?”
+4. Nhập:
+   “Vì LLM chọn token theo xác suất, không có bước kiểm chứng mọi thông tin.”
+5. Hiện trạng thái “Đã nắm”.
+
+[TV3] nói:
+“Ở happy path, hệ thống xác nhận phần học viên đã hiểu đúng và cho phép tiếp tục,
+không biến nó thành một bài quiz dài.”
+
+LIVE DEMO — CASE KHÓ
+--------------------
+
+Nhập câu misconception:
+“Vì LLM luôn tìm kiếm trên Internet nhưng đôi khi đọc phải trang web cũ.”
+
+Output mong đợi:
+- Trạng thái: “Có thể đang nhầm”.
+- Gap: đánh đồng next-token prediction với web search.
+- Củng cố đúng một lỗ hổng, cite [T04-047] [T04-048].
+- Câu retry:
+  “Không truy cập Internet, LLM vẫn có thể hallucinate không? Vì sao?”
+
+[TV2] nói:
+“AI không chỉ dò từ khóa. Quyết định trung tâm là học viên đang understood,
+partial, misconception hay insufficient. Ở đây thuật ngữ nghe hợp lý nhưng quan
+hệ nhân quả bị sai.”
+
+FAILURE CẦN CHỦ ĐỘNG KHOE
+-------------------------
+
+Đổi sang một đoạn không nói về next-token nhưng giữ nguyên câu hỏi.
+
+Output mong đợi:
+“Chưa đủ căn cứ trong đoạn đang chọn. Hãy chọn lại nguồn.”
+
+Không tạo Micro-Check. Không dùng kiến thức ngoài context để đoán.
+
+[TV2] nói:
+“Một câu hỏi kiểm tra nghe hay nhưng dựa trên sai nguồn vẫn là một failure. Vì vậy
+Grounding Gate dừng vòng học trước khi hệ thống đánh giá học viên.”
+
+TRANSITION
+----------
+
+“Flow chạy được chưa đủ; nhóm phải chứng minh hệ thống phân loại đúng và biết dừng.”
+
+[Sources]
+- data/vlearn-pack/transcript/transcript-04-clean.md — [T04-047], [T04-048].
+- CP1-CANVAS-VLEARN-HIEU-DUNG-HIEU-THAT.md — Canvas dòng 5–6.
+- docs/superpowers/specs/2026-07-30-vlearn-hieu-that-design.md — mục 6–7.
+
+
+SLIDE 4 — CHẤT LƯỢNG ĐƯỢC ĐO BẰNG VIỆC BIẾT ĐÚNG VÀ BIẾT DỪNG
+================================================================
+
+Thời lượng: 45 giây
+Người nói: [TV2]
+Narrative job: Chứng minh nhóm có eval thật, quality bar đã chốt và không giấu lỗi.
+
+NỘI DUNG HIỂN THỊ TRÊN SLIDE
+----------------------------
+
+Title:
+Chất lượng được đo bằng việc biết đúng — và biết dừng
+
+Golden set:
+20+ case
+≥10 case từ chatlog
+≥2 case cho mỗi lớp chỗ khó
+
+Quality bar đã chốt:
+≥80% mastery classification đúng
+100% feedback dùng nguồn thuộc context
+100% thiếu căn cứ không được đánh dấu “understood”
+0 misconception nghiêm trọng bị đánh dấu “understood”
+
+Kết quả:
+Run 1: [ĐIỀN __/20 = __%]
+Run 2: [ĐIỀN __/20 = __%]
+
+Failure lớn nhất:
+[ĐIỀN case ID + lỗi + nguyên nhân]
+
+Visual gợi ý:
+- Một biểu đồ progress đơn giản Run 1 → Quality bar → Run 2.
+- Một callout riêng cho failure lớn nhất.
+- Không hiển thị bảng 20 dòng trên slide.
+
+LỜI THOẠI
+---------
+
+“Nhóm không chấm bằng cảm giác. Golden set có ít nhất 20 case, phủ bốn lớp rủi ro
+và có tối thiểu 10 case phát triển từ chatlog.”
+
+“Quality bar được khóa trước khi nhìn full run. Khi demo chính thức, nhóm sẽ điền
+kết quả mọi case, kể cả case fail. Điều kiện cứng là không được đánh dấu đã hiểu
+khi thiếu nguồn hoặc khi học viên đang có misconception nghiêm trọng.”
+
+“Failure lớn nhất hiện tại là [ĐIỀN]. Nhóm đã [sửa/giữ nguyên] vì [bằng chứng].”
+
+LƯU Ý TRƯỚC KHI XUẤT SLIDE
+--------------------------
+
+Không để placeholder [ĐIỀN] trong deck final.
+Không đổi quality bar sau khi thấy kết quả.
+Không chỉ đưa Run 2 mà giấu Run 1.
+
+TRANSITION
+----------
+
+“Eval cho biết hệ thống làm đúng; user test cho biết vòng học có thực sự hữu ích.”
+
+[Sources]
+- 04-rubric.md — R4 và checklist CP3/CP4.
+- docs/superpowers/specs/2026-07-30-vlearn-hieu-that-design.md — mục 11.
+- eval/golden-set.[csv|json] — thay bằng đường dẫn thật trước demo.
+- eval/run-01.* và eval/run-02.* — thay bằng đường dẫn thật trước demo.
+
+
+SLIDE 5 — USER CHỈ TIN KHI THẤY NGUỒN VÀ NHẬN RA ĐÚNG LỖ HỔNG
+================================================================
+
+Thời lượng: 45 giây
+Người nói: [TV4]
+Narrative job: Cho thấy người thật đã dùng, phản hồi và làm thay đổi sản phẩm.
+
+NỘI DUNG HIỂN THỊ TRÊN SLIDE
+----------------------------
+
+Title:
+User chỉ tin khi thấy nguồn và nhận ra đúng lỗ hổng
+
+Validation:
+n = [ĐIỀN ≥5] học viên ngoài nhóm
+
+Quote 1:
+“[ĐIỀN quote nguyên văn về grounding/niềm tin]”
+— [Tên, vai; willing user?]
+
+Quote 2:
+“[ĐIỀN quote nguyên văn về Micro-Check/lỗ hổng hiểu]”
+— [Tên, vai; willing user?]
+
+Thay đổi đã làm:
+[ĐIỀN một thay đổi cụ thể từ feedback]
+
+Ví dụ hợp lệ:
+- Đổi label “Misconception” thành “Có thể đang nhầm”.
+- Cho mở source ngay tại feedback.
+- Rút phản hồi từ ba lỗ hổng xuống đúng một lỗ hổng.
+
+Visual gợi ý:
+- Hai quote lớn, không dùng ảnh stock.
+- Một mũi tên từ feedback lặp lại nhiều nhất sang thay đổi đã làm.
+- Tên/vai nhỏ nhưng đọc được.
+
+LỜI THOẠI
+---------
+
+“Nhóm đưa prototype cho [n] học viên ngoài nhóm, trong đó có [n] willing users đã
+khai từ CP1. Hai phản hồi lặp lại nhiều nhất là [chủ đề 1] và [chủ đề 2].”
+
+“Từ feedback này, nhóm đã thay đổi [chi tiết cụ thể]. Đây không phải thay đổi vì
+nhóm thấy đẹp hơn; nó xuất phát từ điểm user bị kẹt hoặc không tin output.”
+
+LƯU Ý TRƯỚC KHI XUẤT SLIDE
+--------------------------
+
+Không tự tạo quote.
+Không dùng lời khen chung chung.
+Phải có tên/vai và log gốc trong validation/.
+Ít nhất hai người trên slide phải là người ngoài nhóm.
+
+TRANSITION
+----------
+
+“Những failure và feedback còn lại quyết định ba việc tiếp theo, không phải một
+roadmap dài theo cảm hứng.”
+
+[Sources]
+- validation/feedback-log.md — thay bằng file thật.
+- validation/summary.md — thay bằng file thật.
+- spec.md §9 Changelog — thay bằng commit/file thật.
+
+
+SLIDE 6 — MỘT TUẦN TIẾP THEO: GIẢM SAI NGUỒN, ĐO LEARNING GAIN, MỞ RỘNG THẬN TRỌNG
+=================================================================================
+
+Thời lượng: 30 giây
+Người nói: [TV4]
+Narrative job: Khép lại bằng ba ưu tiên có căn cứ và nhắc lại giá trị trung tâm.
+
+NỘI DUNG HIỂN THỊ TRÊN SLIDE
+----------------------------
+
+Title:
+Một tuần tiếp theo: giảm sai nguồn, đo learning gain, mở rộng thận trọng
+
+Ưu tiên 1:
+Mapping slide ↔ transcript
+Từ failure: citation/context chưa đủ chắc
+
+Ưu tiên 2:
+Pre/post Micro-Check
+Đo learning gain, không chỉ đo số lượt chat
+
+Ưu tiên 3:
+Misconception memory giới hạn
+Chỉ mở rộng sau khi user xác nhận và có quyền sửa
+
+Con số/commitment:
+3 ưu tiên · 1 learning outcome
+
+Closing line:
+VLearn không cần trả lời nhiều hơn.
+VLearn cần giúp học viên học từ đúng nguồn và biết mình đã hiểu đến đâu.
+
+Visual gợi ý:
+- Ba ưu tiên nằm trên một đường tiến triển duy nhất, không dùng roadmap 10 mục.
+- Kết thúc bằng closing line lớn.
+
+LỜI THOẠI
+---------
+
+“Nếu có thêm một tuần, nhóm không thêm nhiều feature. Nhóm ưu tiên mapping nguồn
+chắc hơn, đo learning gain trước–sau Micro-Check và chỉ lưu misconception khi học
+viên có quyền xác nhận hoặc sửa.”
+
+“Bài học lớn nhất của nhóm là: một Tutor tốt không phải Tutor trả lời nhiều hơn.
+Nó phải bảo đảm học viên học từ đúng nguồn và biết mình đã hiểu đến đâu.”
+
+[Sources]
+- CP1-CANVAS-VLEARN-HIEU-DUNG-HIEU-THAT.md — bốn pain point và non-goal ngầm định.
+- docs/superpowers/specs/2026-07-30-vlearn-hieu-that-design.md — mục 4, 10 và 12.
+- eval/[failure-log thật] và validation/[feedback thật] — cập nhật trước demo.
+
+
+CHECKLIST TRƯỚC KHI CHUYỂN THÀNH DECK
+=====================================
+
+[ ] Slide 1 có user/job và ít nhất một số pain.
+[ ] Slide 2 có ≥3 ứng viên, ứng viên loại và lý do chọn.
+[ ] Slide 3 có lát cắt, automation, case chuẩn và case khó.
+[ ] Slide 4 có quality bar đã khóa, Run 1/Run 2 và một failure thật.
+[ ] Slide 5 có ≥2 quote thật, tên/vai và một thay đổi từ feedback.
+[ ] Slide 6 chỉ có 2–3 ưu tiên gắn với feedback/failure.
+[ ] Mỗi slide có ít nhất một con số, quote hoặc kết quả có nguồn.
+[ ] Không còn placeholder [ĐIỀN] trong bản final.
+[ ] Mỗi thành viên nói ít nhất một phần.
+[ ] Tổng lời thoại dry-run không vượt 5 phút.
+[ ] Có backup screenshot/video cho demo live.
+[ ] Không có raw data, API key hoặc thông tin cá nhân trong slide.
+
+
+GỢI Ý HỆ THỐNG HÌNH ẢNH
+=======================
+
+Phong cách:
+- Nền sáng hoặc xanh navy rất đậm, dùng nhất quán.
+- Màu nhấn duy nhất cho trạng thái “đúng nguồn/đã nắm”.
+- Màu cảnh báo riêng cho “chưa đủ căn cứ/có thể đang nhầm”.
+- Không dùng ảnh stock học sinh cười nhìn laptop.
+
+Silhouette:
+- Slide 1: hai nửa — user/job và hai con số.
+- Slide 2: bảng impact với một dòng được nhấn.
+- Slide 3: flow ngang + prototype live.
+- Slide 4: progress Run 1 → bar → Run 2 + failure callout.
+- Slide 5: hai quote lớn + một thay đổi.
+- Slide 6: ba bước ưu tiên + closing line.
+
+Typography tối thiểu nếu không có template:
+- Deck title: 50 pt.
+- Slide title: 35 pt.
+- Subhead/callout: 24 pt.
+- Body: 16 pt.
+
+END
