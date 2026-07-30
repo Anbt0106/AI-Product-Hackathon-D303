@@ -14,7 +14,14 @@ assert.match(html, /data-doc="Lecture_material_ms2039d0_hnxpxy"/);
 assert.match(html, /data-doc="Lecture_material_day02_hackathon"/);
 assert.match(html, /VLearn Tutor/);
 assert.match(html, /Hiểu Đúng, Hiểu Thật/);
-assert.match(app, /Kiểm tra tôi · 30 giây/);
-assert.match(app, /selectDefaultContext/);
+assert.match(app, /answerTutor/);
+assert.match(app, /retryFailedStep/);
+assert.match(app, /data-action="retry-ai"/);
+assert.match(app, /AI đang trả lời/);
+assert.match(app, /Không thể tự chuyển sang mock/);
+assert.match(html, /aria-live="polite"/);
+assert.doesNotMatch(app, /classifyMock|generateMock|_fallback/);
+assert.doesNotMatch(app, /ARCHIVED_FIXTURES|archivedFixture|prefill|forceCrossPage|shiftCitations/);
+assert.doesNotMatch(app, /happy:\s*\{|misconception:\s*\{|no-source:\s*\{|cross-page:\s*\{/);
 
-console.log('Manual demo UI contract: 8 assertions passed.');
+console.log('Manual demo UI contract: 17 assertions passed.');
