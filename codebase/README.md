@@ -1,17 +1,14 @@
 # VLearn Reader · Hiểu Đúng, Hiểu Thật
 
-Demo giao diện học viên đọc PDF liên tục. Khi người học cuộn đến trang nào, VLearn
-Tutor đóng băng đúng trang đó, gửi cả văn bản trích xuất và ảnh render của trang
-cho Gemini, trả lời câu hỏi rồi đưa ra một Micro-Check để kiểm tra lại kiến thức.
+Demo giao diện học viên đọc PDF. Khi người học cuộn đến trang nào.
 
-Cả ba bước đều dùng Gemini thật:
+Cả ba bước đều dùng Gemini:
 
 1. Giải thích câu hỏi của học viên (`POST /api/tutor`).
 2. Sinh câu hỏi Micro-Check (`POST /api/question`).
 3. Đánh giá câu trả lời teach-back (`POST /api/classify`).
 
-Không có fallback sang câu trả lời mock. Nếu Gemini lỗi, giao diện hiển thị lỗi và
-nút thử lại. Lịch sử hội thoại được giữ, mỗi lượt có nhãn tài liệu và trang nguồn.
+Không có fallback sang câu trả lời mock. Lịch sử hội thoại được giữ, mỗi lượt có nhãn tài liệu và trang nguồn.
 
 ## Cấu hình Gemini
 
@@ -24,9 +21,6 @@ GEMINI_MODEL=gemini-3.5-flash-lite
 PORT=5173
 ```
 
-Không commit `.env` và không dán API key vào mã frontend. Key chỉ được đọc bởi
-`server.mjs`.
-
 ## Chạy demo
 
 ```powershell
@@ -34,8 +28,7 @@ cd codebase
 .\start.ps1
 ```
 
-Sau đó mở <http://127.0.0.1:5173>. Góc trên bên phải phải hiển thị
-`AI thật · gemini-3.5-flash-lite`.
+Sau đó mở <http://127.0.0.1:5173>.
 
 Luồng demo:
 
@@ -43,7 +36,7 @@ Luồng demo:
 2. Cuộn PDF đến trang cần hỏi và đợi nhãn trang bên Tutor cập nhật.
 3. Nhập câu hỏi như một học viên bình thường.
 4. Đọc phần giải thích có nguồn của đúng trang.
-5. Bấm `Kiểm tra tôi · 30 giây`, trả lời bằng lời của mình và xem đánh giá.
+5. Bấm `Kiểm tra tôi.`, trả lời bằng lời của mình và xem đánh giá.
 
 ## Dữ liệu gửi tới Gemini
 

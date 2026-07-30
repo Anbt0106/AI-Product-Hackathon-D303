@@ -73,8 +73,8 @@
     window.AiClient.probe();
     renderModeBadge(window.AiClient.getMode());
     window.Trace.onChange(function (entries) {
-      el.btnTrace.textContent = 'Trace (' + entries.length + ')';
-      if (!el.traceDrawer.hidden) renderTrace();
+      if (el.btnTrace) el.btnTrace.textContent = 'Trace (' + entries.length + ')';
+      if (el.traceDrawer && !el.traceDrawer.hidden) renderTrace();
     });
 
     openDocument(docs[0].docCode);
@@ -102,10 +102,12 @@
       onComposerSubmit();
     });
     el.thread.addEventListener('click', onThreadClick);
-    $('btn-trace').addEventListener('click', function () {
-      el.traceDrawer.hidden = !el.traceDrawer.hidden;
-      if (!el.traceDrawer.hidden) renderTrace();
-    });
+    if ($('btn-trace')) {
+      $('btn-trace').addEventListener('click', function () {
+        el.traceDrawer.hidden = !el.traceDrawer.hidden;
+        if (!el.traceDrawer.hidden) renderTrace();
+      });
+    }
     $('btn-trace-close').addEventListener('click', function () {
       el.traceDrawer.hidden = true;
     });
@@ -704,8 +706,7 @@
   function renderModeBadge(mode) {
     if (mode.mode === 'live') {
       el.modeBadge.className = 'badge badge-live';
-      el.modeBadge.textContent = 'AI thật · ' +
-        (mode.model || mode.provider || 'OpenAI');
+      el.modeBadge.textContent = mode.model || mode.provider || 'OpenAI';
     } else {
       el.modeBadge.className = 'badge badge-error';
       el.modeBadge.textContent = 'AI chưa sẵn sàng';
