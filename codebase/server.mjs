@@ -84,26 +84,18 @@ export function providerState() {
       mode: 'live',
       provider: 'openai',
       model: OPENAI.model,
-      live_steps: ['question_generate', 'mastery_classify'],
+      live_steps: ['tutor_answer', 'question_generate', 'mastery_classify'],
       reason: 'đã cấu hình OPENAI_API_KEY'
     };
   }
-  if (PROVIDER === 'anthropic' && ANTHROPIC.key) {
-    return { mode: 'live', provider: 'anthropic', model: ANTHROPIC.model,
-      live_steps: ['mastery_classify'], reason: 'đã cấu hình ANTHROPIC_API_KEY' };
-  }
-  if (PROVIDER === 'gemini' && GEMINI.key) {
-    return { mode: 'live', provider: 'gemini', model: GEMINI.model,
-      live_steps: ['mastery_classify'], reason: 'đã cấu hình GEMINI_API_KEY' };
-  }
   return {
-    mode: 'mock',
+    mode: 'unavailable',
     provider: null,
     model: null,
     live_steps: [],
     reason: PROVIDER
       ? `AI_PROVIDER=${PROVIDER} nhưng thiếu API key trong biến môi trường`
-      : 'chưa set AI_PROVIDER — đang chạy bản mock của CP2'
+      : 'chưa set AI_PROVIDER'
   };
 }
 
@@ -133,6 +125,60 @@ const QUESTION_SCHEMA = {
   required: ['question'],
   additionalProperties: false
 };
+
+const TUTOR_SCHEMA = {
+  type: 'object',
+  properties: {
+    answer: { type: 'string' },
+    citations: {
+      type: 'array',
+      items: { type: 'string' },
+      minItems: 1,
+      uniqueItems: true
+    }
+  },
+  required: ['answer', 'citations'],
+  additionalProperties: false
+};
+
+const SYSTEM_TUTOR = [
+  'Bạn là VLearn Tutor trả lời bằng tiếng Việt.',
+  'Chỉ dùng các đoạn tài liệu được cấp; không thêm kiến thức ngoài.',
+  'Trả lời ngắn gọn, dễ hiểu và trích ít nhất một source code đã được cấp.',
+  'Không được tạo hoặc sửa source code.',
+  'Nếu ngữ cảnh không đủ, nói rõ phần chưa đủ thay vì đoán.'
+].join('\n');
+
+export function validateTutorAnswer(value, allowedSourceCodes) {
+  if (!value || typeof value.answer !== 'string' || !value.answer.trim()) {
+    throw new Error('Tutor answer rỗng/không phải string');
+  }
+  if (!Array.isArray(value.citations) || value.citations.length === 0) {
+    throw new Error('Tutor answer cần ít nhất một citation');
+  }
+  const allowed = new Set(allowedSourceCodes || []);
+  for (const citation of value.citations) {
+    if (!allowed.has(citation)) {
+      throw new Error(`Tutor citation không thuộc ngữ cảnh: ${citation}`);
+    }
+  }
+  return { answer: value.answer.trim(), citations: [...new Set(value.citations)] };
+}
+
+function tutorUserPrompt(body) {
+  const c = body.context || {};
+  const sources = (c.source_codes || c.sourceCodes || []).map((code) => `[${code}] ${c.selected_text || c.selectedText || ''}`).join('\n');
+  return [
+    `Mã tài liệu: ${c.doc_code || c.docCode || ''}`,
+    `Trang: ${c.source_page || c.selectedPage || ''}`,
+    `Tiêu đề: ${c.heading || ''}`,
+    `Nguồn trích dẫn:\n${sources}`,
+    '',
+    `Câu hỏi của sinh viên: ${body.question}`,
+    '',
+    'Trả lời câu hỏi theo schema và chỉ trích các mã [SOURCE_CODE] trong ngữ cảnh.'
+  ].join('\n');
+}
 
 /* ========================= prompt ========================= */
 
@@ -288,7 +334,7 @@ export function parseOpenAIResponse(response) {
 }
 
 async function callOpenAI({ system, user, schema }) {
-  const schemaName = schema === QUESTION_SCHEMA ? 'micro_check_question' : 'mastery_verdict';
+  const schemaName = schema === TUTOR_SCHEMA ? 'tutor_answer' : schema === QUESTION_SCHEMA ? 'micro_check_question' : 'mastery_verdict';
   const res = await fetch(OPENAI.url, {
     method: 'POST',
     headers: {
@@ -369,6 +415,49 @@ export function validateVerdict(verdict) {
   return verdict;
 }
 
+export async function tutorWithProvider(body) {
+  const sourceCodes = body?.context?.source_codes || body?.context?.sourceCodes || [];
+  const selectedText = body?.context?.selected_text || body?.context?.selectedText || '';
+  if (!sourceCodes.length || !selectedText.trim()) {
+    const error = new Error('Cần chọn nguồn trước khi hỏi Tutor');
+    error.statusCode = 400;
+    throw error;
+  }
+  const t0 = Date.now();
+  const result = await callProvider({
+    system: SYSTEM_TUTOR,
+    user: tutorUserPrompt(body),
+    schema: TUTOR_SCHEMA
+  });
+  return {
+    ...validateTutorAnswer(result.data, sourceCodes),
+    model: result.model,
+    latency_ms: Date.now() - t0
+  };
+}
+
+export function toPublicApiError(error) {
+  const rawStatus = Number(error?.statusCode || 0);
+  const message = String(error?.message || '');
+  if (rawStatus === 400) {
+    return { status: 400, code: 'invalid_request', message: 'Dữ liệu gửi lên chưa hợp lệ.' };
+  }
+  if (rawStatus === 401 || rawStatus === 403 || /\b(401|403)\b/.test(message)) {
+    return { status: 503, code: 'ai_not_configured', message: 'Cấu hình AI chưa hợp lệ.' };
+  }
+  if (rawStatus === 429 || /\b429\b/.test(message)) {
+    return { status: 429, code: 'rate_limit', message: 'Dịch vụ AI đang bận. Vui lòng thử lại.' };
+  }
+  if (error?.name === 'AbortError' || /timeout/i.test(message)) {
+    return { status: 504, code: 'timeout', message: 'AI phản hồi quá lâu. Vui lòng thử lại.' };
+  }
+  return {
+    status: 502,
+    code: 'invalid_response',
+    message: 'AI trả về kết quả không hợp lệ. Vui lòng thử lại.'
+  };
+}
+
 export async function classifyWithProvider(body) {
   const t0 = Date.now();
   const r = await callProvider({
@@ -443,7 +532,7 @@ const server = createServer(async (req, res) => {
 
   if (p === '/api/health') return sendJson(res, 200, providerState());
 
-  if (p === '/api/question' || p === '/api/classify') {
+  if (p === '/api/tutor' || p === '/api/question' || p === '/api/classify') {
     if (req.method !== 'POST') return sendJson(res, 405, { error: 'chỉ nhận POST' });
     let body;
     try { body = await readBody(req); }
@@ -451,6 +540,10 @@ const server = createServer(async (req, res) => {
 
     const t0 = Date.now();
     try {
+      if (p === '/api/tutor') {
+        const r = await tutorWithProvider(body);
+        return sendJson(res, 200, r);
+      }
       if (p === '/api/question') {
         const r = await callProvider({
           system: SYSTEM_QUESTION,
@@ -462,9 +555,11 @@ const server = createServer(async (req, res) => {
       const r = await classifyWithProvider(body);
       return sendJson(res, 200, r);
     } catch (e) {
-      const code = e.statusCode || 502;
-      // Trả lỗi rõ ràng để front-end ghi vào trace là đã fallback về mock.
-      return sendJson(res, code, { error: String(e.message || e) });
+      const publicError = toPublicApiError(e);
+      return sendJson(res, publicError.status, {
+        error: publicError.message,
+        code: publicError.code
+      });
     }
   }
 

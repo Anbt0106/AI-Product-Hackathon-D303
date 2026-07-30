@@ -10,7 +10,45 @@ const state = serverModule.providerState();
 assert.equal(state.mode, 'live');
 assert.equal(state.provider, 'openai');
 assert.equal(state.model, 'gpt-5.6-terra');
-assert.deepEqual(state.live_steps, ['question_generate', 'mastery_classify']);
+assert.deepEqual(state.live_steps, [
+  'tutor_answer',
+  'question_generate',
+  'mastery_classify'
+]);
+
+assert.deepEqual(
+  serverModule.validateTutorAnswer(
+    { answer: 'Self-attention cho mỗi token đối chiếu với các token khác.', citations: ['T06-130'] },
+    ['T06-130', 'T06-132']
+  ),
+  { answer: 'Self-attention cho mỗi token đối chiếu với các token khác.', citations: ['T06-130'] }
+);
+
+assert.throws(
+  () => serverModule.validateTutorAnswer(
+    { answer: 'Nội dung ngoài nguồn.', citations: ['UNKNOWN'] },
+    ['T06-130']
+  ),
+  /citation không thuộc ngữ cảnh/i
+);
+
+assert.throws(
+  () => serverModule.validateTutorAnswer(
+    { answer: 'Không có nguồn.', citations: [] },
+    ['T06-130']
+  ),
+  /ít nhất một citation/i
+);
+
+assert.deepEqual(
+  serverModule.toPublicApiError(Object.assign(new Error('openai 429: busy'), { statusCode: 429 })),
+  { status: 429, code: 'rate_limit', message: 'Dịch vụ AI đang bận. Vui lòng thử lại.' }
+);
+
+assert.deepEqual(
+  serverModule.toPublicApiError(new Error('authorization Bearer SECRET-VALUE')),
+  { status: 502, code: 'invalid_response', message: 'AI trả về kết quả không hợp lệ. Vui lòng thử lại.' }
+);
 
 const fixture = {
   id: 'resp_test',
