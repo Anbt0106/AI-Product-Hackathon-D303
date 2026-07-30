@@ -85,6 +85,10 @@
 
       <div class="pdf-stage">
         <iframe id="pdf-frame" class="pdf-frame" title="Slide bài giảng"></iframe>
+        <div id="pdf-reader" class="pdf-reader" aria-label="Slide bài giảng" hidden>
+          <div id="pdf-reader-status" class="pdf-reader-status" role="status" aria-live="polite"></div>
+          <div id="pdf-pages" class="pdf-pages"></div>
+        </div>
         <div id="slide-body" class="context-drawer" aria-label="Ngữ cảnh transcript"></div>
       </div>
 
@@ -151,6 +155,7 @@
   <script src="engine/feedback.js"></script>
   <script src="engine/ai-client.js"></script>
   <script src="engine/page-context.js"></script>
+  <script type="module" src="engine/pdf-reader.mjs"></script>
   <script src="app.js"></script>
 </body>
 </html>
