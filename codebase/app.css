@@ -223,6 +223,11 @@ body {
 .msg-teachback { background: #27558f; }
 .msg-tag, .card-label { display: block; font-size: 9px; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; color: var(--muted); margin-bottom: 4px; }
 .msg-student .msg-tag { color: #dcecff; }
+.msg-source {
+  display: block; margin-bottom: 4px; color: #6d7e94;
+  font-size: 9px; font-weight: 750;
+}
+.msg-student .msg-source { color: #dcecff; }
 .cites { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
 .cite { border: 1px solid #b9ddcf; background: var(--ok-bg); color: var(--ok); padding: 3px 7px; border-radius: 999px; font-size: 9.5px; cursor: pointer; }
 .cites-none { color: var(--alert); font-size: 10px; }

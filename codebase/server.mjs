@@ -88,6 +88,24 @@ export function providerState() {
       reason: 'đã cấu hình OPENAI_API_KEY'
     };
   }
+  if (PROVIDER === 'anthropic' && ANTHROPIC.key) {
+    return {
+      mode: 'live',
+      provider: 'anthropic',
+      model: ANTHROPIC.model,
+      live_steps: ['tutor_answer', 'question_generate', 'mastery_classify'],
+      reason: 'đã cấu hình ANTHROPIC_API_KEY'
+    };
+  }
+  if (PROVIDER === 'gemini' && GEMINI.key) {
+    return {
+      mode: 'live',
+      provider: 'gemini',
+      model: GEMINI.model,
+      live_steps: ['tutor_answer', 'question_generate', 'mastery_classify'],
+      reason: 'đã cấu hình GEMINI_API_KEY'
+    };
+  }
   return {
     mode: 'unavailable',
     provider: null,
@@ -478,10 +496,11 @@ export async function classifyWithProvider(body) {
 
 /* ========================= HTTP ========================= */
 
-const MIME = {
+export const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.pdf': 'application/pdf',
   '.svg': 'image/svg+xml',

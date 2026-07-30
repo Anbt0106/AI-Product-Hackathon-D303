@@ -7,6 +7,7 @@ delete process.env.OPENAI_MODEL;
 const serverModule = await import('../server.mjs?test=openai');
 
 const state = serverModule.providerState();
+assert.equal(serverModule.MIME['.mjs'], 'text/javascript; charset=utf-8');
 assert.equal(state.mode, 'live');
 assert.equal(state.provider, 'openai');
 assert.equal(state.model, 'gpt-5.6-terra');

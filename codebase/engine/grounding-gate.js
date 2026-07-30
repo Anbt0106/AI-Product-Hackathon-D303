@@ -60,6 +60,8 @@ window.GroundingGate = (function () {
    * @returns {object} { status, reason, title, message, action, verified }
    */
   function check(ctx) {
+    if (ctx.pageContext) return checkPageContext(ctx);
+
     // Xét trang rỗng TRƯỚC khi xét việc chọn đoạn: nếu trang không có nội dung
     // thì học viên không thể chọn được đoạn nào, báo "chưa chọn đoạn" sẽ sai
     // nguyên nhân và đẩy học viên vào một việc không làm được.
@@ -103,6 +105,40 @@ window.GroundingGate = (function () {
     return result;
   }
 
+  function checkPageContext(ctx) {
+    var page = ctx.pageContext;
+    if (!page.imageDataUrl || !page.sourceId || !page.documentCode ||
+        !page.pageNumber) {
+      return build('empty_page', ctx);
+    }
+    if (!ctx.answer || !Array.isArray(ctx.answer.citations) ||
+        ctx.answer.citations.length === 0) {
+      return build('citation_missing', ctx);
+    }
+    var citations = ctx.answer.citations;
+    var allMatch = citations.every(function (citation) {
+      return citation === page.sourceId;
+    });
+    if (!allMatch) return build('citation_cross_doc', ctx);
+
+    var result = {
+      status: 'pass',
+      reason: 'source_id_matches_page_snapshot',
+      title: 'Đã xác minh nguồn trang',
+      message: 'Câu trả lời dùng đúng ảnh và nội dung của trang ' +
+        page.pageNumber + '.',
+      action: null,
+      verified: {
+        docCode: page.documentCode,
+        page: page.pageNumber,
+        sourceId: page.sourceId,
+        citations: citations.slice()
+      }
+    };
+    logPageContext(ctx, result);
+    return result;
+  }
+
   function build(reasonKey, ctx) {
     var r = REASONS[reasonKey];
     var result = {
@@ -128,6 +164,16 @@ window.GroundingGate = (function () {
         selected_passage_ids: ctx.selectedPassageIds || [],
         page_has_content: !!(ctx.passages && ctx.passages.length)
       },
+      input: { citations: ctx.answer ? (ctx.answer.citations || []) : [] },
+      output: { status: result.status, reason: result.reason }
+    });
+  }
+
+  function logPageContext(ctx, result) {
+    if (!window.Trace) return;
+    window.Trace.add('grounding_gate', {
+      mode: 'rule',
+      context: window.PageContext.safeTrace(ctx.pageContext),
       input: { citations: ctx.answer ? (ctx.answer.citations || []) : [] },
       output: { status: result.status, reason: result.reason }
     });

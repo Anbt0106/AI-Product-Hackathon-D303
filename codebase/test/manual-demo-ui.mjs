@@ -23,5 +23,11 @@ assert.match(html, /aria-live="polite"/);
 assert.doesNotMatch(app, /classifyMock|generateMock|_fallback/);
 assert.doesNotMatch(app, /ARCHIVED_FIXTURES|archivedFixture|prefill|forceCrossPage|shiftCitations/);
 assert.doesNotMatch(app, /happy:\s*\{|misconception:\s*\{|no-source:\s*\{|cross-page:\s*\{/);
+assert.match(app, /activePageContext/);
+assert.match(app, /roundContext/);
+assert.match(app, /sourceLabel/);
+assert.match(app, /Kiểm tra lại kiến thức/);
+assert.doesNotMatch(html, /<iframe[^>]+pdf-frame/);
+assert.doesNotMatch(app, /selectedPassageIds/);
 
-console.log('Manual demo UI contract: 17 assertions passed.');
+console.log('Manual demo UI contract: 23 assertions passed.');
