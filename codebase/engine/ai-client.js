@@ -18,7 +18,7 @@ window.AiClient = (function () {
 
   var state = {
     mode: 'mock',        // 'mock' | 'live'
-    provider: null,      // 'anthropic' | 'gemini' | null
+    provider: null,      // 'openai' | 'anthropic' | 'gemini' | null
     model: null,
     probed: false,
     reason: 'chưa thăm dò',
@@ -63,9 +63,31 @@ window.AiClient = (function () {
   /* ---------------------------------------------------------------------- */
 
   function generateQuestion(context, gate) {
-    // CP3 cố ý chỉ gọi AI ở quyết định trung tâm. Câu hỏi dùng bank đã duyệt để
-    // mỗi lần demo/eval giữ nguyên input; phần mock này được khai rõ trong §4.
-    return Promise.resolve(window.QuestionGenerator.generateMock({ context: context, gate: gate }));
+    var baseline = window.QuestionGenerator.generateMock({ context: context, gate: gate });
+    if (state.mode !== 'live' || !baseline) return Promise.resolve(baseline);
+
+    return post('api/question', { context: slim(context) })
+      .then(function (j) {
+        var out = Object.assign({}, baseline, {
+          question: j.question,
+          mode: 'live',
+          model: j.model || state.model
+        });
+        if (window.Trace) {
+          window.Trace.add('question_generate_live', {
+            mode: 'live',
+            model: out.model,
+            latency_ms: j.latency_ms || null,
+            context: { doc_code: context.docCode, source_page: context.selectedPage, source_codes: context.sourceCodes },
+            output: { question: out.question }
+          });
+        }
+        return out;
+      })
+      .catch(function (e) {
+        logFallback('question_generate', e);
+        return baseline;
+      });
   }
 
   function classify(args) {

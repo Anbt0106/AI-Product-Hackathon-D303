@@ -27,7 +27,9 @@ if ($avastCa) {
 
 if ($Mock) {
   Remove-Item Env:AI_PROVIDER -ErrorAction SilentlyContinue
+  Remove-Item Env:OPENAI_API_KEY -ErrorAction SilentlyContinue
   Remove-Item Env:GEMINI_API_KEY -ErrorAction SilentlyContinue
+  Remove-Item Env:ANTHROPIC_API_KEY -ErrorAction SilentlyContinue
 }
 
 Push-Location $PSScriptRoot

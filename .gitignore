@@ -3,5 +3,10 @@ node_modules/
 *.env
 .env
 .env.*
+!.env.example
+!**/.env.example
 # khoá API của CP3 chỉ nằm ở biến môi trường — không bao giờ trong repo
 secrets.json
+
+# Data pack thật chỉ dùng cục bộ trong hackathon, không đưa lên repo nộp bài.
+codebase/data/vlearn-pack/
