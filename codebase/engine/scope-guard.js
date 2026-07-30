@@ -22,7 +22,7 @@ window.ScopeGuard = (function () {
 
   var OFF_TOPIC = [
     'bóng đá', 'crush', 'người yêu', 'thời tiết', 'nấu ăn', 'chơi game',
-    'học phí', 'điểm danh', 'lịch thi', 'bao giờ nghỉ',
+    'học phí', 'điểm danh', 'lịch thi', 'bao giờ nghỉ', 'chấm điểm', 'sửa điểm',
     'giá cà phê', 'chứng khoán', 'mã số thuế',
     'viết hộ luận văn', 'làm hộ bài tập'
   ];

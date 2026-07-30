@@ -21,7 +21,8 @@ window.AiClient = (function () {
     provider: null,      // 'anthropic' | 'gemini' | null
     model: null,
     probed: false,
-    reason: 'chưa thăm dò'
+    reason: 'chưa thăm dò',
+    liveSteps: []
   };
 
   var listeners = [];
@@ -44,6 +45,7 @@ window.AiClient = (function () {
         state.mode = j.mode === 'live' ? 'live' : 'mock';
         state.provider = j.provider || null;
         state.model = j.model || null;
+        state.liveSteps = j.live_steps || [];
         state.reason = j.reason || '';
         state.probed = true;
         emit();
@@ -61,26 +63,9 @@ window.AiClient = (function () {
   /* ---------------------------------------------------------------------- */
 
   function generateQuestion(context, gate) {
-    if (state.mode !== 'live') {
-      return Promise.resolve(window.QuestionGenerator.generateMock({ context: context, gate: gate }));
-    }
-    return post('api/question', { context: slim(context) })
-      .then(function (j) {
-        var page = window.SlideContext.getPage(context.docCode, context.selectedPage);
-        return {
-          question: j.question,
-          // Rubric chấm giữ ở phía data: AI sinh câu hỏi, nhóm giữ nhãn để đo.
-          keyPoints: page.microCheck.keyPoints,
-          misconceptions: page.microCheck.misconceptions,
-          source_page: context.selectedPage,
-          source_codes: context.sourceCodes,
-          mode: 'live'
-        };
-      })
-      .catch(function (e) {
-        logFallback('question_generate', e);
-        return window.QuestionGenerator.generateMock({ context: context, gate: gate });
-      });
+    // CP3 cố ý chỉ gọi AI ở quyết định trung tâm. Câu hỏi dùng bank đã duyệt để
+    // mỗi lần demo/eval giữ nguyên input; phần mock này được khai rõ trong §4.
+    return Promise.resolve(window.QuestionGenerator.generateMock({ context: context, gate: gate }));
   }
 
   function classify(args) {
@@ -90,6 +75,10 @@ window.AiClient = (function () {
     return post('api/classify', {
       context: slim(args.context),
       question: args.question.question,
+      rubric: {
+        key_points: (args.question.keyPoints || []).map(function (k) { return k.label; }),
+        misconceptions: (args.question.misconceptions || []).map(function (m) { return m.gap; })
+      },
       student_answer: args.answer
     })
       .then(function (j) {

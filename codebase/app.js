@@ -185,7 +185,7 @@
     var ctx = currentContext();
     var page = window.SlideContext.getPage(S.docCode, S.page);
 
-    // Câu trả lời của Tutor ở CP2 là MOCK (data giả, chưa gọi AI).
+    // Câu trả lời Tutor là MOCK ở cả CP2/CP3; AI thật chỉ phân loại teach-back.
     var ans = null;
     if (page && page.tutorAnswer) {
       ans = {
@@ -443,7 +443,7 @@
     var live = mode.mode === 'live';
     el.modeBadge.className = 'badge ' + (live ? 'badge-live' : 'badge-mock');
     el.modeBadge.textContent = live
-      ? 'CP3 · AI thật (' + (mode.model || mode.provider) + ')'
+      ? 'CP3 · AI thật ở Mastery (' + (mode.model || mode.provider) + ')'
       : 'CP2 · Mock — chưa gọi AI';
     el.modeBadge.title = mode.reason || '';
   }

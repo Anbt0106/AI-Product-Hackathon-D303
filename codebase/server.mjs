@@ -16,12 +16,38 @@
  * ========================================================================== */
 
 import { createServer } from 'node:http';
+import { existsSync, readFileSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
-import { extname, join, normalize, sep } from 'node:path';
+import { extname, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Đọc codebase/.env không cần dependency. Biến đã đặt từ terminal luôn được
+ * ưu tiên; file chỉ điền những biến còn thiếu. Không log giá trị secret.
+ */
+function loadLocalEnv(path) {
+  if (!existsSync(path)) return;
+  const lines = readFileSync(path, 'utf8').replace(/^\uFEFF/, '').split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const i = trimmed.indexOf('=');
+    if (i < 1) continue;
+    const name = trimmed.slice(0, i).trim();
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name) || process.env[name] !== undefined) continue;
+    let value = trimmed.slice(i + 1).trim();
+    if ((value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    process.env[name] = value;
+  }
+}
+
+loadLocalEnv(join(ROOT, '.env'));
 const PORT = Number(process.env.PORT || 5173);
 
 /* ========================= cấu hình provider ========================= */
@@ -30,28 +56,33 @@ const PROVIDER = (process.env.AI_PROVIDER || '').toLowerCase();
 
 const ANTHROPIC = {
   key: process.env.ANTHROPIC_API_KEY || '',
-  model: process.env.ANTHROPIC_MODEL || 'claude-opus-5',
+  model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001',
   url: 'https://api.anthropic.com/v1/messages',
   version: '2023-06-01'
 };
 
 const GEMINI = {
   key: process.env.GEMINI_API_KEY || '',
-  model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+  // gemini-2.0-flash đã bị tắt từ 01/06/2026. Classifier cần độ trễ/chi phí
+  // thấp hơn năng lực agentic, nên dùng bản Flash-Lite GA hiện hành.
+  model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
   base: 'https://generativelanguage.googleapis.com/v1beta/models'
 };
 
-function providerState() {
+export function providerState() {
   if (PROVIDER === 'anthropic' && ANTHROPIC.key) {
-    return { mode: 'live', provider: 'anthropic', model: ANTHROPIC.model, reason: 'đã cấu hình ANTHROPIC_API_KEY' };
+    return { mode: 'live', provider: 'anthropic', model: ANTHROPIC.model,
+      live_steps: ['mastery_classify'], reason: 'đã cấu hình ANTHROPIC_API_KEY' };
   }
   if (PROVIDER === 'gemini' && GEMINI.key) {
-    return { mode: 'live', provider: 'gemini', model: GEMINI.model, reason: 'đã cấu hình GEMINI_API_KEY' };
+    return { mode: 'live', provider: 'gemini', model: GEMINI.model,
+      live_steps: ['mastery_classify'], reason: 'đã cấu hình GEMINI_API_KEY' };
   }
   return {
     mode: 'mock',
     provider: null,
     model: null,
+    live_steps: [],
     reason: PROVIDER
       ? `AI_PROVIDER=${PROVIDER} nhưng thiếu API key trong biến môi trường`
       : 'chưa set AI_PROVIDER — đang chạy bản mock của CP2'
@@ -96,10 +127,16 @@ const SYSTEM_CLASSIFY = [
   '   có nội dung để đối chiếu, thì mastery_state = "insufficient". Không đoán.',
   '3. Nếu học viên dùng đúng thuật ngữ nhưng nêu sai quan hệ giữa các khái niệm,',
   '   thì mastery_state = "misconception". Tuyệt đối không gắn "understood".',
-  '4. gap chỉ nêu ĐÚNG MỘT lỗ hổng quan trọng nhất, viết cụ thể, không phán xét.',
-  '5. evidence_from_student phải trích lại chữ của học viên, không diễn giải thêm.',
-  '6. feedback tối đa 2 câu, nêu phần đúng trước rồi mới nêu chỗ lệch.',
-  '7. Không cho điểm số. Không dùng giọng phê bình.'
+  '4. Dùng rubric được cấp: đủ mọi ý đúng = understood; có ít nhất một nhưng',
+  '   chưa đủ = partial; không có ý đối chiếu được = insufficient.',
+  '5. Chỉ gắn misconception khi học viên KHẲNG ĐỊNH một quan hệ sai; thiếu ý',
+  '   không phải misconception. Không suy diễn quan hệ sai từ một câu đúng.',
+  '6. Ánh xạ bắt buộc: understood→continue; partial/misconception→reinforce;',
+  '   insufficient→clarify. gap phải null khi understood hoặc insufficient.',
+  '7. gap chỉ nêu ĐÚNG MỘT lỗ hổng quan trọng nhất, viết cụ thể, không phán xét.',
+  '8. evidence_from_student phải trích lại chữ của học viên, không diễn giải thêm.',
+  '9. feedback tối đa 2 câu, nêu phần đúng trước rồi mới nêu chỗ lệch.',
+  '10. Không cho điểm số. Không dùng giọng phê bình.'
 ].join('\n');
 
 const SYSTEM_QUESTION = [
@@ -122,9 +159,11 @@ function classifyUserPrompt(body) {
     `Đoạn học viên đang đọc: ${c.selected_text || ''}`,
     '',
     `Câu hỏi kiểm tra: ${body.question}`,
+    `Các ý đúng cần tìm: ${(body.rubric?.key_points || []).join(' | ')}`,
+    `Các quan hệ sai đã biết: ${(body.rubric?.misconceptions || []).join(' | ')}`,
     `Câu trả lời của học viên: ${body.student_answer}`,
     '',
-    'Phân loại mức hiểu theo schema.'
+    'Phân loại mức hiểu theo schema và rubric. Chấp nhận diễn đạt tương đương, không chỉ khớp từ khoá.'
   ].join('\n');
 }
 
@@ -145,45 +184,24 @@ function questionUserPrompt(body) {
 async function callAnthropic({ system, user, schema }) {
   const payload = {
     model: ANTHROPIC.model,
-    max_tokens: 4000,          // gồm cả thinking: Opus 5 bật thinking mặc định
+    max_tokens: 1200,
     system,
     messages: [{ role: 'user', content: user }],
     output_config: {
-      effort: 'low',           // classifier ngắn: ưu tiên độ trễ
+      effort: 'low',
       format: { type: 'json_schema', schema }
-    },
-    fallbacks: 'default'       // classifier bị từ chối thì vẫn có câu trả lời
+    }
   };
 
-  let res = await fetch(ANTHROPIC.url, {
+  const res = await fetch(ANTHROPIC.url, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
       'x-api-key': ANTHROPIC.key,
-      'anthropic-version': ANTHROPIC.version,
-      'anthropic-beta': 'server-side-fallback-2026-07-01'
+      'anthropic-version': ANTHROPIC.version
     },
     body: JSON.stringify(payload)
   });
-
-  // Org chưa bật beta fallbacks thì bỏ tham số đó và gọi lại, đừng để vỡ demo.
-  if (res.status === 400) {
-    const t = await res.text();
-    if (/fallback/i.test(t)) {
-      delete payload.fallbacks;
-      res = await fetch(ANTHROPIC.url, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'x-api-key': ANTHROPIC.key,
-          'anthropic-version': ANTHROPIC.version
-        },
-        body: JSON.stringify(payload)
-      });
-    } else {
-      throw new Error(`anthropic 400: ${t.slice(0, 300)}`);
-    }
-  }
 
   if (!res.ok) throw new Error(`anthropic ${res.status}: ${(await res.text()).slice(0, 300)}`);
 
@@ -200,23 +218,21 @@ async function callAnthropic({ system, user, schema }) {
 }
 
 async function callGemini({ system, user, schema }) {
-  /* LƯU Ý CHO CP3: shape dưới đây theo generateContent của Google AI Studio.
-   * Trước khi chốt, đối chiếu lại tài liệu AI Studio hiện hành — Google đổi tên
-   * trường khá thường xuyên. Nhắc lại luật của khoá: free tier có thể dùng dữ
-   * liệu để huấn luyện, nên chỉ gửi data giả hoặc data pack, không gửi dữ liệu
-   * thật của người thật.
-   */
-  const url = `${GEMINI.base}/${GEMINI.model}:generateContent?key=${encodeURIComponent(GEMINI.key)}`;
+  /* Shape đã đối chiếu tài liệu Google AI for Developers ngày 30/07/2026.
+   * Chỉ gửi data giả/trích ngắn trong prototype, không gửi dữ liệu định danh. */
+  const url = `${GEMINI.base}/${GEMINI.model}:generateContent`;
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: {
+      'content-type': 'application/json',
+      'x-goog-api-key': GEMINI.key
+    },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents: [{ role: 'user', parts: [{ text: user }] }],
       generationConfig: {
-        temperature: 0.2,
         responseMimeType: 'application/json',
-        responseSchema: toGeminiSchema(schema)
+        responseJsonSchema: schema
       }
     })
   });
@@ -227,19 +243,6 @@ async function callGemini({ system, user, schema }) {
   return { data: JSON.parse(text), model: GEMINI.model };
 }
 
-/** responseSchema của Gemini không nhận type dạng mảng — hạ ["string","null"] về "string". */
-function toGeminiSchema(schema) {
-  const clone = JSON.parse(JSON.stringify(schema));
-  const walk = (node) => {
-    if (!node || typeof node !== 'object') return;
-    if (Array.isArray(node.type)) node.type = node.type.find((t) => t !== 'null') || 'string';
-    delete node.additionalProperties;
-    if (node.properties) Object.values(node.properties).forEach(walk);
-  };
-  walk(clone);
-  return clone;
-}
-
 async function callProvider(args) {
   const st = providerState();
   if (st.mode !== 'live') {
@@ -248,6 +251,62 @@ async function callProvider(args) {
     throw err;
   }
   return st.provider === 'anthropic' ? callAnthropic(args) : callGemini(args);
+}
+
+const STATE_ACTION = {
+  understood: 'continue',
+  partial: 'reinforce',
+  misconception: 'reinforce',
+  insufficient: 'clarify'
+};
+
+/** Kiểm schema và bất biến nghiệp vụ trước khi đưa phán quyết AI lên UI. */
+export function validateVerdict(verdict) {
+  if (!verdict || typeof verdict !== 'object' || Array.isArray(verdict)) {
+    throw new Error('AI verdict không phải object');
+  }
+  const allowed = Object.keys(VERDICT_SCHEMA.properties);
+  const extra = Object.keys(verdict).filter((k) => !allowed.includes(k));
+  if (extra.length) throw new Error(`AI verdict có field ngoài schema: ${extra.join(', ')}`);
+
+  for (const key of VERDICT_SCHEMA.required) {
+    if (!(key in verdict)) throw new Error(`AI verdict thiếu field bắt buộc: ${key}`);
+  }
+  if (!(verdict.mastery_state in STATE_ACTION)) {
+    throw new Error(`AI verdict có mastery_state không hợp lệ: ${verdict.mastery_state}`);
+  }
+  if (!['high', 'medium', 'low'].includes(verdict.confidence)) {
+    throw new Error(`AI verdict có confidence không hợp lệ: ${verdict.confidence}`);
+  }
+  if (verdict.next_action !== STATE_ACTION[verdict.mastery_state]) {
+    throw new Error(`AI verdict vi phạm bất biến: ${verdict.mastery_state} phải đi với ${STATE_ACTION[verdict.mastery_state]}`);
+  }
+  for (const key of ['evidence_from_student', 'feedback', 'reason']) {
+    if (typeof verdict[key] !== 'string' || !verdict[key].trim()) {
+      throw new Error(`AI verdict có ${key} rỗng/không phải string`);
+    }
+  }
+  if (verdict.gap !== null && typeof verdict.gap !== 'string') {
+    throw new Error('AI verdict có gap không hợp lệ');
+  }
+  if (verdict.mastery_state === 'understood' && verdict.gap !== null) {
+    throw new Error('AI verdict understood nhưng vẫn có gap');
+  }
+  return verdict;
+}
+
+export async function classifyWithProvider(body) {
+  const t0 = Date.now();
+  const r = await callProvider({
+    system: SYSTEM_CLASSIFY,
+    user: classifyUserPrompt(body),
+    schema: VERDICT_SCHEMA
+  });
+  return {
+    verdict: validateVerdict(r.data),
+    model: r.model,
+    latency_ms: Date.now() - t0
+  };
 }
 
 /* ========================= HTTP ========================= */
@@ -325,12 +384,8 @@ const server = createServer(async (req, res) => {
         });
         return sendJson(res, 200, { question: r.data.question, model: r.model, latency_ms: Date.now() - t0 });
       }
-      const r = await callProvider({
-        system: SYSTEM_CLASSIFY,
-        user: classifyUserPrompt(body),
-        schema: VERDICT_SCHEMA
-      });
-      return sendJson(res, 200, { verdict: r.data, model: r.model, latency_ms: Date.now() - t0 });
+      const r = await classifyWithProvider(body);
+      return sendJson(res, 200, r);
     } catch (e) {
       const code = e.statusCode || 502;
       // Trả lỗi rõ ràng để front-end ghi vào trace là đã fallback về mock.
@@ -344,8 +399,14 @@ const server = createServer(async (req, res) => {
   return serveStatic(req, res, p);
 });
 
-server.listen(PORT, () => {
-  const st = providerState();
-  console.log(`VLearn prototype → http://localhost:${PORT}`);
-  console.log(`Chế độ AI: ${st.mode}${st.provider ? ' · ' + st.provider + ' · ' + st.model : ''} — ${st.reason}`);
-});
+// Import từ eval runner không được tự mở port; chỉ listen khi chạy trực tiếp.
+const IS_MAIN = process.argv[1] &&
+  normalize(fileURLToPath(import.meta.url)) === normalize(resolve(process.argv[1]));
+
+if (IS_MAIN) {
+  server.listen(PORT, () => {
+    const st = providerState();
+    console.log(`VLearn prototype → http://localhost:${PORT}`);
+    console.log(`Chế độ AI: ${st.mode}${st.provider ? ' · ' + st.provider + ' · ' + st.model : ''} — ${st.reason}`);
+  });
+}

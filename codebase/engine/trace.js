@@ -60,7 +60,7 @@ window.Trace = (function () {
   function download() {
     var doc = {
       product: 'VLearn Hieu Dung Hieu That',
-      checkpoint: 'CP2',
+      checkpoint: entries.some(function (e) { return e.mode === 'live'; }) ? 'CP3' : 'CP2',
       exported_at: new Date().toISOString(),
       entry_count: entries.length,
       entries: entries

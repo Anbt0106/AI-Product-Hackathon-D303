@@ -1,94 +1,79 @@
 # codebase — VLearn Hiểu Đúng, Hiểu Thật
 
-Prototype của lát cắt: **học viên vừa được giải thích một khái niệm từ đoạn slide đã qua Grounding Gate → AI đánh giá câu teach-back → một bước củng cố có nguồn.**
+Prototype mức **Mock có AI thật ở lõi**: flow bấm end-to-end bằng data giả; lời gọi AI thật duy nhất nằm ở **Mastery Classifier**, quyết định `understood / partial / misconception / insufficient`. Tutor và bank câu hỏi là mock có ghi rõ.
 
-Mức prototype hiện tại: **Mock** — flow bấm hết được, data giả, **chưa có lời gọi AI thật**. Lời gọi AI thật là việc của CP3; mối hàn đã dựng sẵn (xem §4).
+## Chạy
 
-## 1. Chạy
+Mock, không cần key:
 
-Hai cách, không cần cài gì:
-
-```bash
-# Cách A — mở trực tiếp, không cần Node
-#   double-click codebase/index.html   (luôn chạy chế độ mock)
-
-# Cách B — có server (cần Node >= 18)
-node server.mjs                 # → http://localhost:5173
+```powershell
+node server.mjs
+# mở http://localhost:5173
 ```
 
-Chạy test logic không cần browser:
+CP3 live bằng file môi trường:
 
-```bash
-node test/smoke.mjs             # 39 case: gate, 4 trạng thái mastery, scope guard, trace
+```powershell
+Copy-Item .env.example .env
+# Mở codebase/.env, điền GEMINI_API_KEY rồi lưu
+.\\start.ps1
 ```
 
-Badge góc phải màn hình luôn nói thật đang ở chế độ nào: `CP2 · Mock — chưa gọi AI` hoặc `CP3 · AI thật (<model>)`.
+`codebase/.env` đã bị Git bỏ qua; chỉ `.env.example` được commit. Có thể đổi sang Anthropic theo các dòng hướng dẫn trong file mẫu.
 
-## 2. Cấu trúc
+Badge phải nói đúng mode: `CP2 · Mock — chưa gọi AI` hoặc `CP3 · AI thật ở Mastery (<model>)`.
 
-| File | Trách nhiệm | Thành phần trong spec §8 |
-|---|---|---|
-| `index.html` · `app.css` | vỏ UI | — |
-| `app.js` | Session State + máy trạng thái + render | §8.6 |
-| `data/slides.js` | data giả: đoạn slide, câu trả lời Tutor, bank Micro-Check | — |
-| `engine/text.js` | chuẩn hoá tiếng Việt, khớp theo ranh giới từ | — |
-| `engine/context.js` | Slide Context Provider | §8.1 |
-| `engine/grounding-gate.js` | Grounding Gate | §8.2 |
-| `engine/question.js` | Question Generator | §8.3 |
-| `engine/mastery.js` | **Mastery Classifier — quyết định AI trung tâm** | §8.4 |
-| `engine/feedback.js` | Feedback Composer | §8.5 |
-| `engine/trace.js` | Trace Logger | §8.7 |
-| `engine/scope-guard.js` | chặn ngoài phạm vi + prompt injection | *chưa có trong spec — phải bổ sung trước CP4* |
-| `engine/ai-client.js` | điểm nối AI (mock ↔ live) | — |
-| `server.mjs` | server tĩnh + `/api/*` | — |
+## Đường demo chính
 
-## 3. Phần nào thật, phần nào mock
+1. Chọn tài liệu/trang/đoạn.
+2. Hỏi Tutor; Tutor mock trả lời có citation.
+3. Grounding Gate pass/review/block.
+4. Bấm `Kiểm tra tôi · 30 giây`.
+5. Trả lời teach-back một câu.
+6. `POST /api/classify` gọi AI thật nếu có credential; server validate structured output và bất biến.
+7. Xem state + một bước củng cố; có thể trả lời lại/không đồng ý.
+8. Mở Trace để xem `mode`, model, latency, input/output và tải JSON.
 
-**Chạy thật ở CP2:**
-- chọn tài liệu / trang / bôi đen đoạn
-- Grounding Gate với 3 trạng thái `pass` / `review` / `block`
-- chặn câu hỏi ngoài phạm vi và prompt injection
-- sinh câu Micro-Check từ bank, đếm 30 giây
-- phân loại 4 trạng thái hiểu bằng **luật** (`rule-based-baseline-v1`)
-- một bước củng cố + trích dẫn nguồn
-- đường lui: bỏ qua, hỏi lại, trả lời lại, "Tôi không đồng ý"
-- trace log đầy đủ, tải được `.json`
+Kịch bản từng phút: `../DEMO-5-PHUT.md`.
 
-**Mock (ghi rõ, không giả vờ):**
-- câu trả lời của Tutor là văn bản viết sẵn theo từng trang, không sinh động
-- phân loại mức hiểu là luật khớp từ khoá, **không phải AI**
-- đăng nhập, danh sách khoá, đồng bộ VLearn production, tiến độ dài hạn, analytics lớp
+## Phần thật / mock
 
-## 4. Nối AI ở CP3 — cần làm gì
+| Phần | Trạng thái |
+|---|---|
+| UI flow, Gate, Scope Guard, trace, schema validator | Chạy thật |
+| Mastery Classifier | AI thật khi badge live; fallback rule có trace |
+| Tutor answer | Mock viết sẵn theo trang |
+| Micro-Check question | Mock từ bank đã duyệt |
+| Tài liệu, đăng nhập, tiến độ dài hạn | Mock/không build |
 
-Toàn bộ mối hàn nằm ở `engine/ai-client.js` (phía client) và `server.mjs` (phía server). Khoá API **chỉ ở server**, trang web không bao giờ giữ khoá.
+## Test và eval
 
-```bash
-# Claude
-AI_PROVIDER=anthropic ANTHROPIC_API_KEY=... node server.mjs
-
-# Gemini (free tier theo 02-guide.md §3.4)
-AI_PROVIDER=gemini GEMINI_API_KEY=... node server.mjs
+```powershell
+node test/smoke.mjs
+cd ..
+node eval/run-eval.mjs --mode baseline
+# Sau khi đã điền codebase/.env
+node eval/run-eval.mjs --mode live
 ```
 
-Khi đã cấu hình, `/api/health` trả `mode: "live"`, badge đổi, và `ai-client.js` gọi `/api/question` + `/api/classify` thay cho bản mock.
+Runner live chỉ chạy khi `/providerState` là live và sẽ ghi mọi output vào `eval/results/`, trace vào `eval/traces/`. Không có key thì thoát với lỗi, không sinh “live trace” giả.
 
-Hai điều đã chốt sẵn để CP3 không phải sửa lại:
-1. **Schema đầu ra** (`VERDICT_SCHEMA` trong `server.mjs`) khớp đúng spec §7.3, và được **ép bằng structured output** ở cả hai provider — eval không phải parse văn bản tự do.
-2. **Bản mock là baseline**: khi AI thật chạy, cùng một golden set chấm được hai lượt (luật vs AI) để biết AI thêm giá trị ở đâu. Nếu API lỗi giữa demo, `ai-client.js` tự lùi về mock và **ghi vào trace là đã fallback** — không im lặng.
+## Cấu trúc
 
-Việc còn lại của CP3: đối chiếu shape `generateContent` của Gemini với tài liệu AI Studio hiện hành (có ghi chú trong `server.mjs`), và xây golden set trong `eval/`.
+- `app.js`: session state + render + 8 scenario demo.
+- `data/slides.js`: data giả/trích ngắn, Tutor mock, bank Micro-Check.
+- `engine/context.js`: context tối thiểu.
+- `engine/grounding-gate.js`: Gate pass/review/block.
+- `engine/scope-guard.js`: chặn ngoài phạm vi/injection.
+- `engine/question.js`: câu hỏi mock ổn định.
+- `engine/mastery.js`: baseline rule/fallback.
+- `engine/ai-client.js`: gọi live classifier và log fallback.
+- `engine/trace.js`: trace, tự che field nhạy cảm.
+- `server.mjs`: giữ key phía server, gọi Gemini/Anthropic structured output, validate verdict.
 
-## 5. Luật an toàn đang được tuân thủ
+## An toàn
 
-- Không có API key trong repo; khoá đọc từ biến môi trường.
-- Trace tự động che mọi trường tên có `key|token|secret|authorization|password`.
-- Không commit data pack. `data/slides.js` chỉ chứa **trích ngắn** kèm mã đoạn `[Txx-NNN]`.
-- Server chặn path traversal, chỉ serve trong thư mục `codebase/`.
-- Không dùng font/CSS/JS từ mạng — mở bằng `file://` vẫn chạy đủ.
-
-## 6. Đã biết chưa xử lý
-
-- Bank Micro-Check chỉ phủ 8 trang; trang ngoài bank thì báo rõ "chưa có câu Micro-Check" thay vì sinh bừa.
-- Bản mock khớp từ khoá nên bỏ sót cách diễn đạt lạ — đây chính là chỗ AI thật ở CP3 phải hơn baseline, và là con số nhóm sẽ đo.
-- Không có bộ nhớ dài hạn: reload trang là mất phiên (đúng phạm vi khai ở spec §10).
+- Không hardcode/commit API key hoặc `.env`.
+- Chỉ gửi đoạn context tối thiểu; prototype dùng data giả/trích ngắn.
+- Trace che field có `key|token|secret|authorization|password`.
+- `insufficient` không được `continue`; `understood` phải không có gap; mọi verdict gắn source page từ context.
