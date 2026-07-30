@@ -5,3 +5,5 @@ node_modules/
 .env.*
 # khoá API của CP3 chỉ nằm ở biến môi trường — không bao giờ trong repo
 secrets.json
+!.env.example
+!**/.env.example
