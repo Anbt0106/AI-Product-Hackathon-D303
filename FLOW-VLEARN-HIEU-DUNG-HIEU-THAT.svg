@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="2200" viewBox="0 0 1800 2200">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#64748b"/>
+    </marker>
+    <style>
+      .title { font: 700 48px "Segoe UI", Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 25px "Segoe UI", Arial, sans-serif; fill: #475569; }
+      .node-title { font: 700 27px "Segoe UI", Arial, sans-serif; fill: #0f172a; }
+      .node-text { font: 400 23px "Segoe UI", Arial, sans-serif; fill: #334155; }
+      .small { font: 600 20px "Segoe UI", Arial, sans-serif; fill: #475569; letter-spacing: 0.5px; }
+      .branch { font: 700 21px "Segoe UI", Arial, sans-serif; fill: #334155; }
+      .edge { fill: none; stroke: #64748b; stroke-width: 4; marker-end: url(#arrow); }
+      .edge-dashed { fill: none; stroke: #94a3b8; stroke-width: 3; stroke-dasharray: 9 8; marker-end: url(#arrow); }
+      .user { fill: #dbeafe; stroke: #3b82f6; stroke-width: 3; }
+      .system { fill: #dcfce7; stroke: #22c55e; stroke-width: 3; }
+      .decision { fill: #fef3c7; stroke: #f59e0b; stroke-width: 3; }
+      .mastery { fill: #ede9fe; stroke: #8b5cf6; stroke-width: 3; }
+      .warning { fill: #ffedd5; stroke: #f97316; stroke-width: 3; }
+      .neutral { fill: #f1f5f9; stroke: #94a3b8; stroke-width: 3; }
+      .end { fill: #ccfbf1; stroke: #14b8a6; stroke-width: 3; }
+    </style>
+  </defs>
+
+  <rect width="1800" height="2200" fill="#f8fafc"/>
+  <text x="900" y="68" text-anchor="middle" class="title">FLOW — VLEARN HIỂU ĐÚNG, HIỂU THẬT</text>
+  <text x="900" y="108" text-anchor="middle" class="subtitle">Bấm gì · Gõ gì · Ra gì</text>
+
+  <!-- Connectors are drawn before nodes -->
+  <path class="edge" d="M900 205 L900 250"/>
+  <path class="edge" d="M900 350 L900 395"/>
+  <path class="edge" d="M900 495 L900 535"/>
+  <path class="edge" d="M900 645 L900 690"/>
+  <path class="edge" d="M900 790 L900 835"/>
+  <path class="edge" d="M900 945 L900 990"/>
+  <path class="edge" d="M900 1090 L900 1135"/>
+  <path class="edge" d="M900 1235 L900 1280"/>
+  <path class="edge" d="M900 1380 L900 1425"/>
+
+  <!-- Scope guard branch -->
+  <path class="edge" d="M1080 590 L1230 590"/>
+  <text x="1148" y="568" text-anchor="middle" class="branch">Ngoài phạm vi</text>
+
+  <!-- Grounding branches -->
+  <path class="edge" d="M1080 890 L1230 890"/>
+  <text x="1152" y="868" text-anchor="middle" class="branch">Thiếu nguồn</text>
+  <path class="edge" d="M720 890 L570 890"/>
+  <text x="645" y="868" text-anchor="middle" class="branch">Cite trang khác</text>
+
+  <!-- Check choice branch -->
+  <path class="edge" d="M1080 1040 L1230 1040"/>
+  <text x="1150" y="1018" text-anchor="middle" class="branch">Bỏ qua</text>
+
+  <!-- Mastery fan-out -->
+  <path class="edge" d="M900 1535 L900 1585 L225 1585 L225 1640"/>
+  <path class="edge" d="M900 1535 L900 1585 L675 1585 L675 1640"/>
+  <path class="edge" d="M900 1535 L900 1585 L1125 1585 L1125 1640"/>
+  <path class="edge" d="M900 1535 L900 1585 L1575 1585 L1575 1640"/>
+
+  <!-- States to actions -->
+  <path class="edge" d="M225 1760 L225 1810 L900 1810 L900 1845"/>
+  <path class="edge" d="M675 1760 L675 1810 L900 1810 L900 1845"/>
+  <path class="edge" d="M1125 1760 L1125 1810 L900 1810 L900 1845"/>
+  <path class="edge" d="M1575 1760 L1575 1810 L900 1810 L900 1845"/>
+
+  <!-- Action branches -->
+  <path class="edge" d="M900 1955 L900 2020"/>
+  <path class="edge" d="M1160 1900 L1320 1900"/>
+  <text x="1235" y="1878" text-anchor="middle" class="branch">Không đồng ý / trả lời lại</text>
+  <path class="edge-dashed" d="M1515 1850 L1660 1850 L1660 1330 L1120 1330"/>
+
+  <!-- Start -->
+  <rect x="745" y="135" rx="35" ry="35" width="310" height="70" class="end" filter="url(#shadow)"/>
+  <text x="900" y="180" text-anchor="middle" class="node-title">Bắt đầu học</text>
+
+  <!-- Select -->
+  <rect x="650" y="250" rx="20" ry="20" width="500" height="100" class="user" filter="url(#shadow)"/>
+  <text x="900" y="287" text-anchor="middle" class="small">BẤM</text>
+  <text x="900" y="322" text-anchor="middle" class="node-title">Chọn tài liệu, trang và đoạn chưa hiểu</text>
+
+  <!-- Ask -->
+  <rect x="650" y="395" rx="20" ry="20" width="500" height="100" class="user" filter="url(#shadow)"/>
+  <text x="900" y="432" text-anchor="middle" class="small">GÕ + BẤM</text>
+  <text x="900" y="468" text-anchor="middle" class="node-title">Nhập câu hỏi → “Hỏi”</text>
+
+  <!-- Scope decision -->
+  <polygon points="900,535 1080,590 900,645 720,590" class="decision" filter="url(#shadow)"/>
+  <text x="900" y="580" text-anchor="middle" class="node-title">Câu hỏi hợp lệ?</text>
+  <text x="900" y="612" text-anchor="middle" class="node-text">Đúng phạm vi bài học</text>
+
+  <rect x="1230" y="535" rx="20" ry="20" width="470" height="110" class="warning" filter="url(#shadow)"/>
+  <text x="1465" y="575" text-anchor="middle" class="small">RA</text>
+  <text x="1465" y="610" text-anchor="middle" class="node-title">Từ chối ngắn, hướng dẫn hỏi lại</text>
+
+  <!-- Tutor -->
+  <rect x="650" y="690" rx="20" ry="20" width="500" height="100" class="system" filter="url(#shadow)"/>
+  <text x="900" y="727" text-anchor="middle" class="small">RA</text>
+  <text x="900" y="762" text-anchor="middle" class="node-title">Tutor giải thích + citation</text>
+
+  <!-- Grounding decision -->
+  <polygon points="900,835 1080,890 900,945 720,890" class="decision" filter="url(#shadow)"/>
+  <text x="900" y="880" text-anchor="middle" class="node-title">Nguồn đủ và phù hợp?</text>
+  <text x="900" y="912" text-anchor="middle" class="node-text">Grounding Gate</text>
+
+  <rect x="1230" y="835" rx="20" ry="20" width="470" height="110" class="warning" filter="url(#shadow)"/>
+  <text x="1465" y="875" text-anchor="middle" class="small">RA</text>
+  <text x="1465" y="910" text-anchor="middle" class="node-title">Chọn lại đoạn hoặc hỏi lại</text>
+
+  <rect x="80" y="825" rx="20" ry="20" width="490" height="130" class="warning" filter="url(#shadow)"/>
+  <text x="325" y="864" text-anchor="middle" class="small">BẤM</text>
+  <text x="325" y="900" text-anchor="middle" class="node-title">Mở trang đối chiếu</text>
+  <text x="325" y="932" text-anchor="middle" class="node-text">hoặc xác nhận dùng trang đang đọc</text>
+
+  <!-- Offer -->
+  <rect x="650" y="990" rx="20" ry="20" width="500" height="100" class="system" filter="url(#shadow)"/>
+  <text x="900" y="1027" text-anchor="middle" class="small">RA</text>
+  <text x="900" y="1062" text-anchor="middle" class="node-title">“Kiểm tra tôi · 30 giây”</text>
+
+  <!-- Choice -->
+  <polygon points="900,1135 1080,1185 900,1235 720,1185" class="decision" filter="url(#shadow)"/>
+  <text x="900" y="1177" text-anchor="middle" class="node-title">Muốn kiểm tra?</text>
+  <text x="900" y="1208" text-anchor="middle" class="node-text">Không bắt buộc</text>
+
+  <rect x="1230" y="1130" rx="20" ry="20" width="470" height="110" class="end" filter="url(#shadow)"/>
+  <text x="1465" y="1170" text-anchor="middle" class="small">BẤM “BỎ QUA”</text>
+  <text x="1465" y="1206" text-anchor="middle" class="node-title">Tiếp tục học</text>
+
+  <!-- Question -->
+  <rect x="650" y="1280" rx="20" ry="20" width="500" height="100" class="mastery" filter="url(#shadow)"/>
+  <text x="900" y="1317" text-anchor="middle" class="small">RA</text>
+  <text x="900" y="1352" text-anchor="middle" class="node-title">Một câu hỏi teach-back</text>
+
+  <!-- Answer -->
+  <rect x="650" y="1425" rx="20" ry="20" width="500" height="100" class="user" filter="url(#shadow)"/>
+  <text x="900" y="1462" text-anchor="middle" class="small">GÕ + BẤM</text>
+  <text x="900" y="1497" text-anchor="middle" class="node-title">Trả lời một câu → “Gửi câu trả lời”</text>
+
+  <!-- Mastery decision -->
+  <polygon points="900,1545 1080,1600 900,1655 720,1600" class="decision" filter="url(#shadow)"/>
+  <text x="900" y="1590" text-anchor="middle" class="node-title">Học viên đang hiểu đến đâu?</text>
+  <text x="900" y="1622" text-anchor="middle" class="node-text">Một mastery decision</text>
+
+  <!-- State nodes -->
+  <rect x="45" y="1640" rx="18" ry="18" width="360" height="120" class="mastery" filter="url(#shadow)"/>
+  <text x="225" y="1680" text-anchor="middle" class="small">RA</text>
+  <text x="225" y="1715" text-anchor="middle" class="node-title">Đã nắm</text>
+  <text x="225" y="1745" text-anchor="middle" class="node-text">Xác nhận phần đã hiểu đúng</text>
+
+  <rect x="495" y="1640" rx="18" ry="18" width="360" height="120" class="mastery" filter="url(#shadow)"/>
+  <text x="675" y="1680" text-anchor="middle" class="small">RA</text>
+  <text x="675" y="1715" text-anchor="middle" class="node-title">Cần củng cố</text>
+  <text x="675" y="1745" text-anchor="middle" class="node-text">Nêu đúng một ý còn thiếu</text>
+
+  <rect x="945" y="1640" rx="18" ry="18" width="360" height="120" class="mastery" filter="url(#shadow)"/>
+  <text x="1125" y="1680" text-anchor="middle" class="small">RA</text>
+  <text x="1125" y="1715" text-anchor="middle" class="node-title">Có thể đang nhầm</text>
+  <text x="1125" y="1745" text-anchor="middle" class="node-text">Sửa một lỗ hổng có nguồn</text>
+
+  <rect x="1395" y="1640" rx="18" ry="18" width="360" height="120" class="mastery" filter="url(#shadow)"/>
+  <text x="1575" y="1680" text-anchor="middle" class="small">RA</text>
+  <text x="1575" y="1715" text-anchor="middle" class="node-title">Chưa đủ căn cứ</text>
+  <text x="1575" y="1745" text-anchor="middle" class="node-text">Yêu cầu trả lời rõ hơn</text>
+
+  <!-- Actions -->
+  <rect x="640" y="1845" rx="20" ry="20" width="520" height="110" class="user" filter="url(#shadow)"/>
+  <text x="900" y="1885" text-anchor="middle" class="small">HỌC VIÊN CHỌN</text>
+  <text x="900" y="1920" text-anchor="middle" class="node-title">Học tiếp · Trả lời lại · Không đồng ý</text>
+
+  <rect x="1320" y="1840" rx="20" ry="20" width="390" height="120" class="warning" filter="url(#shadow)"/>
+  <text x="1515" y="1880" text-anchor="middle" class="small">CORRECTION</text>
+  <text x="1515" y="1915" text-anchor="middle" class="node-title">Hiện căn cứ đã dùng</text>
+  <text x="1515" y="1945" text-anchor="middle" class="node-text">Bỏ kết quả cũ, đánh giá lại</text>
+
+  <rect x="730" y="2020" rx="35" ry="35" width="340" height="80" class="end" filter="url(#shadow)"/>
+  <text x="900" y="2070" text-anchor="middle" class="node-title">Tiếp tục học</text>
+
+  <!-- Footer -->
+  <line x1="80" y1="2140" x2="1720" y2="2140" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="80" y="2180" class="subtitle">Mọi bước đều được ghi vào Trace; CP2 dùng mock/rule-based, CP3 có thể gọi AI thật.</text>
+</svg>
