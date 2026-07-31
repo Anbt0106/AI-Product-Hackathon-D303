@@ -1,5 +1,14 @@
 # Mini Hackathon AI — Batch 03
 
+## Thành viên & phân công
+
+| Mã HV | Thành viên | Phân công chính |
+|---|---|---|
+| 2A202601883 | Bùi Thọ An | Spec, evidence & product: phương pháp mining, impact, problem framing và bảo vệ quyết định lát cắt. |
+| 2A202601127 | Lê Tuấn Cảnh | Code & prototype/UI: flow end-to-end, Tutor/Gate/Scope, correction UI, trace và live demo. |
+| 2A202601279 | Phạm Nguyễn Hùng Nguyên | Prompt, AI & eval: context, classifier, golden set, runner, quality bar và phân tích failure. |
+| 2A202601813 | Nguyễn Văn Tuấn Anh | Validation & demo: mời người thử, điều phối task, ghi feedback nguyên văn, tổng hợp CP5 và dry run. |
+
 ## Bài của nhóm D303 
 
 - Thời lượng: **1,5 ngày** (một ngày build + một buổi demo)
