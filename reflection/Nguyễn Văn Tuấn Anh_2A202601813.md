@@ -5,35 +5,27 @@
 
 ## Phần tôi phụ trách
 
-Tôi phụ trách chuẩn bị vòng kiểm tra với người dùng và biến chuỗi quyết định của nhóm thành câu chuyện demo 5 phút. Phần việc gồm:
+Tôi phụ trách phần validation với người ngoài nhóm và phần kể lại kết quả đó trong demo. Công việc chính của tôi là chuẩn bị task test, ghi nhận phản hồi nguyên văn, tổng hợp theme lặp lại, cập nhật phần CP5 và phối hợp kịch bản demo 5 phút.
 
-- kịch bản user test 10 phút trong `validation/test-script.md`;
-- cấu trúc feedback log và quy tắc severity;
-- mẫu tổng hợp theme, thay đổi, phần giữ nguyên và backlog;
-- run of show, phân vai và biên bản bấm giờ trong `validation/dry-run.md`;
-- deck sáu slide và kịch bản demo một case chuẩn, một case khó.
+Artifact tôi chịu trách nhiệm chính gồm `validation/feedback-log.md`, `validation/summary.md`, `validation/dry-run.md`, phần user thật trên slide 5 và đoạn cuối demo về việc nhóm đã sửa gì từ feedback.
 
-Tôi phải bảo đảm slide, lời nói và artifact dùng cùng một số liệu: evidence 573/1.252, quality bar 85%, lượt live 17/24 và lượt chính thức 24/24.
+Kết quả CP5 hiện tại có 5 người ngoài nhóm thử prototype. Trong đó 4/5 tự hoàn thành flow không cần trợ giúp, 5/5 tin hoặc khá tin kết quả sau khi xem căn cứ, và 5/5 nói sẽ dùng thật. Hai quote tôi chọn đưa vào demo là của Huy: “Mình không rõ Partial khác Misconception ở mức nào.” và Lan: “Mình tưởng cuộc hội thoại kết thúc sau khi AI trả lời.”
 
 ## AI đã hỗ trợ tôi như thế nào
 
-AI hỗ trợ dựng cấu trúc script, checklist, deck và rà soát tính nhất quán giữa slide với `spec.md`, `eval/results/` và `eval/traces/`. Tôi phải tự kiểm thời lượng, thao tác bấm thực tế, câu chữ người điều phối và việc mỗi claim trên slide có bằng chứng trong repo.
+AI hỗ trợ tôi biến dữ liệu thô từ user test thành feedback log có cấu trúc: tên/vai trò, task đã làm, quan sát hành vi, quote nguyên văn, willingness và severity. AI cũng giúp rà lại sự nhất quán giữa `validation/`, `spec.md`, bản nháp nộp CP5 và kịch bản slide để các con số không bị lệch nhau.
 
-AI không thể thay nhóm đi phỏng vấn người thật. Vì vậy tôi không sử dụng tên, quote hoặc kết quả validation do AI tạo ra.
+Tôi không dùng AI để bịa tên, quote hoặc kết quả validation. Phần dữ liệu người dùng được ghi theo thông tin nhóm đã cung cấp, còn AI chỉ hỗ trợ chuẩn hoá cách trình bày và kiểm tra xem claim nào cần có bằng chứng trong repo.
 
 ## Case fail và bài học
 
-Case fail của phần tôi phụ trách là **CP5 hiện chưa có 5 user test thật**. Feedback log và slide 5 vẫn là scaffold; chúng không được tính là bằng chứng validation. Nếu đưa placeholder hoặc lời nhận xét tự nghĩ vào deck, bản trình bày có thể trông hoàn chỉnh nhưng vi phạm nguyên tắc “không có bằng chứng thì không có slide”.
+Case fail quan trọng nhất ở phần tôi phụ trách là Lan không tự tìm thấy nút “Kiểm tra tôi”. Bạn ấy dừng khoảng 18 giây sau khi Tutor trả lời và tưởng cuộc hội thoại đã kết thúc. Điều này cho thấy flow CP2 tuy đã bấm đi hết được, nhưng affordance của bước Micro-Check chưa đủ rõ với người mới.
 
-Tôi chọn giữ trạng thái `0/5` và ghi rõ blocker thay vì làm đẹp số liệu. Bài học là **chuẩn bị biểu mẫu không đồng nghĩa đã validate**. Validation chỉ tồn tại khi có người ngoài nhóm tự làm task, có quan sát hành vi, quote nguyên văn, tên/vai và quyết định thiết kế dựa trên feedback.
+Một điểm yếu khác là 3/5 người cần kết quả mastery ngắn và rõ hơn. Minh muốn biết thẳng mình sai ở đâu, Huy chưa phân biệt `partial` với `misconception`, còn Phương chưa hiểu `insufficient` là do trả lời quá ngắn hay do sai. Từ đó nhóm đã làm nổi bật CTA “Kiểm tra tôi”, thêm câu dẫn sau câu trả lời Tutor, và bổ sung định nghĩa ngắn cho từng trạng thái verdict.
+
+Bài học của tôi là validation không chỉ để lấy vài câu khen cho slide. Giá trị thật nằm ở chỗ quan sát người dùng mắc ở đâu, chọn một lỗi đáng sửa nhất, rồi chứng minh thay đổi đó bằng Changelog và code.
 
 ## Nếu làm tiếp
 
-Tôi sẽ mời ít nhất năm người ngoài nhóm, ưu tiên willing users; giao đúng một task rồi im lặng quan sát. Sau đó tôi hỏi đúng ba câu bắt buộc, tổng hợp theme lặp lại, chọn một thay đổi làm trước demo và chạy rehearsal có bấm giờ với cả nhóm.
+Nếu có thêm thời gian, tôi sẽ chạy vòng validation thứ hai sau khi sửa CTA để đo lại tỷ lệ tự tìm thấy nút “Kiểm tra tôi” và tỷ lệ hiểu bốn trạng thái mastery. Tôi cũng sẽ rút gọn kịch bản demo vì dry run hiện tại là 5 phút 08 giây, vượt 8 giây so với giới hạn. Mục tiêu tiếp theo là demo lại dưới 5 phút nhưng vẫn giữ đủ một happy path, một hard case và phần trace chứng minh AI đang chạy live.
 
-## Tôi phải tự giải thích được khi bị hỏi
-
-1. Vì sao slide 5 chưa được coi là hoàn tất?
-2. Một dòng feedback hợp lệ phải có những trường nào?
-3. Vì sao người điều phối phải im lặng khi user làm task?
-4. Demo case khó chứng minh điều gì mà happy path không chứng minh được?

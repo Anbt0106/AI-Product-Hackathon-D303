@@ -35,9 +35,3 @@ Bài học của tôi là **prompt tốt không thay thế validator và eval**.
 
 Tôi sẽ mở rộng golden set bằng câu cụt, typo, trộn Anh–Việt và domain mới; đồng thời đo calibration giữa confidence, độ đúng thực tế và mức tin của người dùng.
 
-## Tôi phải tự giải thích được khi bị hỏi
-
-1. Vì sao quyết định mastery cần AI nhưng Gate và Scope Guard dùng luật?
-2. Vì sao `insufficient` không bao giờ được đi với `continue`?
-3. 17/24 khác 24/24 ở đâu, và nhóm đã sửa gì?
-4. Vì sao 24/24 không đồng nghĩa sản phẩm chính xác 100%?
